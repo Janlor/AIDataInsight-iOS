@@ -61,5 +61,4 @@ User Input → AI Parsing → Query Intent → Data Query → Chart Rendering
 ## ⚠️ Note
 
 * 数据为 Mock 数据（无真实业务依赖）
-* 项目用于展示 AI 应用架构设计思路
-* 该项目为本人做过的真实AI需求脱敏后开源，正在逐步完善中。
+* 该项目基于真实业务场景抽象而来，用于展示 AI 数据查询的架构设计与交互实现。
