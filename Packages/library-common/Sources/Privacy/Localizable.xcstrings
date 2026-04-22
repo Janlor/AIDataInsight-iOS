@@ -1,0 +1,138 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "《隐私政策》" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "'Privacy Policy'"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "《隐私政策》"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "《隱私政策》"
+          }
+        }
+      }
+    },
+    "PrivacyPolicyContent" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dear user, in order to better protect your personal information and privacy, please read and fully understand the relevant user agreements and privacy policies. Please pay attention to:\n1. Granting camera access permission, used for scanning QR codes and accessing your camera when selecting attachments to take photos.\n2. Granting photo library access permission, used for accessing your photo library when selecting photo attachments.\n3. Granting photo library write permission, used for adding photos to your photo library when selecting photo attachments.\n4. Granting location access permission, used for adding location information watermarks to photos when taking pictures.\n5. Our products integrate the Jiguang Push SDK, which requires collecting your device hardware, operating system, and network information to ensure the compatibility and accurate identification of the service on different devices, and to understand the delivery of push information."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "亲爱的用户，为了更好地保护您的个人信息和隐私，请认真阅读并充分理解相关用户协议及隐私政策，请您着重关注：\n1、开启相机访问权限，用于扫描二维码、选取附件拍照时访问您的相机。\n2、开启相册读取权限，用于选取照片附件时访问您的相册。\n3、开启相册写入权限，用于选取照片附件时向您的相册添加照片。\n4、开启位置权限，用于在拍照时为照片添加位置信息水印。\n5、我们的产品集成了极光推送SDK，需要收集您的设备硬件、操作系统及网络信息，以保证服务在不同设备上的兼容性和准确识别，同时了解推送信息送达的情况。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "親愛的用戶，為了更好地保護您的個人信息和隱私，請認真閱讀並充分理解相關用戶協議及隱私政策，請您著重關注：\n1、開啟相機訪問權限，用於掃描二維碼、選取附件拍照時訪問您的相機。\n2、開啟相冊讀取權限，用於選取照片附件時訪問您的相冊。\n3、開啟相冊寫入權限，用於選取照片附件時向您的相冊添加照片。\n4、開啟位置權限，用於在拍照時為照片添加位置信息水印。\n5、我們的產品整合了極光推送SDK，需要收集您的裝置硬體、作業系統及網路訊息，以確保服務在不同裝置上的相容性和準確識別，同時了解推播訊息送達的情況。"
+          }
+        }
+      }
+    },
+    "PrivacyPolicyMessage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can read the complete 'Privacy Policy' for detailed information.\nIf you agree, please click Agree to start accepting our services."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您可以阅读完整版《隐私政策》来了解详细信息。\n如您同意，请点击同意开始接受我们的服务吧。"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "您可以閱讀完整版《隱私政策》來了解詳細信息。\n如您同意，請點擊同意開始接受我們的服務吧。"
+          }
+        }
+      }
+    },
+    "取消" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "取消"
+          }
+        }
+      }
+    },
+    "同意并继续" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Agree"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同意并继续"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "同意並繼續"
+          }
+        }
+      }
+    },
+    "欢迎使用AI数据分析助手" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to AI Data Insight"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "欢迎使用AI数据分析助手"
+          }
+        },
+        "zh-Hant" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "歡迎使用AI數據分析助手"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

@@ -1,0 +1,17 @@
+//
+//  Common.xcconfig
+//  AIDataInsight
+//
+//  Created by Janlor on 2024/5/22.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+//* 版本号 */
+/// build
+CURRENT_PROJECT_VERSION = 1
+/// version
+MARKETING_VERSION = 1.0
+
+SWIFT_VERSION = 5.6

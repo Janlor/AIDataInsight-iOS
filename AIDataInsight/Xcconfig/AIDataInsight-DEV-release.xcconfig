@@ -1,0 +1,22 @@
+//
+//  AIDataInsight-DEV-release.xcconfig
+//  AIDataInsight
+//
+//  Created by Janlor on 2024/5/22.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+#include "AIDataInsight_Base.xcconfig"
+#include "Project-DEV-release.xcconfig"
+
+// MARK: 当前环境定义
+CUSTOM_ENV = 3 // 预发布环境(3.88:16037)
+//CUSTOM_ENV = 4 // 测试环境(4.60:17037)
+//CUSTOM_ENV = 5 // 测试环境(4.79:17037)
+
+// MARK: build settings
+PRODUCT_BUNDLE_IDENTIFIER = com.janlor.AIDataInsightDev
+INFOPLIST_KEY_CFBundleDisplayName = AI数据分析助手
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon-Test

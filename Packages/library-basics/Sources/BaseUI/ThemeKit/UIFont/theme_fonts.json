@@ -1,0 +1,77 @@
+{
+  "largeTitle": {
+    "size": 24,
+    "weight": "medium",
+    "textStyle": "largeTitle"
+  },
+  "title1": {
+    "size": 20,
+    "weight": "medium",
+    "textStyle": "title1"
+  },
+  "title2": {
+    "size": 16,
+    "weight": "medium",
+    "textStyle": "title2"
+  },
+  "title3": {
+    "size": 14,
+    "weight": "medium",
+    "textStyle": "title3"
+  },
+  "title31": {
+    "size": 14,
+    "weight": "semibold",
+    "textStyle": "title3"
+  },
+  "title4": {
+    "size": 12,
+    "weight": "medium",
+    "textStyle": "title3"
+  },
+  "headline": {
+    "size": 16,
+    "weight": "semibold",
+    "textStyle": "headline"
+  },
+  "subhead": {
+    "size": 14,
+    "weight": "regular",
+    "textStyle": "subheadline"
+  },
+  "body": {
+    "size": 16,
+    "weight": "regular",
+    "textStyle": "body"
+  },
+  "body1": {
+    "size": 18,
+    "weight": "bold",
+    "textStyle": "body"
+  },
+  "body2": {
+    "size": 14,
+    "weight": "medium",
+    "textStyle": "body"
+  },
+  "body3": {
+    "size": 10,
+    "weight": "semibold",
+    "textStyle": "body"
+  },
+  "footnote": {
+    "size": 13,
+    "weight": "regular",
+    "textStyle": "footnote"
+  },
+  "caption1": {
+    "size": 12,
+    "weight": "regular",
+    "textStyle": "caption1"
+  },
+  "caption2": {
+    "size": 11,
+    "weight": "regular",
+    "textStyle": "caption2"
+  }
+}

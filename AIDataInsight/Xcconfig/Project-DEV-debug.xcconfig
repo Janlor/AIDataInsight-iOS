@@ -1,0 +1,14 @@
+//
+//  Project-DEV-debug.xcconfig
+//  AIDataInsight
+//
+//  Created by Janlor on 2024/5/22.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+#include "Project_Base-debug.xcconfig"
+
+// MARK: 当前环境定义
+CUSTOM_ENV = 6

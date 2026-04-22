@@ -1,0 +1,26 @@
+//
+//  AIDataInsight_Base.xcconfig
+//  AIDataInsight
+//
+//  Created by Janlor on 2024/5/22.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+// target
+CUSTOM_TARGET = AIDataInsight
+
+TARGETED_DEVICE_FAMILY = 1,2
+IPHONEOS_DEPLOYMENT_TARGET = 13.0
+MACOSX_DEPLOYMENT_TARGET = 12.4
+
+// info plist
+INFOPLIST_FILE = AIDataInsight/Info-AIDataInsight.plist
+SWIFT_OBJC_BRIDGING_HEADER = AIDataInsight/Bridging-Header-AIDataInsight.h
+
+PRODUCT_NAME = AIDataInsight
+
+INFOPLIST_KEY_NSCameraUsageDescription = 用于选取附件拍照时访问您的相机
+INFOPLIST_KEY_NSPhotoLibraryUsageDescription = 用于选取照片附件时访问您的相册
+INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = 用于选取照片附件时向您的相册添加照片

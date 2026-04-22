@@ -1,0 +1,15 @@
+//
+//  Project_Base-debug.xcconfig
+//  AIDataInsight
+//
+//  Created by Janlor on 2024/5/22.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+#include "Common.xcconfig"
+
+DEBUG_INFORMATION_FORMAT = dwarf
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) DEBUG=1
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) DEBUG

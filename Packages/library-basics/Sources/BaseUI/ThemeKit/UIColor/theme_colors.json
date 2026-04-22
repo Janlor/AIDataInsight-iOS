@@ -1,0 +1,74 @@
+{
+  "accent": {
+    "light": "#3478F6",
+    "dark": "#3478F6",
+    "elevated": "#3478F6"
+  },
+  "secondaryAccent": {
+    "light": "#1A3478F6",
+    "dark": "#1A3478F6"
+  },
+
+  "background": {
+    "light": "#FFFFFF",
+    "dark": "#111213",
+    "elevated": "#1C1C1E"
+  },
+  "secondaryBackground": {
+    "light": "#F6F6F6",
+    "dark": "#1C1C1E",
+    "elevated": "#2C2C2E"
+  },
+  "tertieryBackground": {
+    "light": "#FFFFFF",
+    "dark": "#2C2C2E",
+    "elevated": "#3A3A3C"
+  },
+
+  "groupedBackground": {
+    "light": "#F6F6F6",
+    "dark": "#111213",
+    "elevated": "#1C1C1E"
+  },
+  "secondaryGroupedBackground": {
+    "light": "#FFFFFF",
+    "dark": "#1C1C1E",
+    "elevated": "#2C2C2E"
+  },
+  "tertieryGroupedBackground": {
+    "light": "#F7F8FA",
+    "dark": "#2C2C2E",
+    "elevated": "#3A3A3C"
+  },
+
+  "label": {
+    "light": "#1E1E1E",
+    "dark": "#FFFFFF"
+  },
+  "secondaryLabel": {
+    "light": "#606266",
+    "dark": "#CCEBEBF5"
+  },
+  "tertieryLabel": {
+    "light": "#909399",
+    "dark": "#99EBEBF5"
+  },
+  "quaternaryLabel": {
+    "light": "#C0C4CC",
+    "dark": "#4DEBEBF5"
+  },
+  "quinaryLabel": {
+    "light": "#D8D8D8",
+    "dark": "#2EEBEBF5"
+  },
+
+  "separator": {
+    "light": "#EBEEF5",
+    "dark": "#A6545458"
+  },
+
+  "mark": {
+    "light": "#E73440",
+    "dark": "#E73440"
+  }
+}
