@@ -15,7 +15,7 @@ struct ModuleAIRouter: RouterService {
 
 extension ModuleAIRouter: RouterDestination {
     func to(_ arg: [AnyHashable : Any]?, _ closure: ((Any, [AnyHashable : Any]?) -> Void)?) -> UIViewController {
-        let vc = AIChatViewController()
+        let vc = ContainerViewController()
         return vc
     }
 }

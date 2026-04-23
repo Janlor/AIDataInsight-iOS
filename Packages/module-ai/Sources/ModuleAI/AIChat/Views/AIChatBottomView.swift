@@ -96,13 +96,13 @@ class AIChatBottomView: UIView {
         super.traitCollectionDidChange(previousTraitCollection)
         guard let previousTraitCollection = previousTraitCollection else { return }
         if (previousTraitCollection.hasDifferentColorAppearance(comparedTo: traitCollection)) {
-            clearButton.layer.borderColor = UIColor.aiSeparator.cgColor
+//            clearButton.layer.borderColor = UIColor.aiSeparator.cgColor
             containerView.layer.borderColor = UIColor.aiSeparator.cgColor
         }
     }
     
     private func setupViews() {
-        addSubview(clearButton)
+//        addSubview(clearButton)
         addSubview(containerView)
         containerView.addSubview(inputTextView)
         containerView.addSubview(placeholderLabel)
@@ -111,12 +111,13 @@ class AIChatBottomView: UIView {
         textViewHeightConstraint = inputTextView.heightAnchor.constraint(equalToConstant: defaultViewHeight)
         
         NSLayoutConstraint.activate([
-            clearButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: mSpacing),
-            clearButton.bottomAnchor.constraint(equalTo: bottomAnchor),
-            clearButton.widthAnchor.constraint(equalToConstant: 42),
-            clearButton.heightAnchor.constraint(equalToConstant: 42),
+//            clearButton.leadingAnchor.constraint(equalTo: leadingAnchor, constant: mSpacing),
+//            clearButton.bottomAnchor.constraint(equalTo: bottomAnchor),
+//            clearButton.widthAnchor.constraint(equalToConstant: 42),
+//            clearButton.heightAnchor.constraint(equalToConstant: 42),
             
-            containerView.leadingAnchor.constraint(equalTo: clearButton.trailingAnchor, constant: 4),
+            containerView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: mSpacing),
+//            containerView.leadingAnchor.constraint(equalTo: clearButton.trailingAnchor, constant: 4),
             containerView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -mSpacing),
             containerView.topAnchor.constraint(equalTo: topAnchor, constant: 8),
             containerView.bottomAnchor.constraint(equalTo: bottomAnchor),
@@ -137,7 +138,7 @@ class AIChatBottomView: UIView {
             sendButton.heightAnchor.constraint(equalToConstant: defaultViewHeight)
         ])
         
-        clearButton.addTarget(self, action: #selector(didClickedClearButton(_:)), for: .touchUpInside)
+//        clearButton.addTarget(self, action: #selector(didClickedClearButton(_:)), for: .touchUpInside)
         sendButton.addTarget(self, action: #selector(didClickedSendButton(_:)), for: .touchUpInside)
         inputTextView.delegate = self
     }
@@ -161,8 +162,16 @@ class AIChatBottomView: UIView {
         textViewDidChange(inputTextView)
     }
     
+    override var isFirstResponder: Bool {
+        return inputTextView.isFirstResponder
+    }
+    
     override var canBecomeFirstResponder: Bool {
         return inputTextView.canBecomeFirstResponder
+    }
+    
+    override var canResignFirstResponder: Bool {
+        return inputTextView.canResignFirstResponder
     }
     
     override func becomeFirstResponder() -> Bool {

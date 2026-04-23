@@ -16,6 +16,9 @@ extension Notification.Name {
 }
 
 class HistoryViewController: BaseViewController {
+    /// 打开历史会话
+    var openHistoryClosure: ((Int?) -> Void)?
+    
     private var tableView: UITableView!
     private var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -87,6 +90,10 @@ class HistoryViewController: BaseViewController {
     
     override func setupData() {
         super.setupData()
+        reloadData()
+    }
+    
+    func reloadData() {
         self.tableView.startLoading()
         getNewData()
     }
@@ -130,7 +137,13 @@ private extension HistoryViewController {
     }
     
     private func setupNavigationItem() {
-        title = NSLocalizedString("历史会话", bundle: .module, comment: "")
+        if #available(iOS 26.0, *) {
+            navigationItem.largeTitle = NSLocalizedString("历史会话", bundle: .module, comment: "")
+            navigationItem.largeTitleDisplayMode = .inline
+        } else {
+            navigationItem.title = NSLocalizedString("历史会话", bundle: .module, comment: "")
+            navigationItem.largeTitleDisplayMode = .always
+        }
         
 //        let deleteItem = UIBarButtonItem(customView: deleteButton)
 //        navigationItem.rightBarButtonItem = deleteItem
@@ -352,6 +365,13 @@ extension HistoryViewController: UITableViewDelegate, UITableViewDataSource {
         // 处理单元格选择,例如打开会话详情页面
         print("选择了会话: \(model.updateTime ?? "")")
         
+        // 直接换数据
+        if let closure = openHistoryClosure {
+            closure(model.id)
+            return
+        }
+        
+        // 打开新页面
         let vc = AIChatViewController()
         vc.historyId = model.id
         vc.hidesBottomBarWhenPushed = true

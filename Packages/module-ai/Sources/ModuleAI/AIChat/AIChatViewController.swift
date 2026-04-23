@@ -13,6 +13,8 @@ import SwifterSwift
 //import IQKeyboardManagerSwift
 
 class AIChatViewController: BaseViewController {
+    /// 打开更多菜单
+    var didClickedMoreMenu: ((UIBarButtonItem) -> Void)?
     
     public var historyId: Int?
     
@@ -66,6 +68,20 @@ class AIChatViewController: BaseViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 //        IQKeyboardManager.shared.isEnabled = false
+    }
+    
+    func isInputing() -> Bool {
+        chatBottomView.isFirstResponder
+    }
+    
+    func focusInput() {
+        chatBottomView.becomeFirstResponder()
+    }
+    
+    func loadConversation(_ id: Int?) {
+        clearChat()
+        historyId = id
+        setupData()
     }
     
     deinit {
@@ -187,14 +203,23 @@ extension AIChatViewController {
     func setupNavigationItem() {
         navigationItem.title = NSLocalizedString("AI数据分析助手", bundle: .module, comment: "")
         
-        let historyButton = UIBarButtonItem(image: UIImage.imageNamed(for: "icon_history"), style: .plain, target: self, action: #selector(didClickedHistoryButton))
-        navigationItem.rightBarButtonItem = historyButton
+        let rightButton = UIBarButtonItem(image: UIImage(systemName: "bubble.and.pencil"), style: .plain, target: self, action: #selector(didClickedNewChat))
+        navigationItem.rightBarButtonItem = rightButton
+        navigationItem.rightBarButtonItem?.isEnabled = false
+        
+        let leftButton = UIBarButtonItem(image: UIImage(systemName: "line.3.horizontal.decrease"), style: .plain, target: self, action: #selector(didClickedMoreMenuItem))
+        navigationItem.leftBarButtonItem = leftButton
     }
     
-    @objc func didClickedHistoryButton(_ sender: UIBarButtonItem) {
+    @objc func didClickedNewChat(_ sender: UIBarButtonItem) {
         view.endEditing(true)
-        let vc = HistoryViewController()
-        pushToVC(vc)
+        clearChat()
+        setupData()
+    }
+    
+    @objc func didClickedMoreMenuItem(_ sender: UIBarButtonItem) {
+        view.endEditing(true)
+        didClickedMoreMenu?(sender)
     }
 }
 
@@ -289,7 +314,8 @@ extension AIChatViewController {
     }
     
     func sendUserMessage(_ text: String) {
-        chatBottomView.isClearEnabled = true
+//        chatBottomView.isClearEnabled = true
+        navigationItem.rightBarButtonItem?.isEnabled = true
         
         guard !isAIThinking else {
             return
@@ -550,7 +576,8 @@ private extension AIChatViewController {
         historyId = nil
         isAIThinking = false
         lastAIChat = nil
-        chatBottomView.isClearEnabled = false
+        navigationItem.rightBarButtonItem?.isEnabled = false
+//        chatBottomView.isClearEnabled = false
     }
 }
 

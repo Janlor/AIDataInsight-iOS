@@ -74,8 +74,8 @@ extension AppDelegate {
         let isLogin = Router.perform(key: AccountProtocol.self)?.isLogin ?? false
         if isLogin {
             let vc = Router.target(to: ProtocolAI.self)!
-            let nav = BaseNavigationController(rootViewController: vc)
-            return nav
+//            let nav = BaseNavigationController(rootViewController: vc)
+            return vc
         }
         guard let vc = Router.target(to: LoginProtocol.self) else { return nil }
         let nav = BaseNavigationController(rootViewController: vc)
