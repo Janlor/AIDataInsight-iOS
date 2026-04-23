@@ -2,7 +2,7 @@
 //  String+Size.swift
 //  LibraryCommon
 //
-//  Created by Janlor on 6/19/24.
+//  Created by Janlor on 4/22/26.
 //
 
 import UIKit

@@ -2,7 +2,7 @@
 //  SettingProtocol.swift
 //  AppLaunch
 //
-//  Created by Janlor on 2024/7/1.
+//  Created by Janlor on 4/22/26.
 //
 
 import UIKit

@@ -2,7 +2,7 @@
 //  AIChatFeedbackView.swift
 //  ModuleAI
 //
-//  Created by Janlor on 2024/10/28.
+//  Created by Janlor on 4/22/26.
 //
 
 import UIKit

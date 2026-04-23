@@ -2,7 +2,7 @@
 //  ClickableLabel.swift
 //  LibraryBasics
 //
-//  Created by Janlor on 6/13/24.
+//  Created by Janlor on 4/22/26.
 //
 
 import UIKit

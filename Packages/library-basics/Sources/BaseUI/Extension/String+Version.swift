@@ -2,7 +2,7 @@
 //  String+Version.swift
 //  LibraryCommon
 //
-//  Created by Janlor on 2025/2/10.
+//  Created by Janlor on 4/22/26.
 //
 
 import Foundation
