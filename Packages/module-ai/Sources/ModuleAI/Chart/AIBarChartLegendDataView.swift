@@ -2,7 +2,7 @@
 //  AIBarChartLegendDataView.swift
 //  ModuleStatistic
 //
-//  Created by Janlor on 4/22/26.
+//  Created by Janlor on 6/27/24.
 //
 
 import UIKit

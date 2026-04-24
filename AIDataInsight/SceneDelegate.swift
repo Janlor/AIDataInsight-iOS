@@ -2,7 +2,7 @@
 //  SceneDelegate.swift
 //  AIDataInsight
 //
-//  Created by Janlor on 4/22/26.
+//  Created by Janlor on 2025/9/8.
 //
 
 import UIKit

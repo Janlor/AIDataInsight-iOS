@@ -2,7 +2,7 @@
 //  UITableViewCell+Update.swift
 //  ModuleStatistic
 //
-//  Created by Janlor on 4/22/26.
+//  Created by Janlor on 2024/6/29.
 //
 
 import UIKit

@@ -2,7 +2,7 @@
 //  AppDelegate.swift
 //  AppAppLaunch
 //
-//  Created by Janlor on 4/22/26.
+//  Created by Janlor on 2024/10/23.
 //
 
 import Foundation

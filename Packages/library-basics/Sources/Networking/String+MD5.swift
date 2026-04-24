@@ -2,7 +2,7 @@
 //  String+MD5.swift
 //  LibraryBasics
 //
-//  Created by Janlor on 4/22/26.
+//  Created by Janlor on 2025/12/18.
 //
 
 import Foundation

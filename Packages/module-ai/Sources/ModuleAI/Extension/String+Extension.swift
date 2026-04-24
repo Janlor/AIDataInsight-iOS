@@ -2,7 +2,7 @@
 //  String+Extension.swift
 //  ModuleAI
 //
-//  Created by Janlor on 4/22/26.
+//  Created by Janlor on 2024/11/6.
 //
 
 import Foundation

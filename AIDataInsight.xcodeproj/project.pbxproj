@@ -156,10 +156,10 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				CLASSPREFIX = AI;
+				CLASSPREFIX = DTMS;
 				LastSwiftUpdateCheck = 1530;
 				LastUpgradeCheck = 2630;
-				ORGANIZATIONNAME = "";
+				ORGANIZATIONNAME = "Beijing Brock Fast Chain Technology Co., Ltd.";
 				TargetAttributes = {
 					7A3E4D852BF3545500F4B44B = {
 						CreatedOnToolsVersion = 15.3;

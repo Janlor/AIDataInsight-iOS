@@ -2,7 +2,7 @@
 //  AIBarChartLegendView.swift
 //  ModuleAI
 //
-//  Created by Janlor on 4/22/26.
+//  Created by Janlor on 2024/10/30.
 //
 
 import UIKit
