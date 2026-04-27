@@ -14,7 +14,11 @@ class AIChatFeedbackView: UIView {
 
     var isLike: Bool? {
         didSet {
-            guard let isLike = isLike else { return }
+            guard let isLike = isLike else {
+                likeButton.isSelected = false
+                unLikeButton.isSelected = false
+                return
+            }
             likeButton.isSelected = isLike
             unLikeButton.isSelected = !isLike
         }

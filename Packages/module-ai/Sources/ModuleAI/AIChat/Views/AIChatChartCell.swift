@@ -92,6 +92,7 @@ class AIChatChartCell: AIChatCell {
         super.prepareForReuse()
         // cell 重用时重置标记
         hasInitialLayout = false
+        feedbackView.isLike = nil
     }
     
     override func setupViews() {
