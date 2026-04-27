@@ -15,6 +15,8 @@ public enum DataState<T> {
     case error(Error)
 }
 
+public struct AnyCodable: Codable { }
+
 public protocol Requesting {
 
     @discardableResult
@@ -113,6 +115,29 @@ public enum CommonRequester: Requesting {
             defer { wrapper.finish() }
             deliver {
                 completion(response?.data, error)
+            }
+        }
+        
+        wrapper.bind(cancellable)
+        return wrapper
+    }
+    
+    @discardableResult
+    public static func requestVoid(
+        _ target: CustomTargetType,
+        completion: @escaping (Bool, Error?) -> Void
+    ) -> CancellableTask {
+        
+        let wrapper = NetworkCancellableTask()
+        
+        let cancellable = ResponseModel<AnyCodable>.requestable(
+            target
+        ) { response, error in
+            defer { wrapper.finish() }
+            
+            deliver {
+                let success = (error == nil) && (response?.code == 200)
+                completion(success, error)
             }
         }
         

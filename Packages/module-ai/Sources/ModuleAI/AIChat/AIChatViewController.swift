@@ -8,14 +8,12 @@
 import UIKit
 import BaseKit
 import BaseUI
-import Networking
 import SwifterSwift
-//import IQKeyboardManagerSwift
 
 class AIChatViewController: BaseViewController {
     /// 打开更多菜单
     var didClickedMoreMenu: ((UIBarButtonItem) -> Void)?
-    
+    /// 历史会话ID
     public var historyId: Int?
     
     enum Section {
@@ -28,14 +26,17 @@ class AIChatViewController: BaseViewController {
     private let chatBottomView = AIChatBottomView()
     private var chatBottomConstraint: NSLayoutConstraint!
     
+    /// 数据源
+    private let viewModel = AIChatViewModel()
+    
     /// AI 是否思考中 思考中不能发送消息
-    var isAIThinking = false {
+    private var isAIThinking = false {
         didSet {
             chatBottomView.isEnabled = !isAIThinking
         }
     }
     
-    var lastAIChat: AIChat?
+    private var lastAIChat: AIChat?
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
@@ -58,16 +59,13 @@ class AIChatViewController: BaseViewController {
     override func setupData() {
         super.setupData()
         
+        bindViewModel()
+        
         if let historyId = historyId {
-            getHistoryDetail(historyId)
+            viewModel.getHistoryDetail(historyId)
         } else {
-            getTemplate()
+            viewModel.loadTemplate()
         }
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-//        IQKeyboardManager.shared.isEnabled = false
     }
     
     func isInputing() -> Bool {
@@ -297,7 +295,48 @@ extension AIChatViewController {
     }
 }
 
-extension AIChatViewController {
+private extension AIChatViewController {
+     func bindViewModel() {
+        
+         viewModel.onHistoryLoaded = { [weak self] chats in
+             self?.showHistoryMessages(chats)
+         }
+         
+         viewModel.onTemplateLoaded = { [weak self] questions in
+             self?.showWelcomeMessage(questions)
+         }
+        
+        viewModel.onFunctionResult = { [weak self] result in
+            guard let self else { return }
+            
+            switch result {
+            case .timeout:
+                self.showTimeOutMessage()
+                
+            case .error(let msg):
+                self.showErrorMessage(msg: msg)
+                
+            case .intent(let text, let type):
+                self.showIntentMessage(text: text, intentType: type)
+            }
+        }
+        
+        viewModel.onChartResult = { [weak self] result in
+            guard let self else { return }
+            
+            switch result {
+            case .timeout:
+                self.showTimeOutMessage()
+                
+            case .error(let msg):
+                self.showErrorMessage(msg: msg)
+                
+            case .success(let model, let datas):
+                self.showChartMessage(model: model, chartDatas: datas)
+            }
+        }
+    }
+    
     func showHistoryMessages(_ chats: [AIChat]) {
         var snapshot = dataSource.snapshot()
         snapshot.appendItems(chats, toSection: .main)
@@ -334,7 +373,7 @@ extension AIChatViewController {
         isAIThinking = true
         
         /// 函数调用分析
-        sendFunctionMessage(text)
+        viewModel.sendFunctionMessage(text)
     }
     
     func showThinkingMessage() {
@@ -400,172 +439,6 @@ extension AIChatViewController {
         dataSource.apply(snapshot, animatingDifferences: true)
         isAIThinking = false
     }
-}
-
-private extension AIChatViewController {
-    func getHistoryDetail(_ historyId: Int) {
-        let target = HistoryApi.detail(historyId)
-        ResponseModel<RecordModel>.requestable(target) {
-            [weak self] response, error in
-            guard let `self` = self else { return }
-            guard error == nil,
-                  let model = response?.data,
-                  let detailList = model.detailList else {
-                return
-            }
-            DispatchQueue.global().async {
-                let detailList = DetailModel.decodeDetailList(detailList)
-                let chats = detailList.map {
-                    var isLike: Bool?
-                    if let like = $0.isLike {
-                        isLike = like == "1"
-                    }
-                    if $0.type == .question {
-                        return AIChat(text: $0.content ?? "", type: .user)
-                    }
-                    if let chatModel = $0.chatModel {
-                        let result = self.generateBarChartDatas(chatModel)
-                        if let datas = result.0 {
-                            return AIChat(text: "根据您的查询，以下是分析结果:", type: .chart, isLike: isLike, barChartDatas: datas, historyDetailId: $0.id, funcType: chatModel.funcType)
-                        }
-                        return AIChat(text: result.1 ?? "数据分析还在测试阶段，很快就能上线，敬请期待！", type: .ai)
-                    }
-                    if let funcModel = $0.funcModel {
-                        return AIChat(text: funcModel.msg ?? "", type: .ai)
-                    }
-                    return AIChat(text: $0.content ?? "新版本上线啦，升级后我会变得更聪明，快来体验吧！", type: .ai)
-                }
-                DispatchQueue.main.async {
-                    self.showHistoryMessages(chats)
-                }
-            }
-        }
-    }
-
-    func getTemplate() {
-        let target = ChatApi.template
-        ResponseModel<String>.requestable(target) {
-            [weak self] response, error in
-            guard let `self` = self else { return }
-            guard error == nil,
-                  let string = response?.data else {
-                return
-            }
-            guard let data = string.data(using: .utf8) else { return }
-            let configure = try? appDecoder.decode(TemplateModel.self, from: data)
-            self.showWelcomeMessage(configure?.questions)
-        }
-    }
-    
-    func sendFunctionMessage(_ text: String) {
-        let target = ChatApi.function(text, historyId)
-        ResponseModel<FunctionModel>.requestable(target) {
-            [weak self] response, error in
-            guard let `self` = self else { return }
-            
-            guard error == nil, let model = response?.data else {
-                self.showTimeOutMessage()
-                return
-            }
-            
-            guard let historyId = model.historyId else {
-                self.showErrorMessage(msg: model.msg)
-                return
-            }
-            self.historyId = historyId
-            
-            guard let hasTool = model.hasTool, hasTool == true,
-                  let name = model.name,
-                  let arguments = model.arguments else {
-                self.showErrorMessage(msg: model.msg)
-                return
-            }
-            
-            switch arguments {
-            case let timeRange as TimeRangeQueryModel:
-                if timeRange.startDate == nil {
-                    self.showIntentMessage(text: text, intentType: .time)
-                    return
-                }
-                
-            case _ as PerformanceTypeQueryModel:
-                self.showIntentMessage(text: text, intentType: .index)
-                return
-                
-            default:
-                break
-            }
-            
-            self.getChartData(name: name, historyId: historyId, arguments: arguments)
-        }
-    }
-    
-    func getChartData(name: FunctionName, historyId: Int, arguments: Any) {
-         guard let queryModel = arguments as? DictionaryConvertible else { return }
-        let target = ChartApi.chart(name.rawValue, historyId, queryModel)
-         ResponseModel<HistoryDetailModel>.requestable(target) {
-             [weak self] response, error in
-             guard let `self` = self else { return }
-             guard error == nil else {
-                 self.showTimeOutMessage()
-                 return
-             }
-             guard let model = response?.data else {
-                 self.showErrorMessage(msg: nil)
-                 return
-             }
-             
-             let result = self.generateBarChartDatas(model)
-             guard let datas = result.0 else {
-                 self.showErrorMessage(msg: result.1 ?? "数据分析还在测试阶段，很快就能上线，敬请期待！")
-                 return
-             }
-             self.showChartMessage(model: model, chartDatas: datas)
-        }
-    }
-    
-    func generateBarChartDatas(_ model: HistoryDetailModel) -> ([AIBarChartData]?, String?) {
-        if let chartCommonVoList = model.chartCommonVoList {
-            let datas = chartCommonVoList.map { model in
-                let title = model.name ?? ""
-                let value = model.value ?? 0
-                let color = AIBarChartData.colorOptions[0]
-                return AIBarChartData(xAxis: title, colors: [color], labels: [title], values: [value])
-            }
-            return (datas, nil)
-        }
-        
-        if let accountAgeGroupVoList = model.accountAgeGroupVoList {
-            if let first = accountAgeGroupVoList.first,
-               let chartType = first.chartType,
-                chartType == "2",
-               let msg = first.msg {
-                return (nil, msg)
-            }
-            let datas = accountAgeGroupVoList.map { model in
-                let name = model.name ?? ""
-                let valueList = model.valueList ?? []
-                let labelList = model.labelList ?? []
-                var colors: [UIColor] = []
-                for index in valueList.indices {
-                    let i = index % (AIBarChartData.colorOptions.count)
-                    colors.append(AIBarChartData.colorOptions[i])
-                }
-                return AIBarChartData(xAxis: name, colors: colors, labels: labelList, values: valueList)
-            }
-            return (datas, nil)
-        }
-        
-        return (nil, nil)
-    }
-    
-    func sendLikeFeedback(historyDetailId: Int, like: String, completion: @escaping (Bool?) -> Void) {
-        let target = HistoryApi.like(historyDetailId, like)
-        ResponseModel<EmptyModel>.requestable(target) { response, error in
-            let result = error == nil && response?.code == 200
-            completion(result)
-        }
-    }
     
     func clearChat() {
         var snapshot = dataSource.snapshot()
@@ -627,7 +500,7 @@ extension AIChatViewController: AIChatChartCellDelegate {
         guard let historyDetailId = historyDetailId else { return }
         print("反馈: \(like)")
         sender.isUserInteractionEnabled = false
-        sendLikeFeedback(historyDetailId: historyDetailId, like: like) { result in
+        viewModel.sendLikeFeedback(historyDetailId: historyDetailId, like: like) { result in
             sender.isUserInteractionEnabled = true
             guard result == true else {
                 ProgressHUD.showError(withStatus: "操作失败")
