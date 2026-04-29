@@ -52,10 +52,9 @@ User Input → AI Parsing → Query Intent → Data Query → Chart Rendering
 
 ## 📸 Demo
 
-（这里放2张截图）
+![对话界面](https://github.com/Janlor/AIDataInsight-iOS/blob/main/images/chat.png)
 
-* 对话界面
-* 图表展示
+![历史会话](https://github.com/Janlor/AIDataInsight-iOS/blob/master/images/history.png)
 
 
 ## ⚠️ Note
