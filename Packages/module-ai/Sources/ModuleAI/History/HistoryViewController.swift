@@ -7,7 +7,6 @@
 
 import UIKit
 import BaseUI
-import Networking
 import SwifterSwift
 
 extension Notification.Name {
@@ -19,20 +18,12 @@ class HistoryViewController: BaseViewController {
     /// 打开历史会话
     var openHistoryClosure: ((Int?) -> Void)?
     
-    private var tableView: UITableView!
-    private var dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        return formatter
-    }()
+    private let viewModel = HistoryViewModel()
     
-    /// 分页每页数量
-    private let pageSize: Int = 50
+    private var tableView: UITableView!
+    
     /// 添加属性保存当前长按的 indexPath
     private var selectedIndexPath: IndexPath?
-    /// 数据源
-    private var pageModel: RecordPageModel?
-    private var dataSourse: [[RecordModel]] = []
     
     private lazy var deleteButton: UIButton = {
         let btn = UIButton(type: .system)
@@ -90,16 +81,33 @@ class HistoryViewController: BaseViewController {
     
     override func setupData() {
         super.setupData()
+        bindViewModel()
         reloadData()
     }
     
     func reloadData() {
         self.tableView.startLoading()
-        getNewData()
+        viewModel.reloadData()
     }
 }
 
 private extension HistoryViewController {
+    func bindViewModel() {
+        viewModel.onDataLoaded = { [weak self] _ in
+            guard let self else { return }
+            self.tableView.endLoading()
+            self.tableView.reloadData()
+            self.displayEmpty(.empty)
+        }
+        
+        viewModel.onDataLoadFailed = { [weak self] message in
+            guard let self else { return }
+            self.tableView.endLoading()
+            ProgressHUD.showError(withStatus: message)
+            self.displayEmpty(.error)
+        }
+    }
+    
     private func setupViewBackground() {
         if traitCollection.userInterfaceStyle == .dark {
             view.layer.contents = nil
@@ -127,7 +135,7 @@ private extension HistoryViewController {
     }
 
     func displayEmpty(_ state: EmptyViewState) {
-        guard dataSourse.isEmpty else {
+        guard viewModel.dataSourse.isEmpty else {
             self.tableView.hideEmpty()
 //            self.deleteButton.isHidden = false
             return
@@ -203,13 +211,12 @@ private extension HistoryViewController {
     }
 
     func deleteAllHistory() {
-        deleteAllHistory { [weak self] result in
+        viewModel.deleteAllHistory { [weak self] result in
             guard let `self` = self else { return }
             guard result == true else {
                 ProgressHUD.showError(withStatus: "删除失败")
                 return
             }
-            self.dataSourse = []
             self.tableView.reloadData()
             self.displayEmpty(.empty)
             NotificationCenter.default.post(name: .historyDidDeleteAll, object: nil)
@@ -219,13 +226,13 @@ private extension HistoryViewController {
     @objc private func deleteHistory() {
         guard let indexPath = selectedIndexPath else { return }
         
-        let history = dataSourse[indexPath.section][indexPath.row]
+        let history = viewModel.record(at: indexPath)
         print("删除会话: \(history.detailList?.first?.content ?? "")")
 
         tableView.isUserInteractionEnabled = false
         tableView.startLoading()
 
-        deleteHistory(historyId: history.id) { [weak self] result in
+        viewModel.deleteHistory(at: indexPath) { [weak self] result, historyId in
             guard let `self` = self else { return }
             self.tableView.endLoading()
             self.tableView.isUserInteractionEnabled = true
@@ -235,124 +242,39 @@ private extension HistoryViewController {
             }
             
             // 从数据源删除
-            self.dataSourse[indexPath.section].remove(at: indexPath.row)
-            
             // 从界面删除
             self.tableView.deleteRows(at: [indexPath], with: .fade)
             
             // 如果该分组没有数据了，删除整个分组
-            if self.dataSourse[indexPath.section].isEmpty {
-                self.dataSourse.remove(at: indexPath.section)
+            if indexPath.section >= self.viewModel.numberOfSections() ||
+                indexPath.row >= self.viewModel.numberOfRows(in: indexPath.section) {
                 self.tableView.deleteSections(IndexSet(integer: indexPath.section), with: .fade)
             }
             
             self.displayEmpty(.empty)
-            NotificationCenter.default.post(name: .historyDidDeleteChat, object: history.id)
-        }
-    }
-}
-
-// MARK: - Network
-
-private extension HistoryViewController {
-    /// 获取新数据
-    @objc func getNewData() {
-        getDataList(pageNo: 1, pageSize: pageSize)
-    }
-    
-    /// 获取更多数据
-    @objc func getMoreData() {
-        let current = (pageModel?.currentPage ?? 0) + 1
-        getDataList(pageNo: current, pageSize: pageSize)
-    }
-    
-    /// 分页获取数据
-    /// - Parameters:
-    ///   - pageNo: 页码
-    ///   - pageSize: 每页数量
-    func getDataList(pageNo: Int, pageSize: Int) {
-        let target = HistoryApi.page(pageNo, pageSize)
-        ResponseModel<RecordPageModel>.requestable(target) {
-            [weak self] response, error in
-            guard let `self` = self else { return }
-            self.tableView.endLoading()
-//            self.tableView.mj_header?.endRefreshing()
-//            self.tableView.mj_footer?.endRefreshing()
-            
-            // 处理���误
-            guard error == nil,
-                  let model = response?.data else {
-                ProgressHUD.showError(withStatus: response?.msg)
-                self.displayEmpty(.error)
-                return
-            }
-            
-            // 是否有更多数据
-//            if model.currentPage ?? 0 < model.pages ?? 0 {
-//                self.tableView.mj_footer?.resetNoMoreData()
-//            } else {
-//                self.tableView.mj_footer?.endRefreshingWithNoMoreData()
-//            }
-
-            // 修改数据源
-            self.pageModel = model
-            
-            // 修改数据源
-            DispatchQueue.global().async {
-                let groupedNewRecords = RecordModel.groupRecordsByDate(records: model.records, dateFormatter: self.dateFormatter)
-                if model.currentPage ?? 1 == 1 || self.dataSourse.isEmpty {
-                    self.dataSourse = groupedNewRecords
-                } else {
-                    // 将新记录添加到现有分组中
-                    RecordModel.mergeGroupedRecords(existing: &self.dataSourse, new: groupedNewRecords, dateFormatter: self.dateFormatter)
-                }
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                    self.displayEmpty(.empty)
-                }
-            }
-        }
-    }
-
-    func deleteHistory(historyId: Int?, completion: @escaping (Bool?) -> Void) {
-        guard let id = historyId else { return }
-        let target = HistoryApi.delete(id)
-        ResponseModel<EmptyModel>.requestable(target) { response, error in
-            let result = error == nil && response?.code == 200
-            completion(result)
-        }
-    }
-
-    func deleteAllHistory(completion: @escaping (Bool?) -> Void) {
-        let target = HistoryApi.deleteAll
-        ResponseModel<EmptyModel>.requestable(target) { response, error in
-            let result = error == nil && response?.code == 200
-            completion(result)
+            NotificationCenter.default.post(name: .historyDidDeleteChat, object: historyId)
         }
     }
 }
 
 extension HistoryViewController: UITableViewDelegate, UITableViewDataSource {
     func numberOfSections(in tableView: UITableView) -> Int {
-        return dataSourse.count
+        return viewModel.numberOfSections()
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return dataSourse[section].count
+        return viewModel.numberOfRows(in: section)
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withClass: HistoryCell.self)
-        let model = dataSourse[indexPath.section][indexPath.row]
+        let model = viewModel.record(at: indexPath)
         cell.configure(with: model)
         return cell
     }
 
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        guard let firstRecord = dataSourse[section].first else { return nil }
-        guard let date = dateFormatter.date(from: firstRecord.updateTime ?? "") else { return nil }
-        let calendar = Calendar.current
-        return RecordModel.groupKeyForDate(date, calendar: calendar).0
+        return viewModel.titleForHeader(in: section)
     }
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
@@ -361,7 +283,7 @@ extension HistoryViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let model = dataSourse[indexPath.section][indexPath.row]
+        let model = viewModel.record(at: indexPath)
         // 处理单元格选择,例如打开会话详情页面
         print("选择了会话: \(model.updateTime ?? "")")
         
