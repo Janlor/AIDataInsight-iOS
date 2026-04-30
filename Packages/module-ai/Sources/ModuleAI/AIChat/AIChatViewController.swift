@@ -37,6 +37,11 @@ class AIChatViewController: BaseViewController {
     }
     
     private var lastAIChat: AIChat?
+    private var streamDisplayLink: CADisplayLink?
+    private var pendingStreamText = ""
+    private var renderedStreamText = ""
+    private var didReceiveStreamCompletion = false
+    private let streamCharactersPerFrame = 1
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
@@ -83,6 +88,7 @@ class AIChatViewController: BaseViewController {
     }
     
     deinit {
+        stopStreamDisplayLink()
         NotificationCenter.default.removeObserver(self)
     }
 }
@@ -335,6 +341,18 @@ private extension AIChatViewController {
                 self.showChartMessage(model: model, chartDatas: datas)
             }
         }
+        
+        viewModel.onStreamText = { [weak self] chunk in
+            self?.appendStreamChunk(chunk)
+        }
+        
+        viewModel.onStreamCompleted = { [weak self] in
+            self?.finishStreamResponse()
+        }
+        
+        viewModel.onStreamFailed = { [weak self] message in
+            self?.showErrorMessage(msg: message)
+        }
     }
     
     func showHistoryMessages(_ chats: [AIChat]) {
@@ -364,6 +382,7 @@ private extension AIChatViewController {
         print("发送消息: \(text)")
         
         let userAIChat = AIChat(text: text, type: .user)
+        resetStreamingState()
         lastAIChat = AIChat(text: "智能引擎全力运转，您的答案即将揭晓。", type: .ai)
         
         var snapshot = dataSource.snapshot()
@@ -371,9 +390,35 @@ private extension AIChatViewController {
         dataSource.apply(snapshot, animatingDifferences: true)
         scrollToBottomItem(snapshot)
         isAIThinking = true
+        startStreamDisplayLink()
         
         /// 函数调用分析
         viewModel.sendFunctionMessage(text)
+    }
+    
+    func sendUserStreamMessage(_ text: String) {
+//        chatBottomView.isClearEnabled = true
+        navigationItem.rightBarButtonItem?.isEnabled = true
+        
+        guard !isAIThinking else {
+            return
+        }
+        
+        // 处理发送消息的逻辑
+        print("发送消息: \(text)")
+        
+        let userAIChat = AIChat(text: text, type: .user)
+        resetStreamingState()
+        lastAIChat = AIChat(text: "", type: .ai)
+        
+        var snapshot = dataSource.snapshot()
+        snapshot.appendItems([userAIChat, lastAIChat!], toSection: .main)
+        dataSource.apply(snapshot, animatingDifferences: true)
+        scrollToBottomItem(snapshot)
+        isAIThinking = true
+        startStreamDisplayLink()
+        
+        viewModel.sendStreamMessage(text)
     }
     
     func showThinkingMessage() {
@@ -388,6 +433,7 @@ private extension AIChatViewController {
     }
     
     func showTimeOutMessage() {
+        resetStreamingState()
         guard let aiAIChat = lastAIChat else { return }
         var snapshot = self.dataSource.snapshot()
         snapshot.deleteItems([aiAIChat])
@@ -400,6 +446,7 @@ private extension AIChatViewController {
     }
     
     func showErrorMessage(msg: String?) {
+        resetStreamingState()
         guard let aiAIChat = lastAIChat else { return }
         var snapshot = self.dataSource.snapshot()
         snapshot.deleteItems([aiAIChat])
@@ -412,6 +459,7 @@ private extension AIChatViewController {
     }
     
     func showIntentMessage(text: String, intentType: AIChatIntentType) {
+        resetStreamingState()
         guard let aiAIChat = lastAIChat else { return }
         var snapshot = self.dataSource.snapshot()
         snapshot.deleteItems([aiAIChat])
@@ -422,6 +470,7 @@ private extension AIChatViewController {
     }
     
     func showChartMessage(model: HistoryDetailModel, chartDatas: [AIBarChartData]) {
+        resetStreamingState()
         guard let aiAIChat = lastAIChat else { return }
         var snapshot = self.dataSource.snapshot()
         snapshot.deleteItems([aiAIChat])
@@ -433,6 +482,7 @@ private extension AIChatViewController {
     }
     
     func removeLastAIChat() {
+        resetStreamingState()
         guard let lastAIChat = lastAIChat else { return }
         var snapshot = dataSource.snapshot()
         snapshot.deleteItems([lastAIChat])
@@ -441,6 +491,8 @@ private extension AIChatViewController {
     }
     
     func clearChat() {
+        viewModel.cancelTask(for: .custom("ai-chat-stream"))
+        resetStreamingState()
         var snapshot = dataSource.snapshot()
         snapshot.deleteAllItems()
         snapshot.appendSections([.main])
@@ -452,6 +504,137 @@ private extension AIChatViewController {
         navigationItem.rightBarButtonItem?.isEnabled = false
 //        chatBottomView.isClearEnabled = false
     }
+    
+    func appendStreamChunk(_ chunk: String) {
+        pendingStreamText += chunk
+    }
+    
+    func finishStreamResponse() {
+        didReceiveStreamCompletion = true
+        finalizeStreamIfNeeded()
+    }
+    
+    func startStreamDisplayLink() {
+        stopStreamDisplayLink()
+        
+        let displayLink = CADisplayLink(target: self, selector: #selector(handleStreamDisplayLink))
+        if #available(iOS 15.0, *) {
+            displayLink.preferredFrameRateRange = CAFrameRateRange(minimum: 8, maximum: 12, preferred: 10)
+        } else {
+            displayLink.preferredFramesPerSecond = 10
+        }
+        displayLink.add(to: .main, forMode: .common)
+        streamDisplayLink = displayLink
+    }
+    
+    func stopStreamDisplayLink() {
+        streamDisplayLink?.invalidate()
+        streamDisplayLink = nil
+    }
+    
+    func resetStreamingState() {
+        stopStreamDisplayLink()
+        pendingStreamText = ""
+        renderedStreamText = ""
+        didReceiveStreamCompletion = false
+    }
+    
+    @objc func handleStreamDisplayLink() {
+        updateStreamingAIMessageIfNeeded()
+    }
+    
+    func updateStreamingAIMessageIfNeeded() {
+        guard renderedStreamText != pendingStreamText else { return }
+        
+        let nextText = nextRenderedText()
+        guard nextText != renderedStreamText else { return }
+        renderedStreamText = nextText
+        
+        guard var aiChat = lastAIChat else { return }
+        aiChat.text = renderedStreamText
+        lastAIChat = aiChat
+        
+        guard let itemIndex = dataSource.snapshot().indexOfItem(aiChat) else { return }
+        let indexPath = IndexPath(item: itemIndex, section: 0)
+        
+        if let cell = collectionView.cellForItem(at: indexPath) as? AIChatCell {
+            cell.configure(with: aiChat.text)
+            cell.setNeedsLayout()
+            cell.layoutIfNeeded()
+            UIView.performWithoutAnimation {
+                collectionView.collectionViewLayout.invalidateLayout()
+                collectionView.layoutIfNeeded()
+                collectionView.scrollToBottom(animated: false)
+            }
+        }
+        
+        finalizeStreamIfNeeded()
+    }
+    
+    func nextRenderedText() -> String {
+        guard renderedStreamText.count < pendingStreamText.count else {
+            return renderedStreamText
+        }
+        
+        let startIndex = pendingStreamText.index(
+            pendingStreamText.startIndex,
+            offsetBy: renderedStreamText.count
+        )
+        var currentIndex = startIndex
+        var consumedCharacters = 0
+        
+        while currentIndex < pendingStreamText.endIndex, consumedCharacters < streamCharactersPerFrame {
+            let character = pendingStreamText[currentIndex]
+            
+            if character.isASCIIWordCharacter {
+                while currentIndex < pendingStreamText.endIndex,
+                      pendingStreamText[currentIndex].isASCIIWordCharacter {
+                    currentIndex = pendingStreamText.index(after: currentIndex)
+                }
+                
+                while currentIndex < pendingStreamText.endIndex,
+                      pendingStreamText[currentIndex].isWhitespace {
+                    currentIndex = pendingStreamText.index(after: currentIndex)
+                }
+            } else {
+                currentIndex = pendingStreamText.index(after: currentIndex)
+            }
+            
+            consumedCharacters += 1
+        }
+        
+        return String(pendingStreamText[..<currentIndex])
+    }
+    
+    func finalizeStreamIfNeeded() {
+        guard didReceiveStreamCompletion, renderedStreamText == pendingStreamText else { return }
+        stopStreamDisplayLink()
+        
+        guard var aiChat = lastAIChat else {
+            isAIThinking = false
+            return
+        }
+        
+        if aiChat.text.isEmpty {
+            aiChat.text = "暂未获取到回复内容，请稍后重试。"
+            lastAIChat = aiChat
+        }
+        
+        var snapshot = dataSource.snapshot()
+        snapshot.deleteItems([aiChat])
+        snapshot.appendItems([aiChat], toSection: .main)
+        dataSource.apply(snapshot, animatingDifferences: false)
+        scrollToBottomItem(snapshot, animated: false)
+        isAIThinking = false
+    }
+}
+
+private extension Character {
+    var isASCIIWordCharacter: Bool {
+        unicodeScalars.allSatisfy { scalar in
+            scalar.isASCII && (CharacterSet.alphanumerics.contains(scalar) || scalar == "_")
+        }
+    }
 }
 
 extension AIChatViewController: AIChatBottomViewDelegate {
@@ -461,7 +644,7 @@ extension AIChatViewController: AIChatBottomViewDelegate {
     }
     
     func chatBottomView(_ chatBottomView: AIChatBottomView, didTapSendWithText text: String) {
-        sendUserMessage(text)
+        sendUserStreamMessage(text)
     }
 }
 

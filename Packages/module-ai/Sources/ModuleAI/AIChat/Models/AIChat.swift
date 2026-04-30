@@ -22,7 +22,7 @@ enum AIChatIntentType: Hashable {
 
 struct AIChat: Hashable {
     let id: UUID
-    let text: String
+    var text: String
     let type: AIChatType
     let intentType: AIChatIntentType
     let questions: [String]
@@ -60,5 +60,13 @@ struct AIChat: Hashable {
         self.barChartDatas = barChartDatas
         self.historyDetailId = historyDetailId
         self.funcType = funcType
+    }
+    
+    static func == (lhs: AIChat, rhs: AIChat) -> Bool {
+        lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
 }

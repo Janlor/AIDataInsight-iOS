@@ -31,6 +31,19 @@ public protocol Requesting {
         _ target: CustomTargetType,
         completion: @escaping (T?, Error?) -> Void
     ) -> CancellableTask
+    
+    @discardableResult
+    static func requestVoid(
+        _ target: CustomTargetType,
+        completion: @escaping (Bool, Error?) -> Void
+    ) -> CancellableTask
+    
+    @discardableResult
+    static func requestSSE(
+        _ request: URLRequest,
+        onEvent: @escaping (String) -> Void,
+        completion: @escaping (Error?) -> Void
+    ) -> CancellableTask
 }
 
 public final class NetworkCancellableTask: CancellableTask {
@@ -57,6 +70,30 @@ public final class NetworkCancellableTask: CancellableTask {
 
     public var isCancelled: Bool {
         cancellable?.isCancelled ?? true
+    }
+}
+
+public final class ClosureCancellableTask: CancellableTask {
+
+    private let cancelHandler: () -> Void
+    public var onFinish: (() -> Void)?
+    private(set) public var isCancelled = false
+
+    public init(cancelHandler: @escaping () -> Void) {
+        self.cancelHandler = cancelHandler
+    }
+
+    public func cancel() {
+        guard !isCancelled else { return }
+        isCancelled = true
+        cancelHandler()
+        finish()
+    }
+
+    public func finish() {
+        guard onFinish != nil else { return }
+        onFinish?()
+        onFinish = nil
     }
 }
 
@@ -145,6 +182,34 @@ public enum CommonRequester: Requesting {
         return wrapper
     }
     
+    @discardableResult
+    public static func requestSSE(
+        _ request: URLRequest,
+        onEvent: @escaping (String) -> Void,
+        completion: @escaping (Error?) -> Void
+    ) -> CancellableTask {
+        let client = SSEClient(request: request)
+        let task = ClosureCancellableTask {
+            client.cancel()
+        }
+        
+        client.onEvent = { event in
+            deliver {
+                onEvent(event)
+            }
+        }
+        
+        client.onComplete = { error in
+            defer { task.finish() }
+            deliver {
+                completion(error)
+            }
+        }
+        
+        client.start()
+        return task
+    }
+    
     private static func deliver(_ block: @escaping () -> Void) {
         if Thread.isMainThread {
             block()
@@ -155,4 +220,3 @@ public enum CommonRequester: Requesting {
         }
     }
 }
-

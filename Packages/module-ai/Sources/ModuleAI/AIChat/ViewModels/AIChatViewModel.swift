@@ -30,6 +30,9 @@ final class AIChatViewModel: BaseViewModel {
     
     var onFunctionResult: ((FunctionResult) -> Void)?
     var onChartResult: ((ChartResult) -> Void)?
+    var onStreamText: ((String) -> Void)?
+    var onStreamCompleted: (() -> Void)?
+    var onStreamFailed: ((String?) -> Void)?
     
     // MARK: - State
     
@@ -43,6 +46,45 @@ final class AIChatViewModel: BaseViewModel {
 }
 
 extension AIChatViewModel {
+    
+    func sendStreamMessage(_ text: String) {
+        let urlString = "https://m1.apifoxmock.com/m1/3174267-1700689-default/stream"
+        guard var components = URLComponents(string: urlString) else {
+            onStreamFailed?("流式接口地址无效。")
+            return
+        }
+        components.queryItems = [
+            URLQueryItem(name: "question", value: text)
+        ]
+        
+        guard let url = components.url else {
+            onStreamFailed?("流式接口地址无效。")
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("text/event-stream", forHTTPHeaderField: "Accept")
+        request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
+        
+        trackTask(
+            CommonRequester.requestSSE(
+                request,
+                onEvent: { [weak self] chunk in
+                    self?.onStreamText?(chunk)
+                },
+                completion: { [weak self] error in
+                    guard let self else { return }
+                    if let error {
+                        self.onStreamFailed?(error.localizedDescription)
+                    } else {
+                        self.onStreamCompleted?()
+                    }
+                }
+            ),
+            for: .custom("ai-chat-stream")
+        )
+    }
     
     func getHistoryDetail(_ historyId: Int) {
         let target = HistoryApi.detail(historyId)

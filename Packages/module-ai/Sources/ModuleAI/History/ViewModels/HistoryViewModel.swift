@@ -2,7 +2,7 @@
 //  HistoryViewModel.swift
 //  ModuleAI
 //
-//  Created by Codex.
+//  Created by Janlor on 4/29/26.
 //
 
 import Foundation
