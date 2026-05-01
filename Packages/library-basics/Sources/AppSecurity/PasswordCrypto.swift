@@ -9,6 +9,7 @@ import Foundation
 
 public enum PasswordCrypto {
     public static func encrypt(_ plain: String) -> String? {
-        encryptString(string: plain, publicKeyPEM: AppRSA.publicKey)
+        return plain // demo 改为不加密
+//        encryptString(string: plain, publicKeyPEM: AppRSA.publicKey)
     }
 }

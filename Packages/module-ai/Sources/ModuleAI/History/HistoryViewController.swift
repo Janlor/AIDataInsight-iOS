@@ -8,6 +8,8 @@
 import UIKit
 import BaseUI
 import SwifterSwift
+import Router
+import SettingProtocol
 
 extension Notification.Name {
     static let historyDidDeleteAll = Notification.Name("AI.HistoryDidDeleteAllNotification")
@@ -30,6 +32,15 @@ class HistoryViewController: BaseViewController {
         btn.setImage(UIImage.imageNamed(for: "delete_navi"), for: .normal)
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.addTarget(self, action: #selector(didClickedDeleteButton(_:)), for: .touchUpInside)
+        return btn
+    }()
+
+    private lazy var settingButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setImage(UIImage(systemName: "gearshape"), for: .normal)
+        btn.tintColor = .theme.label
+        btn.translatesAutoresizingMaskIntoConstraints = false
+        btn.addTarget(self, action: #selector(didTapSettingButton), for: .touchUpInside)
         return btn
     }()
     
@@ -152,6 +163,9 @@ private extension HistoryViewController {
             navigationItem.title = NSLocalizedString("历史会话", bundle: .module, comment: "")
             navigationItem.largeTitleDisplayMode = .always
         }
+
+        let settingItem = UIBarButtonItem(customView: settingButton)
+        navigationItem.rightBarButtonItem = settingItem
         
 //        let deleteItem = UIBarButtonItem(customView: deleteButton)
 //        navigationItem.rightBarButtonItem = deleteItem
@@ -160,6 +174,10 @@ private extension HistoryViewController {
 }
 
 private extension HistoryViewController {
+    @objc func didTapSettingButton() {
+        Router.present(from: self, to: SettingProtocol.self, animated: true)
+    }
+
     @objc private func handleLongPress(gesture: UILongPressGestureRecognizer) {
         switch gesture.state {
         case .began:
