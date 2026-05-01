@@ -1,0 +1,112 @@
+flowchart LR
+    subgraph App["App Shell"]
+        AppEntry["AIDataInsight"]
+    end
+
+    subgraph AI["Packages/module-ai"]
+        ModuleAI["ModuleAI"]
+    end
+
+    subgraph Common["Packages/library-common"]
+        AppMain["AppMain"]
+        CommonViewModel["CommonViewModel"]
+        Login["Login"]
+        LoginProtocol["LoginProtocol"]
+        Privacy["Privacy"]
+        PrivacyProtocol["PrivacyProtocol"]
+        ProtocolAI["ProtocolAI"]
+        Setting["Setting"]
+        SettingProtocol["SettingProtocol"]
+    end
+
+    subgraph Basics["Packages/library-basics"]
+        Account["Account"]
+        AccountProtocol["AccountProtocol"]
+        AppLaunch["AppLaunch"]
+        AppSecurity["AppSecurity"]
+        BaseEnv["BaseEnv"]
+        BaseKit["BaseKit"]
+        BaseUI["BaseUI"]
+        BaseViewModel["BaseViewModel"]
+        Environment["Environment"]
+        Networking["Networking<br/>includes SSEClient"]
+        Router["Router"]
+        Storage["Storage"]
+    end
+
+    subgraph External["External Packages"]
+        DGCharts["DGCharts"]
+        Moya["Moya"]
+        SwifterSwift["SwifterSwift"]
+        SVProgressHUD["SVProgressHUD"]
+    end
+
+    AppEntry --> ModuleAI
+
+    ModuleAI --> AppMain
+    ModuleAI --> CommonViewModel
+    ModuleAI --> Login
+    ModuleAI --> LoginProtocol
+    ModuleAI --> Privacy
+    ModuleAI --> PrivacyProtocol
+    ModuleAI --> ProtocolAI
+    ModuleAI --> Setting
+    ModuleAI --> SettingProtocol
+    ModuleAI --> DGCharts
+
+    AppMain --> ProtocolAI
+    AppMain --> LoginProtocol
+    AppMain --> AccountProtocol
+    AppMain --> BaseUI
+    AppMain --> AppLaunch
+    AppMain --> Router
+    AppMain --> BaseKit
+
+    CommonViewModel --> AppLaunch
+    CommonViewModel --> BaseViewModel
+    CommonViewModel --> Networking
+
+    Login --> LoginProtocol
+    Login --> PrivacyProtocol
+    Login --> AccountProtocol
+    Login --> BaseUI
+    Login --> Networking
+    Login --> AppLaunch
+    Login --> AppSecurity
+    Login --> Router
+
+    LoginProtocol --> AccountProtocol
+
+    Privacy --> PrivacyProtocol
+    Privacy --> Environment
+    Privacy --> BaseUI
+    Privacy --> AppLaunch
+    Privacy --> Router
+
+    Setting --> SettingProtocol
+    Setting --> LoginProtocol
+    Setting --> PrivacyProtocol
+    Setting --> AccountProtocol
+    Setting --> BaseUI
+    Setting --> AppLaunch
+    Setting --> Router
+    Setting --> Environment
+
+    Account --> AccountProtocol
+    Account --> AppLaunch
+    Account --> AppSecurity
+    Account --> BaseUI
+    Account --> Networking
+    Account --> Router
+    Account --> Storage
+
+    BaseUI --> BaseKit
+    Environment --> BaseEnv
+    Networking --> AccountProtocol
+    Networking --> Environment
+    Networking --> Router
+    Networking --> Storage
+    Networking --> Moya
+
+    BaseKit --> SwifterSwift
+    BaseUI --> SVProgressHUD

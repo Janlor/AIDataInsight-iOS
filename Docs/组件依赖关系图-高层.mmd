@@ -1,0 +1,11 @@
+flowchart TD
+    App["AIDataInsight App Shell<br/>AppDelegate / SceneDelegate / Xcconfig"] --> ModuleAI["ModuleAI"]
+
+    ModuleAI --> LibraryCommon["LibraryCommon"]
+    LibraryCommon --> LibraryBasics["LibraryBasics"]
+
+    ModuleAI --> DGCharts["DGCharts"]
+
+    LibraryBasics --> Moya["Moya"]
+    LibraryBasics --> SwifterSwift["SwifterSwift"]
+    LibraryBasics --> SVProgressHUD["SVProgressHUD"]
