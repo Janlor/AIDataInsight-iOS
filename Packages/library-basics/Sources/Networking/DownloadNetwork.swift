@@ -1,6 +1,6 @@
 //
 //  DownloadNetwork.swift
-//  LibraryCommon
+//  LibraryBasics
 //
 //  Created by Janlor on 6/14/24.
 //

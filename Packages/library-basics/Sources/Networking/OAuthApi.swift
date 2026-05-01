@@ -1,6 +1,6 @@
 //
 //  OAuthApi.swift
-//  LibraryCommon
+//  LibraryBasics
 //
 //  Created by Janlor on 2024/5/29.
 //

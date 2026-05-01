@@ -1,6 +1,6 @@
 //
 //  UploadApi.swift
-//  LibraryCommon
+//  LibraryBasics
 //
 //  Created by Janlor on 6/12/24.
 //

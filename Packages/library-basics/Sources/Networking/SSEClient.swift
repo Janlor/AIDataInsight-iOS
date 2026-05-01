@@ -1,6 +1,6 @@
 //
 //  SSEClient.swift
-//  LibraryCommon
+//  LibraryBasics
 //
 //  Created by Janlor on 4/30/26.
 //

@@ -1,6 +1,6 @@
 //
 //  NetworkRequestable.swift
-//  LibraryCommon
+//  LibraryBasics
 //
 //  Created by Janlor on 5/30/24.
 //

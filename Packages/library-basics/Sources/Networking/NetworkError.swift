@@ -1,6 +1,6 @@
 //
 //  NetworkError.swift
-//  LibraryCommon
+//  LibraryBasics
 //
 //  Created by Janlor on 2024/11/4.
 //
