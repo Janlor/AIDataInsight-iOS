@@ -9,11 +9,10 @@ import UIKit
 import PrivacyProtocol
 import BaseUI
 import Router
-import Environment
 
 struct PrivacyPolicyRouter: RouterService {
-    
-    private static var hasShownPolicy = false
+    private static let sharedViewModel = PrivacyPolicyViewModel()
+    private var viewModel: PrivacyPolicyViewModel { Self.sharedViewModel }
 
     init(){}
     
@@ -31,39 +30,32 @@ extension PrivacyPolicyRouter: RouterDestination {
 extension PrivacyPolicyRouter: PrivacyProtocol {
     /// 是否同意所有协议
     func isAgreedAllPolicyAgreement() -> Bool {
-        PolicyManager.isAgreedAllPolicyAgreement()
+        viewModel.isAgreedAllPolicyAgreement()
     }
     
     func showPolicyIfNeeded() {
-        guard !PrivacyPolicyRouter.hasShownPolicy else { return }
-        PrivacyPolicyRouter.hasShownPolicy = true
-        guard !PolicyManager.isAgreedAllPolicyAgreement() else { return }
+        guard viewModel.shouldShowPolicyAgreement() else { return }
         showPolicyAgreementAlertController()
     }
     
     func showPolicyAgreementAlertController() {
-        let title: String
-        switch CommonTarget.target {
-        default:
-            title = NSLocalizedString("欢迎使用AI数据分析助手", bundle: .module, comment: "")
-        }
-        let content = NSLocalizedString("PrivacyPolicyContent", bundle: .module, comment: "")
+        let alertContent = viewModel.makeAlertContent()
         let buttons = [
-            AlertButtonModel(title: NSLocalizedString("取消", bundle: .module, comment: ""), type: .cancel, autoDismiss: false, action: {
+            AlertButtonModel(title: alertContent.cancelTitle, type: .cancel, autoDismiss: false, action: {
                 UIApplication.shared.perform(#selector(URLSessionTask.suspend))
 //                exit(0)
             }),
-            AlertButtonModel(title: NSLocalizedString("同意并继续", bundle: .module, comment: ""), type: .confirm, action: {
-                let version = PolicyManager.latestVersionDict()
-                PolicyManager.saveAgreedVersionDict(version)
-                NotificationCenter.default.post(name: .didAgreedAllPolicyAgreement, object: nil)
+            AlertButtonModel(title: alertContent.confirmTitle, type: .confirm, action: {
+                viewModel.agreeToLatestPolicy()
             }),
         ]
-        let message = NSLocalizedString("PrivacyPolicyMessage", bundle: .module, comment: "")
-        let linkDict = [
-            NSLocalizedString("《隐私政策》", bundle: .module, comment: ""): PolicyManager.privacyPolicyURL
-        ]
-        let alert = ScrollAlertController(title: title, content: content, buttonModels: buttons, message: message, messageDict: linkDict)
+        let alert = ScrollAlertController(
+            title: alertContent.title,
+            content: alertContent.content,
+            buttonModels: buttons,
+            message: alertContent.message,
+            messageDict: alertContent.linkTexts
+        )
         alert.didTapedLink = { link in
             guard let currentVC = UIWindow.app.currentViewController() else { return }
             let vc = PrivacyPolicyViewController()
@@ -80,6 +72,6 @@ extension PrivacyPolicyRouter: PrivacyProtocol {
     
     /// 隐私协议链接
     func privacyPolicyURL() -> String {
-        PolicyManager.privacyPolicyURL
+        viewModel.privacyPolicyURL()
     }
 }
