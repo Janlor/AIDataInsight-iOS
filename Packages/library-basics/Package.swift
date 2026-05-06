@@ -194,5 +194,12 @@ let package = Package(
         .target(
             name: "Storage"
         ),
+        .testTarget(
+            name: "LibraryBasicsTests",
+            dependencies: [
+                "Networking",
+                "AccountProtocol",
+            ]
+        ),
     ]
 )
