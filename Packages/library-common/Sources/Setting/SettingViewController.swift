@@ -98,13 +98,19 @@ private extension SettingViewController {
     }
 
     func logoutAction() {
-        Router.perform(key: LoginProtocol.self)?.logout({ succeed, error in
-            guard succeed == true, error == nil else {
+        Task {
+            do {
+                guard let loginService = Router.perform(key: LoginProtocol.self) else {
+                    ProgressHUD.showError(withStatus: NSLocalizedString("退出登录失败", bundle: .module, comment: ""))
+                    return
+                }
+                
+                try await loginService.logout()
+                NotificationCenter.default.post(name: .logoutSucceed, object: nil)
+            } catch {
                 ProgressHUD.showError(withStatus: NSLocalizedString("退出登录失败", bundle: .module, comment: ""))
-                return
             }
-            NotificationCenter.default.post(name: .logoutSucceed, object: nil)
-        })
+        }
     }
 }
 

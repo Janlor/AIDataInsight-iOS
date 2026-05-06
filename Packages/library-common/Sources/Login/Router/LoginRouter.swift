@@ -39,6 +39,23 @@ extension LoginRouter: LoginProtocol {
         return NetworkCancellableTask(cancellable: task)
     }
     
+    func refresh(_ token: String) async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            refresh(token) { success, message in
+                if success {
+                    continuation.resume()
+                } else {
+                    let error = NSError(
+                        domain: "LoginRouter.refresh",
+                        code: 1,
+                        userInfo: [NSLocalizedDescriptionKey: message ?? NSLocalizedString("未知错误", bundle: .module, comment: "")]
+                    )
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
     /// 退出登录
     func logout(_ reslut: @escaping BoolResultClosure) {
         let target = OAuthApi.logout
@@ -48,6 +65,23 @@ extension LoginRouter: LoginProtocol {
                 return
             }
             reslut(true, nil)
+        }
+    }
+    
+    func logout() async throws {
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            logout { success, message in
+                if success {
+                    continuation.resume()
+                } else {
+                    let error = NSError(
+                        domain: "LoginRouter.logout",
+                        code: 1,
+                        userInfo: [NSLocalizedDescriptionKey: message ?? NSLocalizedString("未知错误", bundle: .module, comment: "")]
+                    )
+                    continuation.resume(throwing: error)
+                }
+            }
         }
     }
 }

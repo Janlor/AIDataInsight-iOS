@@ -5,7 +5,7 @@
 //  Created by Janlor on 2024/7/3.
 //
 
-import UIKit
+import Foundation
 
 public extension Notification.Name {
     /// 同意所有协议的通知
@@ -19,4 +19,6 @@ public protocol PrivacyProtocol {
     func showPolicyIfNeeded()
     /// 直接打开隐私政策弹窗
     func showPolicyAgreementAlertController()
+    /// 隐私协议链接
+    func privacyPolicyURL() -> String
 }

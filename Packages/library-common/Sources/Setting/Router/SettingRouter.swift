@@ -24,9 +24,5 @@ extension SettingRouter: RouterDestination {
 }
 
 extension SettingRouter: SettingProtocol {
-    func setupSetting(for viewController : UIViewController) {
-        let tool = SettingToolView()
-        tool.setupSetting(for: viewController)
-        viewController.view.addSubview(tool) // 避免被释放
-    }
+    
 }
