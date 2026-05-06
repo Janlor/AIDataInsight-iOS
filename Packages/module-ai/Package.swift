@@ -51,5 +51,9 @@ let package = Package(
                 .linkedFramework("CoreGraphics")
             ]
         ),
+        .testTarget(
+            name: "ModuleAITests",
+            dependencies: ["ModuleAI"]
+        ),
     ]
 )
