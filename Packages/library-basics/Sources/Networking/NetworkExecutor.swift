@@ -12,20 +12,20 @@ public struct NetworkExecutor {
     private let requestBuilder: RequestBuilder
     private let networkClient: NetworkClient
     private let credentialProvider: NetworkCredentialProvider
-    private let tokenRefreshService: TokenRefreshService
+    private let tokenRefreshCoordinator: TokenRefreshCoordinator
     private let sessionInvalidationHandler: SessionInvalidationHandler
 
     public init(
         requestBuilder: RequestBuilder = RequestBuilder(),
         networkClient: NetworkClient = URLSessionNetworkClient(),
         credentialProvider: NetworkCredentialProvider = NetworkDependencies.credentialProvider,
-        tokenRefreshService: TokenRefreshService = NetworkDependencies.tokenRefreshService,
+        tokenRefreshCoordinator: TokenRefreshCoordinator = NetworkDependencies.tokenRefreshCoordinator,
         sessionInvalidationHandler: SessionInvalidationHandler = NetworkDependencies.sessionInvalidationHandler
     ) {
         self.requestBuilder = requestBuilder
         self.networkClient = networkClient
         self.credentialProvider = credentialProvider
-        self.tokenRefreshService = tokenRefreshService
+        self.tokenRefreshCoordinator = tokenRefreshCoordinator
         self.sessionInvalidationHandler = sessionInvalidationHandler
     }
 
@@ -99,17 +99,7 @@ private extension NetworkExecutor {
     }
 
     func refreshTokenIfNeeded(_ refreshToken: String?) async throws -> Bool {
-        guard let refreshToken else { return false }
-
-        return try await withCheckedThrowingContinuation { continuation in
-            _ = tokenRefreshService.refreshToken(refreshToken) { succeed, errorMessage in
-                if let errorMessage, succeed == false {
-                    continuation.resume(throwing: ResponseError.server(402, errorMessage))
-                    return
-                }
-                continuation.resume(returning: succeed)
-            }
-        }
+        try await tokenRefreshCoordinator.refreshToken(refreshToken)
     }
 
     func makeResponse(

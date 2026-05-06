@@ -31,18 +31,27 @@ public protocol NetworkCredentialProvider {
     var orgId: Int? { get }
 }
 
-public protocol TokenRefreshService {
+public protocol TokenRefreshService: Sendable {
     @discardableResult
     func refreshToken(_ token: String, completion: @escaping (Bool, String?) -> Void) -> Cancellable?
 }
 
-public protocol SessionInvalidationHandler {
+public protocol SessionInvalidationHandler: Sendable {
     func invalidateSession(message: String?)
 }
 
 public enum NetworkDependencies {
+    private static let defaultTokenRefreshService = DefaultTokenRefreshService()
+
     public static var credentialProvider: NetworkCredentialProvider = DefaultNetworkCredentialProvider()
-    public static var tokenRefreshService: TokenRefreshService = DefaultTokenRefreshService()
+    public static var tokenRefreshService: TokenRefreshService = defaultTokenRefreshService {
+        didSet {
+            tokenRefreshCoordinator = TokenRefreshCoordinator(tokenRefreshService: tokenRefreshService)
+        }
+    }
+    public static var tokenRefreshCoordinator: TokenRefreshCoordinator = TokenRefreshCoordinator(
+        tokenRefreshService: defaultTokenRefreshService
+    )
     public static var sessionInvalidationHandler: SessionInvalidationHandler = DefaultSessionInvalidationHandler()
 }
 

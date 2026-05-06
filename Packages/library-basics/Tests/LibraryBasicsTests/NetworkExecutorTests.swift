@@ -13,7 +13,7 @@ struct NetworkExecutorTests {
         let executor = NetworkExecutor(
             networkClient: client,
             credentialProvider: MockCredentialProvider(refreshToken: "refresh-token"),
-            tokenRefreshService: MockTokenRefreshService(),
+            tokenRefreshCoordinator: TokenRefreshCoordinator(tokenRefreshService: MockTokenRefreshService()),
             sessionInvalidationHandler: MockInvalidationHandler()
         )
 
@@ -32,7 +32,7 @@ struct NetworkExecutorTests {
         let executor = NetworkExecutor(
             networkClient: client,
             credentialProvider: MockCredentialProvider(refreshToken: "refresh-token"),
-            tokenRefreshService: MockTokenRefreshService(),
+            tokenRefreshCoordinator: TokenRefreshCoordinator(tokenRefreshService: MockTokenRefreshService()),
             sessionInvalidationHandler: invalidationHandler
         )
 
@@ -52,7 +52,7 @@ struct NetworkExecutorTests {
         let executor = NetworkExecutor(
             networkClient: client,
             credentialProvider: MockCredentialProvider(refreshToken: "refresh-token"),
-            tokenRefreshService: refreshService,
+            tokenRefreshCoordinator: TokenRefreshCoordinator(tokenRefreshService: refreshService),
             sessionInvalidationHandler: MockInvalidationHandler()
         )
 
@@ -62,6 +62,30 @@ struct NetworkExecutorTests {
         #expect(refreshService.receivedTokens == ["refresh-token"])
         #expect((json["code"] as? Int) == 200)
         #expect(await client.requestCount == 2)
+    }
+
+    @Test
+    func requestData_concurrent402_refreshesOnlyOnce() async throws {
+        let refreshService = MockTokenRefreshService()
+        let client = MockNetworkClient(responses: [
+            .success(jsonResponse(statusCode: 200, body: #"{"code":402,"msg":"refresh"}"#)),
+            .success(jsonResponse(statusCode: 200, body: #"{"code":402,"msg":"refresh"}"#)),
+            .success(jsonResponse(statusCode: 200, body: #"{"code":200,"msg":"ok","data":{"value":1}}"#)),
+            .success(jsonResponse(statusCode: 200, body: #"{"code":200,"msg":"ok","data":{"value":2}}"#))
+        ])
+        let executor = NetworkExecutor(
+            networkClient: client,
+            credentialProvider: MockCredentialProvider(refreshToken: "refresh-token"),
+            tokenRefreshCoordinator: TokenRefreshCoordinator(tokenRefreshService: refreshService),
+            sessionInvalidationHandler: MockInvalidationHandler()
+        )
+
+        async let first = executor.requestData(MockTarget(path: "/demo"))
+        async let second = executor.requestData(MockTarget(path: "/demo"))
+        _ = try await (first, second)
+
+        #expect(refreshService.receivedTokens == ["refresh-token"])
+        #expect(await client.requestCount == 4)
     }
 }
 
@@ -110,7 +134,7 @@ private struct MockCredentialProvider: NetworkCredentialProvider {
     let orgId: Int? = nil
 }
 
-private final class MockTokenRefreshService: TokenRefreshService {
+private final class MockTokenRefreshService: @unchecked Sendable, TokenRefreshService {
     private(set) var receivedTokens: [String] = []
 
     func refreshToken(_ token: String, completion: @escaping (Bool, String?) -> Void) -> Moya.Cancellable? {
@@ -120,7 +144,7 @@ private final class MockTokenRefreshService: TokenRefreshService {
     }
 }
 
-private final class MockInvalidationHandler: SessionInvalidationHandler {
+private final class MockInvalidationHandler: @unchecked Sendable, SessionInvalidationHandler {
     private(set) var lastMessage: String?
 
     func invalidateSession(message: String?) {

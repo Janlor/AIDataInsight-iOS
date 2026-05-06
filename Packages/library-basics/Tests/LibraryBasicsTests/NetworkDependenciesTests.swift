@@ -60,7 +60,7 @@ private struct MockTokenRefreshService: TokenRefreshService {
     }
 }
 
-private final class MockSessionInvalidationHandler: SessionInvalidationHandler {
+private final class MockSessionInvalidationHandler: @unchecked Sendable, SessionInvalidationHandler {
     private(set) var lastMessage: String?
 
     func invalidateSession(message: String?) {

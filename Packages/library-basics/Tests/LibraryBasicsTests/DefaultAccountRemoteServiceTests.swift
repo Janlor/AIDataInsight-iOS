@@ -18,7 +18,7 @@ struct DefaultAccountRemoteServiceTests {
             networkExecutor: NetworkExecutor(
                 networkClient: client,
                 credentialProvider: MockCredentialProvider(refreshToken: "refresh-token"),
-                tokenRefreshService: MockTokenRefreshService(),
+                tokenRefreshCoordinator: TokenRefreshCoordinator(tokenRefreshService: MockTokenRefreshService()),
                 sessionInvalidationHandler: MockInvalidationHandler()
             )
         )
@@ -45,7 +45,7 @@ struct DefaultAccountRemoteServiceTests {
             networkExecutor: NetworkExecutor(
                 networkClient: client,
                 credentialProvider: MockCredentialProvider(refreshToken: "refresh-token"),
-                tokenRefreshService: MockTokenRefreshService(),
+                tokenRefreshCoordinator: TokenRefreshCoordinator(tokenRefreshService: MockTokenRefreshService()),
                 sessionInvalidationHandler: MockInvalidationHandler()
             )
         )
@@ -111,14 +111,14 @@ private struct MockCredentialProvider: NetworkCredentialProvider {
     let orgId: Int? = nil
 }
 
-private final class MockTokenRefreshService: TokenRefreshService {
+private final class MockTokenRefreshService: @unchecked Sendable, TokenRefreshService {
     func refreshToken(_ token: String, completion: @escaping (Bool, String?) -> Void) -> Moya.Cancellable? {
         completion(true, nil)
         return nil
     }
 }
 
-private final class MockInvalidationHandler: SessionInvalidationHandler {
+private final class MockInvalidationHandler: @unchecked Sendable, SessionInvalidationHandler {
     func invalidateSession(message: String?) {}
 }
 
