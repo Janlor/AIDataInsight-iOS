@@ -15,7 +15,6 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../library-common"),
-        .package(path: "../library-basics"),
 //        .package(url: "http://192.168.0.93/appmodule-ios/library-basics.git", branch: "temp-fourth"),
 //        .package(url: "http://192.168.0.93/appmodule-ios/library-common.git", branch: "v2.5.1"),
 //        .package(url: "http://192.168.0.93/dev113/BaseUI.git", from: "1.0.5"),
@@ -33,7 +32,6 @@ let package = Package(
             name: "ModuleAI",
             dependencies: [
                 .product(name: "LibraryCommon", package: "library-common"),
-                .product(name: "Networking", package: "library-basics"),
 //                .product(name: "BaseUI", package: "BaseUI"),
 //                .product(name: "Network", package: "Network"),
 //                .product(name: "Refresh", package: "Refresh"),

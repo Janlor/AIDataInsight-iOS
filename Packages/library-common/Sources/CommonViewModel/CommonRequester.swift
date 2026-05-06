@@ -175,17 +175,23 @@ public enum CommonRequester: Requesting {
         _ target: CustomTargetType,
         completion: @escaping (T?, Error?) -> Void
     ) -> CancellableTask {
-        let wrapper = NetworkCancellableTask()
-        let cancellable = ResponseModel<T>.requestable(
-            target,
-        ) { response, error in
-            defer { wrapper.finish() }
-            deliver {
-                completion(response?.data, error)
+        var task: _Concurrency.Task<Void, Never>?
+        let wrapper = ClosureCancellableTask {
+            task?.cancel()
+        }
+        task = _Concurrency.Task {
+            defer { deliver { wrapper.finish() } }
+            do {
+                let response = try await NetworkExecutor().request(target, as: ResponseModel<T>.self)
+                deliver {
+                    completion(response.data, response.data == nil ? CommonRequesterError.emptyResponse : nil)
+                }
+            } catch {
+                deliver {
+                    completion(nil, error)
+                }
             }
         }
-        
-        wrapper.bind(cancellable)
         return wrapper
     }
     
@@ -216,21 +222,23 @@ public enum CommonRequester: Requesting {
         _ target: CustomTargetType,
         completion: @escaping (Bool, Error?) -> Void
     ) -> CancellableTask {
-        
-        let wrapper = NetworkCancellableTask()
-        
-        let cancellable = ResponseModel<AnyCodable>.requestable(
-            target
-        ) { response, error in
-            defer { wrapper.finish() }
-            
-            deliver {
-                let success = (error == nil) && (response?.code == 200)
-                completion(success, error)
+        var task: _Concurrency.Task<Void, Never>?
+        let wrapper = ClosureCancellableTask {
+            task?.cancel()
+        }
+        task = _Concurrency.Task {
+            defer { deliver { wrapper.finish() } }
+            do {
+                _ = try await NetworkExecutor().request(target, as: ResponseModel<AnyCodable>.self)
+                deliver {
+                    completion(true, nil)
+                }
+            } catch {
+                deliver {
+                    completion(false, error)
+                }
             }
         }
-        
-        wrapper.bind(cancellable)
         return wrapper
     }
     
