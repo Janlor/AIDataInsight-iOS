@@ -7,8 +7,6 @@
 
 import Foundation
 import Moya
-import Router
-import AccountProtocol
 
 /// 标准的网络服务
 /// 如果需要特殊的网络服务，请直接自己实现provider
@@ -135,7 +133,7 @@ public struct Network {
         errorCallback: @escaping ((NetworkError) -> Void),
         failureCallback: @escaping ((NetworkError) -> Void)
     ) {
-        guard let refreshToken = Router.perform(key: AccountProtocol.self)?.refreshToken else {
+        guard let refreshToken = NetworkDependencies.credentialProvider.refreshToken else {
             invalidAccessToken(msg: decodedResponse.msg)
             errorCallback(.underlying(NSError(domain: "", code: 401, userInfo: nil), nil))
             return
@@ -228,9 +226,9 @@ public struct Network {
     }
     
     private static func refreshTokenRequest(_ refreshToken: String, completion: @escaping (Bool) -> Void) {
-        let task = refresh(refreshToken, { succeed, error in
+        let task = NetworkDependencies.tokenRefreshService.refreshToken(refreshToken) { succeed, error in
             completion(succeed == true && error == nil)
-        })
+        }
         // 设置超时时间，防止网络卡住
         DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
             if let task = task {
@@ -242,24 +240,6 @@ public struct Network {
     }
     
     static func invalidAccessToken(msg: String?) {
-        DispatchQueue.main.async {
-            var userInfo: [AnyHashable: Any]?
-            if let msg = msg { userInfo = ["msg": msg] }
-            NotificationCenter.default.post(name: .logoutSucceed, object: nil, userInfo: userInfo)
-        }
-    }
-    
-    /// 刷新 token
-    private static func refresh(_ token: String, _ reslut: @escaping (Bool, String?) -> Void) -> Cancellable? {
-        let target = OAuthApi.refresh(token)
-        let task = ResponseModel<OAuthModel>.requestable(target) { response, error in
-            guard error == nil, let oauth = response?.data else {
-                reslut(false, error?.localizedDescription ?? NSLocalizedString("未知错误", bundle: .module, comment: ""))
-                return
-            }
-            Router.perform(key: AccountProtocol.self)?.update(account: oauth)
-            reslut(true, nil)
-        }
-        return task
+        NetworkDependencies.sessionInvalidationHandler.invalidateSession(message: msg)
     }
 }

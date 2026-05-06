@@ -7,8 +7,6 @@
 
 import Foundation
 import Moya
-import Router
-import AccountProtocol
 
 /// 业务请求必须要实现的协议
 /// parameters 属于必须实现，其它内容有默认实现
@@ -111,7 +109,7 @@ public extension CustomTargetType {
         // 3. headers
         if let headers = headers, headers.keys.contains("Org-Id") == true {
             components.append("Org-Id=\(headers["Org-Id"])")
-        } else if let orgId = Router.perform(key: AccountProtocol.self)?.orgId {
+        } else if let orgId = NetworkDependencies.credentialProvider.orgId {
             components.append("Org-Id=\(orgId)")
         }
         
