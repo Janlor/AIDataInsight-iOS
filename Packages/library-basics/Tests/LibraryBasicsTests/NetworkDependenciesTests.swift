@@ -1,6 +1,5 @@
 import Foundation
 import Testing
-import Moya
 @testable import Networking
 import AccountProtocol
 
@@ -54,7 +53,7 @@ private struct MockCredentialProvider: NetworkCredentialProvider {
 }
 
 private struct MockTokenRefreshService: TokenRefreshService {
-    func refreshToken(_ token: String, completion: @escaping (Bool, String?) -> Void) -> Moya.Cancellable? {
+    func refreshToken(_ token: String, completion: @escaping (Bool, String?) -> Void) -> Cancellable? {
         completion(true, nil)
         return nil
     }

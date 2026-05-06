@@ -1,6 +1,5 @@
 import Foundation
 import Testing
-import Moya
 @testable import Networking
 
 struct RequestBuilderTests {
@@ -11,9 +10,9 @@ struct RequestBuilderTests {
         let target = MockTarget(
             baseURL: URL(string: "https://example.com")!,
             path: "/ping",
-            method: Moya.Method.get,
+            method: Method.get,
             parameters: [:],
-            task: Moya.Task.requestPlain,
+            task: Task.requestPlain,
             headers: ["X-Test": "1"]
         )
 
@@ -29,9 +28,9 @@ struct RequestBuilderTests {
         let target = MockTarget(
             baseURL: URL(string: "https://example.com")!,
             path: "/history",
-            method: Moya.Method.get,
+            method: Method.get,
             parameters: ["page": 2, "size": 20],
-            task: Moya.Task.requestParameters(parameters: ["page": 2, "size": 20], encoding: URLEncoding.queryString),
+            task: Task.requestParameters(parameters: ["page": 2, "size": 20], encoding: URLEncoding.queryString),
             headers: nil
         )
 
@@ -48,9 +47,9 @@ struct RequestBuilderTests {
         let target = MockTarget(
             baseURL: URL(string: "https://example.com")!,
             path: "/login",
-            method: Moya.Method.post,
+            method: Method.post,
             parameters: ["name": "demo", "pwd": "123456"],
-            task: Moya.Task.requestParameters(
+            task: Task.requestParameters(
                 parameters: ["name": "demo", "pwd": "123456"],
                 encoding: JSONEncoding.prettyPrinted
             ),
@@ -71,9 +70,9 @@ struct RequestBuilderTests {
         let target = MockTarget(
             baseURL: URL(string: "https://example.com")!,
             path: "/upload",
-            method: Moya.Method.post,
+            method: Method.post,
             parameters: [:],
-            task: Moya.Task.uploadFile(URL(fileURLWithPath: "/tmp/demo.txt")),
+            task: Task.uploadFile(URL(fileURLWithPath: "/tmp/demo.txt")),
             headers: nil
         )
 
@@ -86,9 +85,9 @@ struct RequestBuilderTests {
 private struct MockTarget: CustomTargetType {
     let baseURL: URL
     let path: String
-    let method: Moya.Method
+    let method: Method
     let parameters: [String : Any]
-    let task: Moya.Task
+    let task: Task
     let headers: [String : String]?
     let sampleData: Data = Data()
 }

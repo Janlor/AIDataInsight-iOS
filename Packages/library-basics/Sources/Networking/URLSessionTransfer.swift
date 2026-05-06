@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Moya
 
 internal enum URLSessionTransfer {
     static func requestData(

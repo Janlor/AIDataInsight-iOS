@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Moya
 
 public enum RequestBuilderError: LocalizedError {
     case invalidURL

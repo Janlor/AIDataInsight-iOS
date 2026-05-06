@@ -165,9 +165,9 @@ struct NetworkExecutorTests {
 private struct MockTarget: CustomTargetType {
     let baseURL: URL = URL(string: "https://example.com")!
     let path: String
-    let method: Moya.Method = .post
+    let method: Method = .post
     let parameters: [String : Any] = [:]
-    let task: Moya.Task = .requestPlain
+    let task: Task = .requestPlain
     let headers: [String : String]? = nil
     let sampleData: Data = Data()
 }
