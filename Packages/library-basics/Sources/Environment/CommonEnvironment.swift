@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 import BaseEnv
 
 @objc(CommonEnvironment)
@@ -32,150 +31,57 @@ public class Environment: NSObject {
 @objc(AppOAuth)
 /// 授权相关配置
 public class OAuth: NSObject {
-    
     @objc
     public var appid: String {
-        switch EnvInfo.env {
-        case .appStore, .pre:
-            return ""
-        default:
-            return ""
-        }
+        AppEnvironmentValues.oauthAppId(env: EnvInfo.env)
     }
     
     @objc
     public var appSecret: String {
-        switch EnvInfo.env {
-        case .appStore, .pre:
-            return ""
-        default:
-            return ""
-        }
+        AppEnvironmentValues.oauthAppSecret(env: EnvInfo.env)
     }
     
     @objc
     public var appSalt: String {
-        switch EnvInfo.env {
-        case .appStore, .pre:
-            return ""
-        default:
-            return ""
-        }
+        AppEnvironmentValues.oauthAppSalt(env: EnvInfo.env)
     }
     
     @objc
     public var authURL: URL? {
-        switch EnvInfo.env {
-        case .unknow:
-            return nil
-        case .appStore:
-            return URL(string: "")
-        case .pre:
-            return URL(string: "")
-        case .staging:
-            return URL(string: "")
-        case .uat:
-            return URL(string: "")
-        case .sit:
-            return URL(string: "")
-        case .dev:
-            return URL(string: "")
-        }
+        AppEnvironmentValues.authURL(env: EnvInfo.env)
     }
 }
 
 @objc(AppServer)
 /// 服务器相关配置
 public class Server: NSObject {
-    
     @objc
     public var baseURL: URL {
-        let mockURLString = "https://m1.apifoxmock.com/m1/3174267-1700689-default"
-        
-        switch EnvInfo.env {
-        case .pre:
-            switch CommonTarget.target {
-            default:
-                return URL(string: mockURLString)! // 准生产
-            }
-        case .staging:
-            return URL(string: mockURLString)! // 预发布
-        case .uat:
-            return URL(string: mockURLString)! // 测试
-        case .sit:
-            return URL(string: mockURLString)! // 测试
-        case .dev:
-            return URL(string: mockURLString)!
-        default: // 默认生产环境
-            switch CommonTarget.target {
-            default:
-                return URL(string: mockURLString)! // 生产
-            }
-        }
+        AppEnvironmentValues.baseURL(env: EnvInfo.env, target: CommonTarget.target)
     }
     
     @objc
     public var uploadURL: URL {
-        switch EnvInfo.env {
-        case .pre:
-            return URL(string: "")!
-        case .uat:
-            return URL(string: "")!
-        case .sit:
-            return URL(string: "")!
-        case .dev:
-            return URL(string: "")!
-        default: // 默认生产环境
-            return URL(string: "")!
-        }
+        AppEnvironmentValues.uploadURL(env: EnvInfo.env)
     }
     
     @objc
     public var updatePath: String {
-        switch CommonTarget.target {
-        default:
-            return "/download/iOSAppVersionConfigure.json"
-        }
+        AppEnvironmentValues.updatePath(target: CommonTarget.target)
     }
     
     @objc
     public var privacyPolicyURL: String {
-        switch CommonTarget.target {
-        default:
-            return "https://example.com.cn/privacypolicy"
-        }
+        AppEnvironmentValues.privacyPolicyURL(target: CommonTarget.target)
     }
 }
 
 @objc(AppWeb)
 /// 网页相关配置
 public class Web: NSObject {
-    
     @objc
     public var host: String {
-        switch CommonTarget.target {
-        default:
-            return hbHost
-        }
-    }
-    
-    public var hbHost: String {
-        switch EnvInfo.env {
-        case .unknow:
-            return ""
-        case .appStore:
-            return ""
-        case .pre:
-            return ""
-        case .staging:
-            return ""
-        case .uat:
-            return ""
-        case .sit:
-            return ""
-        case .dev:
-            return ""
-        }
+        AppEnvironmentValues.webHost(env: EnvInfo.env, target: CommonTarget.target)
     }
 }
 

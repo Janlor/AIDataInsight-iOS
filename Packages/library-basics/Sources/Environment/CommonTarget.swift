@@ -6,22 +6,9 @@
 //
 
 import Foundation
+import BaseEnv
 
 public class CommonTarget: NSObject {
-    /// info.plist
-    private static var info: [String: Any] {
-        Bundle.main.infoDictionary ?? [:]
-    }
-    
-    /// 自定义的dictionary
-    /// 在info.plist中key是 CustomUserDefine
-    private static var customUserDefine: [String: Any] {
-        let value = info["CustomUserDefine"]
-        if case let dictionary as [String: Any] = value {
-            return dictionary
-        }
-        return [:]
-    }
 }
 
 public extension CommonTarget {
@@ -39,6 +26,7 @@ public extension CommonTarget {
     /// 获取当前环境配置
     static var target: TargetType {
         // 使用 Info.plist 中的配置
+        let customUserDefine = AppRuntimeSettings.customUserDefine()
         if let value = customUserDefine["target"] as? String {
             return TargetType(rawValue: value)
         }

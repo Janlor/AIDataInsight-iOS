@@ -9,20 +9,6 @@ import Foundation
 
 @objc(AppEnvInfo)
 public class EnvInfo: NSObject {
-    /// info.plist
-    private static var info: [String: Any] {
-        Bundle.main.infoDictionary ?? [:]
-    }
-    
-    /// 自定义的dictionary
-    /// 在info.plist中key是 CustomUserDefine
-    private static var customUserDefine: [String: Any] {
-        let value = info["CustomUserDefine"]
-        if case let dictionary as [String: Any] = value {
-            return dictionary
-        }
-        return [:]
-    }
 }
 
 public extension EnvInfo {
@@ -59,6 +45,7 @@ public extension EnvInfo {
     /// 获取当前环境配置
     @objc static var env: EnvType {
         // 使用 Info.plist 中的配置
+        let customUserDefine = AppRuntimeSettings.customUserDefine()
         guard let envValue = customUserDefine["env"] as? String,
               let rawValue = Int(envValue),
               let env = EnvType(rawValue: rawValue) else {
@@ -72,7 +59,7 @@ public extension EnvInfo {
         }
         
         // 检查 UserDefaults 中是否有保存的环境配置
-        if let savedEnv = UserDefaults.standard.value(forKey: "CustomEnv") as? Int,
+        if let savedEnv = UserDefaults.standard.value(forKey: AppRuntimeSettings.customEnvKey) as? Int,
            let validEnv = EnvType(rawValue: savedEnv), validEnv != .unknow {
             return validEnv
         }
@@ -83,7 +70,7 @@ public extension EnvInfo {
     
     /// 切换环境并保存到 UserDefaults
     static func switchEnv(to env: EnvType) {
-        UserDefaults.standard.set(env.rawValue, forKey: "CustomEnv")
+        UserDefaults.standard.set(env.rawValue, forKey: AppRuntimeSettings.customEnvKey)
         UserDefaults.standard.synchronize()
     }
 }
