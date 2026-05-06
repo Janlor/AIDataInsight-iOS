@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Moya
 import Alamofire
 
 public enum ResponseError: Swift.Error {
@@ -47,7 +46,7 @@ extension ResponseError: CustomNSError {
     }
 }
 
-extension MoyaError {
+extension NetworkError {
     public var localizedDescription: String {
         switch self {
         case .imageMapping:

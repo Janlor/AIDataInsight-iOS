@@ -6,10 +6,37 @@
 //
 
 import Foundation
-import Moya
 
-public typealias Cancellable = Moya.Cancellable
-public typealias NetworkError = Moya.MoyaError
+public protocol Cancellable {
+    var isCancelled: Bool { get }
+    func cancel()
+}
+
+public struct NetworkResponse: Sendable {
+    public let statusCode: Int
+    public let data: Data
+    public let request: URLRequest?
+    public let response: HTTPURLResponse?
+
+    public init(statusCode: Int, data: Data, request: URLRequest?, response: HTTPURLResponse?) {
+        self.statusCode = statusCode
+        self.data = data
+        self.request = request
+        self.response = response
+    }
+}
+
+public enum NetworkError: Error {
+    case imageMapping(NetworkResponse)
+    case jsonMapping(NetworkResponse)
+    case stringMapping(NetworkResponse)
+    case objectMapping(Error, NetworkResponse)
+    case encodableMapping(Error)
+    case statusCode(NetworkResponse)
+    case underlying(Error, NetworkResponse?)
+    case requestMapping(String)
+    case parameterEncoding(Error)
+}
 
 public protocol TargetType {
     var baseURL: URL { get }

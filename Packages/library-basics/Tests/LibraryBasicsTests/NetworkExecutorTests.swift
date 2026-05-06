@@ -1,6 +1,5 @@
 import Foundation
 import Testing
-import Moya
 @testable import Networking
 
 @Suite(.serialized)
@@ -36,7 +35,7 @@ struct NetworkExecutorTests {
             sessionInvalidationHandler: invalidationHandler
         )
 
-        await #expect(throws: MoyaError.self) {
+        await #expect(throws: NetworkError.self) {
             _ = try await executor.requestData(MockTarget(path: "/demo"))
         }
         #expect(invalidationHandler.lastMessage == "expired")
@@ -210,7 +209,7 @@ private struct MockCredentialProvider: NetworkCredentialProvider {
 private final class MockTokenRefreshService: @unchecked Sendable, TokenRefreshService {
     private(set) var receivedTokens: [String] = []
 
-    func refreshToken(_ token: String, completion: @escaping (Bool, String?) -> Void) -> Moya.Cancellable? {
+    func refreshToken(_ token: String, completion: @escaping (Bool, String?) -> Void) -> Cancellable? {
         receivedTokens.append(token)
         completion(true, nil)
         return nil
@@ -239,7 +238,7 @@ private final class ConfigurableMockTokenRefreshService: @unchecked Sendable, To
         self.behavior = behavior
     }
 
-    func refreshToken(_ token: String, completion: @escaping (Bool, String?) -> Void) -> Moya.Cancellable? {
+    func refreshToken(_ token: String, completion: @escaping (Bool, String?) -> Void) -> Cancellable? {
         receivedTokens.append(token)
         switch behavior {
         case .success:

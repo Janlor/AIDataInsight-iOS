@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Moya
 
 public struct NetworkExecutor {
     private let requestBuilder: RequestBuilder
@@ -39,7 +38,7 @@ public struct NetworkExecutor {
         do {
             return try NetworkDecoder.decode(Model.self, from: data)
         } catch {
-            throw MoyaError.objectMapping(error, makeResponse(from: data, statusCode: 200, request: nil, response: nil))
+            throw NetworkError.objectMapping(error, makeResponse(from: data, statusCode: 200, request: nil, response: nil))
         }
     }
 }
@@ -55,12 +54,8 @@ private extension NetworkExecutor {
             response: result.response
         )
 
-        do {
-            _ = try response.filterSuccessfulStatusAndRedirectCodes()
-        } catch MoyaError.statusCode {
-            throw MoyaError.statusCode(response)
-        } catch {
-            throw MoyaError.underlying(error, response)
+        guard (200..<400).contains(response.statusCode) else {
+            throw NetworkError.statusCode(response)
         }
 
         let decodedResponse: ResponseModel<EmptyModel>
@@ -79,22 +74,22 @@ private extension NetworkExecutor {
             return result.data
         case 401, 600:
             sessionInvalidationHandler.invalidateSession(message: decodedResponse.msg)
-            throw MoyaError.underlying(ResponseError.server(code, decodedResponse.msg), response)
+            throw NetworkError.underlying(ResponseError.server(code, decodedResponse.msg), response)
         case 402:
             guard hasRetriedAfterRefresh == false else {
                 sessionInvalidationHandler.invalidateSession(message: decodedResponse.msg)
-                throw MoyaError.underlying(ResponseError.server(code, decodedResponse.msg), response)
+                throw NetworkError.underlying(ResponseError.server(code, decodedResponse.msg), response)
             }
 
             let refreshToken = credentialProvider.refreshToken
             let refreshed = try await refreshTokenIfNeeded(refreshToken)
             guard refreshed else {
                 sessionInvalidationHandler.invalidateSession(message: decodedResponse.msg)
-                throw MoyaError.underlying(ResponseError.server(code, decodedResponse.msg), response)
+                throw NetworkError.underlying(ResponseError.server(code, decodedResponse.msg), response)
             }
             return try await requestData(target, hasRetriedAfterRefresh: true)
         default:
-            throw MoyaError.underlying(ResponseError.server(code, decodedResponse.msg), response)
+            throw NetworkError.underlying(ResponseError.server(code, decodedResponse.msg), response)
         }
     }
 
@@ -107,7 +102,7 @@ private extension NetworkExecutor {
         statusCode: Int,
         request: URLRequest?,
         response: HTTPURLResponse?
-    ) -> Moya.Response {
-        Response(statusCode: statusCode, data: data, request: request, response: response)
+    ) -> NetworkResponse {
+        NetworkResponse(statusCode: statusCode, data: data, request: request, response: response)
     }
 }

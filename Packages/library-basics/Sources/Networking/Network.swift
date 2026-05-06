@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Moya
 
 /// 标准的网络服务
 /// 当前作为兼容 façade 保留，对外 API 不变，内部已转发到新的 URLSession 执行链。

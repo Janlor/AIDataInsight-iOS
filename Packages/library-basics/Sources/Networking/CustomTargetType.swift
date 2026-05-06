@@ -69,7 +69,7 @@ public extension CustomTargetType {
         }
     }
     
-    /// 表单上传。文件上传请去Moya.Task中查找
+    /// 表单上传。文件上传请使用当前 Networking.Task 中的上传任务类型
     /// 关于上传中MultipartFormData的mimeType，请参考
     /// https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Basics_of_HTTP/MIME_types
     func upload(_ parts: [MultipartFormBodyPart]) -> Task {
