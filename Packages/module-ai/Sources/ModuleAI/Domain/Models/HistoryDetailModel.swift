@@ -6,14 +6,11 @@
 //
 
 import Foundation
-import Networking
 
 /// 新的会话历史明细模型
-struct HistoryDetailModel: Codable, Hashable, Equatable, NetworkRequestable {
+struct HistoryDetailModel: Codable, Hashable, Equatable {
     /// 方法类型（传方法名）
     let funcType: FunctionName?
-    /// 会话历史明细 ID
-    var historyDetailId: Int?
     /// 通用返回信息列表
     let chartCommonVoList: [ChartCommonVo]?
     /// 多区间账龄返回数据列表

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import BaseKit
 import CommonViewModel
 
 enum FunctionResult {
@@ -16,7 +15,7 @@ enum FunctionResult {
 }
 
 enum ChartResult {
-    case success(model: HistoryDetailModel, datas: [AIBarChartData])
+    case success(funcType: FunctionName?, historyDetailId: Int?, datas: [AIBarChartData])
     case error(String?)
     case timeout
 }
@@ -143,11 +142,9 @@ extension AIChatViewModel {
 
 extension AIChatViewModel {
     
-    func getChartData(name: FunctionName, historyId: Int, arguments: Codable) async {
-        guard let queryModel = arguments as? any DictionaryConvertible else { return }
-        
+    func getChartData(name: FunctionName, historyId: Int, arguments: FunctionArguments) async {
         do {
-            let model = try await repository.loadChartData(name: name, historyId: historyId, arguments: queryModel)
+            let model = try await repository.loadChartData(name: name, historyId: historyId, arguments: arguments)
             let result = AIChatChartBuilder.build(from: model)
             
             guard let datas = result.0 else {
@@ -155,7 +152,7 @@ extension AIChatViewModel {
                 return
             }
             
-            onChartResult?(.success(model: model, datas: datas))
+            onChartResult?(.success(funcType: model.funcType, historyDetailId: nil, datas: datas))
         } catch {
             onChartResult?(.timeout)
         }

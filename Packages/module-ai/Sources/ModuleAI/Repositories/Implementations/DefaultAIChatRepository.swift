@@ -29,10 +29,11 @@ struct DefaultAIChatRepository: AIChatRepository {
     }
     
     func sendFunctionMessage(_ text: String, historyId: Int?) async throws -> FunctionModel {
-        try await CommonRequester.requestNet(ChatApi.function(text, historyId))
+        let dto: FunctionResponseDTO = try await CommonRequester.requestNet(ChatApi.function(text, historyId))
+        return dto.toDomainModel()
     }
     
-    func loadChartData(name: FunctionName, historyId: Int, arguments: any DictionaryConvertible) async throws -> HistoryDetailModel {
+    func loadChartData(name: FunctionName, historyId: Int, arguments: FunctionArguments) async throws -> HistoryDetailModel {
         try await CommonRequester.requestNet(ChartApi.chart(name.rawValue, historyId, arguments))
     }
     

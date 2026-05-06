@@ -6,11 +6,9 @@
 //
 
 import Foundation
-import BaseKit
-import Networking
 
 /// 主数据模型
-struct RecordPageModel: Codable, Hashable, Equatable, NetworkRequestable {
+struct RecordPageModel: Codable, Hashable, Equatable {
     /// 当前页码
     let currentPage: Int?
     /// 每页大小
@@ -26,7 +24,7 @@ struct RecordPageModel: Codable, Hashable, Equatable, NetworkRequestable {
 }
 
 /// 单条记录
-struct RecordModel: Codable, Hashable, Equatable, NetworkRequestable {
+struct RecordModel: Codable, Hashable, Equatable {
     /// 记录 ID
     let id: Int?
     /// 会话名称
@@ -88,62 +86,11 @@ struct DetailModel: Codable, Hashable, Equatable {
     /// 更新时间
     let updateTime: String?
     
-    /// 手动转的模型
-    @CodableIgnored var chatModel: HistoryDetailModel?
-    /// 手动转的模型
-    @CodableIgnored var funcModel: FunctionModel?
-    
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
 
     static func == (lhs: DetailModel, rhs: DetailModel) -> Bool {
         return lhs.id == rhs.id
-    }
-}
-
-extension DetailModel {
-    static func decodeDetailList(_ detailList: [DetailModel]) -> [DetailModel] {
-        var result: [DetailModel] = []
-        for detail in detailList {
-            // 只处理AI消息
-            guard let type = detail.type,
-                  type == .answer else {
-                result.append(detail)
-                continue
-            }
-            
-            // 不支持的消息类型
-            guard let content = detail.content,
-                  let contentType = detail.contentType,
-                  let data = content.data(using: .utf8) else {
-                result.append(detail)
-                continue
-            }
-
-            switch contentType {
-            case .ai: // function 接口的报错消息
-                if let model = try? appDecoder.decode(FunctionModel.self, from: data) {
-                    var newDetail = detail
-                    newDetail.funcModel = model
-                    result.append(newDetail)
-                    continue
-                }
-            case .chart: // 图表数据接口的返回数据
-                if var model = try? appDecoder.decode(HistoryDetailModel.self, from: data) {
-                    var newDetail = detail
-                    model.historyDetailId = detail.id
-                    newDetail.chatModel = model
-                    result.append(newDetail)
-                    continue
-                }
-                
-            default:
-                // 不支持的消息类型
-                result.append(detail)
-                continue
-            }
-        }
-        return result
     }
 }

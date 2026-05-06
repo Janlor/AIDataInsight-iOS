@@ -350,8 +350,8 @@ private extension AIChatViewController {
             case .error(let msg):
                 self.showErrorMessage(msg: msg)
                 
-            case .success(let model, let datas):
-                self.showChartMessage(model: model, chartDatas: datas)
+            case .success(let funcType, let historyDetailId, let datas):
+                self.showChartMessage(funcType: funcType, historyDetailId: historyDetailId, chartDatas: datas)
             }
         }
         
@@ -485,12 +485,12 @@ private extension AIChatViewController {
         self.scrollToBottomItem(snapshot)
     }
     
-    func showChartMessage(model: HistoryDetailModel, chartDatas: [AIBarChartData]) {
+    func showChartMessage(funcType: FunctionName?, historyDetailId: Int?, chartDatas: [AIBarChartData]) {
         resetStreamingState()
         guard let aiAIChat = lastAIChat else { return }
         var snapshot = self.dataSource.snapshot()
         snapshot.deleteItems([aiAIChat])
-        self.lastAIChat = AIChat(text: "根据您的查询，以下是分析结果:", type: .chart, barChartDatas: chartDatas, historyDetailId: model.historyDetailId, funcType: model.funcType)
+        self.lastAIChat = AIChat(text: "根据您的查询，以下是分析结果:", type: .chart, barChartDatas: chartDatas, historyDetailId: historyDetailId, funcType: funcType)
         snapshot.appendItems([self.lastAIChat!], toSection: .main)
         self.dataSource.apply(snapshot, animatingDifferences: true)
         self.scrollToBottomItem(snapshot)

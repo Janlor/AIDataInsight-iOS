@@ -8,13 +8,13 @@
 import Foundation
 
 enum AIChatIntentResolver {
-    static func resolve(text: String, arguments: Codable) -> FunctionResult? {
+    static func resolve(text: String, arguments: FunctionArguments) -> FunctionResult? {
         switch arguments {
-        case let timeRange as TimeRangeQueryModel:
+        case .timeRange(let timeRange):
             if timeRange.startDate == nil {
                 return .intent(text: text, type: .time)
             }
-        case _ as PerformanceTypeQueryModel:
+        case .performanceType:
             return .intent(text: text, type: .index)
         default:
             break
