@@ -24,6 +24,7 @@
       }
     },
     "修改密码" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

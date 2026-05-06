@@ -10,7 +10,6 @@ import BaseUI
 import Router
 import Environment
 import AccountProtocol
-import LoginProtocol
 import PrivacyProtocol
 
 final class SettingViewController: BaseViewController {
@@ -29,6 +28,7 @@ final class SettingViewController: BaseViewController {
 
     override func setupUI() {
         super.setupUI()
+        bindViewModel()
         title = NSLocalizedString("设置", bundle: .module, comment: "")
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .close,
@@ -70,7 +70,6 @@ private extension SettingViewController {
 
     @objc func reloadData() {
         viewModel.reloadData()
-        tableView.reloadData()
     }
 
     func didSelectAction(_ action: SettingItemAction) {
@@ -99,17 +98,18 @@ private extension SettingViewController {
 
     func logoutAction() {
         Task {
-            do {
-                guard let loginService = Router.perform(key: LoginProtocol.self) else {
-                    ProgressHUD.showError(withStatus: NSLocalizedString("退出登录失败", bundle: .module, comment: ""))
-                    return
-                }
-                
-                try await loginService.logout()
-                NotificationCenter.default.post(name: .logoutSucceed, object: nil)
-            } catch {
-                ProgressHUD.showError(withStatus: NSLocalizedString("退出登录失败", bundle: .module, comment: ""))
-            }
+            await viewModel.logout()
+        }
+    }
+}
+
+private extension SettingViewController {
+    func bindViewModel() {
+        viewModel.onReload = { [weak self] in
+            self?.tableView.reloadData()
+        }
+        viewModel.onError = { message in
+            ProgressHUD.showError(withStatus: message)
         }
     }
 }
@@ -174,11 +174,11 @@ private final class SettingItemCell: UITableViewCell {
         detailLabel.text = nil
     }
 
-    func configure(with model: SettingItemModel) {
-        selectionStyle = model.selectionStyle
-        iconView.image = model.image?.withRenderingMode(.alwaysTemplate)
+    func configure(with model: SettingItemViewData) {
+        selectionStyle = model.isSelectable ? .default : .none
+        iconView.image = model.iconSystemName.map { UIImage(systemName: $0)?.withRenderingMode(.alwaysTemplate) } ?? nil
         iconView.tintColor = model.isDestructive ? .systemRed : .theme.secondaryLabel
-        iconView.isHidden = model.image == nil
+        iconView.isHidden = model.iconSystemName == nil
 
         titleLabel.text = model.title
         titleLabel.textColor = model.isDestructive ? .systemRed : .theme.label
@@ -187,8 +187,8 @@ private final class SettingItemCell: UITableViewCell {
         detailLabel.text = model.detail
         detailLabel.isHidden = model.detail == nil
 
-        accessoryType = model.accessory == .disclosureIndicator ? .disclosureIndicator : .none
-        contentStack.setCustomSpacing(model.image == nil ? 0 : 12, after: iconView)
+        accessoryType = model.showsDisclosureIndicator ? .disclosureIndicator : .none
+        contentStack.setCustomSpacing(model.iconSystemName == nil ? 0 : 12, after: iconView)
     }
 
     private func setupUI() {
