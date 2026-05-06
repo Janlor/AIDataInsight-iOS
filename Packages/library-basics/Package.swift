@@ -199,6 +199,7 @@ let package = Package(
             dependencies: [
                 "Networking",
                 "AccountProtocol",
+                "Environment",
             ]
         ),
     ]
