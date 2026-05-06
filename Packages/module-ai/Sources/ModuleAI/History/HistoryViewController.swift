@@ -156,7 +156,7 @@ private extension HistoryViewController {
     }
 
     func displayEmpty(_ state: EmptyViewState) {
-        guard viewModel.dataSourse.isEmpty else {
+        guard viewModel.sections.isEmpty else {
             self.tableView.hideEmpty()
 //            self.deleteButton.isHidden = false
             return
@@ -306,8 +306,7 @@ extension HistoryViewController: UITableViewDelegate, UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withClass: HistoryCell.self)
-        let model = viewModel.record(at: indexPath)
-        cell.configure(with: model)
+        cell.configure(with: viewModel.item(at: indexPath))
         return cell
     }
 

@@ -6,9 +6,7 @@
 //
 
 import Foundation
-import UIKit
 import BaseKit
-import BaseUI
 import Networking
 
 /// 主数据模型
@@ -47,9 +45,6 @@ struct RecordModel: Codable, Hashable, Equatable, NetworkRequestable {
     let updateTime: String?
     /// 详情列表
     let detailList: [DetailModel]?
-    
-    @CodableIgnored var localDateTime: String?
-    @CodableIgnored var localAttributedText: NSAttributedString?
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
@@ -104,113 +99,6 @@ struct DetailModel: Codable, Hashable, Equatable {
 
     static func == (lhs: DetailModel, rhs: DetailModel) -> Bool {
         return lhs.id == rhs.id
-    }
-}
-
-extension RecordModel {
-    // 分组方法
-    static func groupRecordsByDate(records: [RecordModel]?, dateFormatter: DateFormatter? = nil) -> [[RecordModel]] {
-        guard let records = records else { return [] }
-        
-        let dateFormatter = dateFormatter ?? {
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-            return formatter
-        }()
-        
-        let calendar = Calendar.current
-        var groupedRecords: [[RecordModel]] = []
-        var currentGroup: [RecordModel] = []
-        var currentGroupKey: String?
-        
-        for record in records {
-            guard let date = dateFormatter.date(from: record.updateTime ?? "") else { continue }
-            
-            let group = groupKeyForDate(date, calendar: calendar)
-            let groupKey = group.0
-            let dateTimeRange = group.1
-            
-            var newRecord = record
-            newRecord.localDateTime = localTime(dateTime: record.updateTime, range: dateTimeRange)
-            newRecord.localAttributedText = localAttributedText(name: record.name, time: newRecord.localDateTime)
-            
-            if groupKey != currentGroupKey {
-                if !currentGroup.isEmpty {
-                    groupedRecords.append(currentGroup)
-                }
-                currentGroup = [newRecord]
-                currentGroupKey = groupKey
-            } else {
-                currentGroup.append(newRecord)
-            }
-        }
-        
-        if !currentGroup.isEmpty {
-            groupedRecords.append(currentGroup)
-        }
-        
-        return groupedRecords
-    }
-    
-    // 合并方法
-    static func mergeGroupedRecords(existing: inout [[RecordModel]], new: [[RecordModel]], dateFormatter: DateFormatter? = nil) {
-        let calendar = Calendar.current
-        
-        for newGroup in new {
-            if let firstRecord = newGroup.first, let date = dateFormatter?.date(from: firstRecord.updateTime ?? "") {
-                let groupKey = groupKeyForDate(date, calendar: calendar).0
-                
-                // 查找是否存在相同日期的组
-                if let existingGroupIndex = existing.lastIndex(where: { group in
-                    guard let firstInGroup = group.first, let existingDate = dateFormatter?.date(from: firstInGroup.updateTime ?? "") else { return false }
-                    return groupKey == groupKeyForDate(existingDate, calendar: calendar).0
-                }) {
-                    // 如果存在相同日期的组，合并记录
-                    existing[existingGroupIndex].append(contentsOf: newGroup)
-                } else {
-                    // 如果不存在相同日期的组，添加新组
-                    existing.append(newGroup)
-                }
-            }
-        }
-    }
-    
-    // 抽取的辅助方法
-    static func groupKeyForDate(_ date: Date, calendar: Calendar) -> (String, ClosedRange<Int>) {
-        if calendar.isDateInToday(date) {
-            return (NSLocalizedString("今天", bundle: .module, comment: ""), 11...15)
-//        } else if calendar.isDateInYesterday(date) {
-//            return "昨天"
-        } else if calendar.isDate(date, equalTo: Date(), toGranularity: .month) {
-            return (NSLocalizedString("本月", bundle: .module, comment: ""), 5...9)
-//        } else if calendar.isDate(date, equalTo: Date(), toGranularity: .year) {
-//            return "本年"
-        } else {
-            return (NSLocalizedString("其它", bundle: .module, comment: ""), 0...9)
-//            let year = calendar.component(.year, from: date)
-//            return "\(year)年"
-        }
-    }
-    
-    static func localTime(dateTime: String?, range: ClosedRange<Int>) -> String {
-        guard let dateString = dateTime, dateString.count > range.upperBound else { return "" }
-        let startIndex = dateString.index(dateString.startIndex, offsetBy: range.lowerBound)
-        let endIndex = dateString.index(dateString.startIndex, offsetBy: range.upperBound)
-        return String(dateString[startIndex...endIndex])
-    }
-    
-    static func localAttributedText(name: String?, time: String?) -> NSAttributedString {
-        let title = (name ?? "") + " "
-        let date = time ?? ""
-        let titleText = AIChatRichText(text: title, attributes: [
-            .foregroundColor: UIColor.theme.secondaryLabel,
-            .font: UIFont.theme.subhead
-        ])
-        let dateText = AIChatRichText(text: date, attributes: [
-            .foregroundColor: UIColor.theme.tertieryLabel,
-            .font: UIFont.theme.caption1
-        ])
-        return AIChatRichText.attributedString(from: [titleText, dateText])
     }
 }
 

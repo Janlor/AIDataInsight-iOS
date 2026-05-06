@@ -14,7 +14,7 @@ final class HistoryViewModel: BaseViewModel {
     
     // MARK: - Output
     
-    var onDataLoaded: (([[RecordModel]]) -> Void)?
+    var onDataLoaded: (([HistorySectionViewData]) -> Void)?
     var onDataLoadFailed: ((String?) -> Void)?
     
     // MARK: - State
@@ -22,7 +22,8 @@ final class HistoryViewModel: BaseViewModel {
     let pageSize: Int = 50
     
     private(set) var pageModel: RecordPageModel?
-    private(set) var dataSourse: [[RecordModel]] = []
+    private(set) var recordGroups: [HistoryRecordGroup] = []
+    private(set) var sections: [HistorySectionViewData] = []
     
     private let repository: HistoryRepository
     
@@ -54,23 +55,23 @@ extension HistoryViewModel {
     }
     
     func numberOfSections() -> Int {
-        dataSourse.count
+        sections.count
     }
     
     func numberOfRows(in section: Int) -> Int {
-        dataSourse[section].count
+        sections[section].items.count
     }
     
     func record(at indexPath: IndexPath) -> RecordModel {
-        dataSourse[indexPath.section][indexPath.row]
+        recordGroups[indexPath.section].records[indexPath.row]
+    }
+    
+    func item(at indexPath: IndexPath) -> HistoryListItemViewData {
+        sections[indexPath.section].items[indexPath.row]
     }
     
     func titleForHeader(in section: Int) -> String? {
-        guard let firstRecord = dataSourse[section].first,
-              let date = dateFormatter.date(from: firstRecord.updateTime ?? "")
-        else { return nil }
-        
-        return RecordModel.groupKeyForDate(date, calendar: .current).0
+        sections[section].title
     }
 }
 
@@ -84,17 +85,19 @@ extension HistoryViewModel {
         
         try await repository.deleteHistory(historyId: historyId)
         
-        dataSourse[indexPath.section].remove(at: indexPath.row)
-        if dataSourse[indexPath.section].isEmpty {
-            dataSourse.remove(at: indexPath.section)
+        recordGroups[indexPath.section].records.remove(at: indexPath.row)
+        if recordGroups[indexPath.section].records.isEmpty {
+            recordGroups.remove(at: indexPath.section)
         }
+        sections = HistoryListViewDataBuilder.makeSections(from: recordGroups)
         
         return historyId
     }
     
     func deleteAllHistory() async throws {
         try await repository.deleteAllHistory()
-        dataSourse = []
+        recordGroups = []
+        sections = []
         pageModel = nil
     }
 }
@@ -106,26 +109,23 @@ private extension HistoryViewModel {
             let model = try await repository.loadHistoryPage(pageNo: pageNo, pageSize: pageSize)
             pageModel = model
             
-            let groupedNewRecords = RecordModel.groupRecordsByDate(
-                records: model.records,
+            let groupedNewRecords = HistoryListViewDataBuilder.groupRecords(
+                model.records,
                 dateFormatter: dateFormatter
             )
             
-            let mergedDataSource: [[RecordModel]]
-            if (model.currentPage ?? 1) == 1 || dataSourse.isEmpty {
-                mergedDataSource = groupedNewRecords
+            let mergedGroups: [HistoryRecordGroup]
+            if (model.currentPage ?? 1) == 1 || recordGroups.isEmpty {
+                mergedGroups = groupedNewRecords
             } else {
-                var merged = dataSourse
-                RecordModel.mergeGroupedRecords(
-                    existing: &merged,
-                    new: groupedNewRecords,
-                    dateFormatter: dateFormatter
-                )
-                mergedDataSource = merged
+                var merged = recordGroups
+                HistoryListViewDataBuilder.mergeGroups(existing: &merged, new: groupedNewRecords)
+                mergedGroups = merged
             }
             
-            dataSourse = mergedDataSource
-            onDataLoaded?(mergedDataSource)
+            recordGroups = mergedGroups
+            sections = HistoryListViewDataBuilder.makeSections(from: mergedGroups)
+            onDataLoaded?(sections)
         } catch {
             onDataLoadFailed?(error.localizedDescription)
         }

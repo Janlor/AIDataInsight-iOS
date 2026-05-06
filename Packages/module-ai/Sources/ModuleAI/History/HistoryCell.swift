@@ -60,7 +60,7 @@ class HistoryCell: UITableViewCell {
         bottomLayout.isActive = true
     }
     
-    func configure(with model: RecordModel?) {
-        titleLabel.attributedText = model?.localAttributedText
+    func configure(with viewData: HistoryListItemViewData) {
+        titleLabel.attributedText = viewData.titleText
     }
 }
