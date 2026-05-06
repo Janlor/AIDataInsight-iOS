@@ -78,7 +78,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://gitee.com/mirrors/SwifterSwift.git", exact: "7.0.0"),
         .package(url: "https://gitee.com/dingjiarui/SVProgressHUD.git", exact: "2.3.1"),
-        .package(url: "https://gitee.com/Janlor/Moya.git", exact: "15.0.5"),
+        .package(url: "https://gitee.com/neveremo/Alamofire.git", exact: "5.10.1"),
     ],
     targets: [
         .target(
@@ -173,7 +173,7 @@ let package = Package(
                 "Environment",
                 "Router",
                 "Storage",
-                "Moya"
+                "Alamofire"
             ],
             resources: [
                 .process("Localizable.xcstrings")
