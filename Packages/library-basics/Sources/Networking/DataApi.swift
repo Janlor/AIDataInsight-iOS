@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Moya
 
 public enum DataApi: TargetType {
     /// 审批详情打印
@@ -55,4 +54,3 @@ public enum DataApi: TargetType {
         return FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
     }
 }
-

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Moya
 
 public enum DownloadApi: TargetType {
     
@@ -52,4 +51,3 @@ public enum DownloadApi: TargetType {
         return FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
     }
 }
-

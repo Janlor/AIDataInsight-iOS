@@ -7,17 +7,6 @@
 
 import UIKit
 
-/// 处理header中需要及时性的参数
-public func customEndpointMapping<T: TargetType>(_ target: T) -> Endpoint {
-    return Endpoint(
-        url: URL(target: target).absoluteString,
-        sampleResponseClosure: { .networkResponse(200, target.sampleData) },
-        method: target.method,
-        task: target.task,
-        httpHeaderFields: target.headers
-    )
-}
-
 public enum ContentType: String {
     case multipartFormData = "multipart/form-data"
     case applicationJson = "application/json"

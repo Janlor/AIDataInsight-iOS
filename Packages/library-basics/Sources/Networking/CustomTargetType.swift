@@ -6,15 +6,14 @@
 //
 
 import Foundation
-import Moya
 
 /// 业务请求必须要实现的协议
 /// parameters 属于必须实现，其它内容有默认实现
-public protocol CustomTargetType: Moya.TargetType {
+public protocol CustomTargetType: TargetType {
     
     /// 实现CustomTargetType协议的类型，如果实现该协议则能够走默认的请求任务类型
     /// 否则需要自己实现Task
-    /// 默认Task请求类型： Moya.Task.requestParameters(parameters: target.toParameters(), encoding: JSONEncoding.default)
+    /// 默认Task请求类型： Task.requestParameters(parameters: target.toParameters(), encoding: JSONEncoding.default)
     var parameters: [String: Any] { get }
     
 }
@@ -53,9 +52,9 @@ public extension CustomTargetType {
         }
         
         if parameters.isEmpty {
-            return Moya.Task.requestPlain
+            return Task.requestPlain
         } else {
-            return Moya.Task.requestParameters(parameters: parameters, encoding: encoding)
+            return Task.requestParameters(parameters: parameters, encoding: encoding)
         }
     }
     
@@ -64,9 +63,9 @@ public extension CustomTargetType {
         let encode = encoding ?? JSONEncoding.default
         
         if parameters.isEmpty {
-            return Moya.Task.requestPlain
+            return Task.requestPlain
         } else {
-            return Moya.Task.requestParameters(parameters: parameters, encoding: encode)
+            return Task.requestParameters(parameters: parameters, encoding: encode)
         }
     }
     
@@ -88,9 +87,9 @@ public extension CustomTargetType {
         let encode = encoding ?? JSONEncoding.default
         
         if parameters.isEmpty {
-            return Moya.Task.downloadDestination(destination)
+            return Task.downloadDestination(destination)
         } else {
-            return Moya.Task.downloadParameters(parameters: parameters, encoding: encode, destination: destination)
+            return Task.downloadParameters(parameters: parameters, encoding: encode, destination: destination)
         }
     }
 }
