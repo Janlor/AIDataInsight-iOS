@@ -10,6 +10,21 @@ import Moya
 import Router
 import AccountProtocol
 
+final class TaskCancellable: Cancellable {
+    private let cancelClosure: () -> Void
+    private(set) var isCancelled = false
+
+    init(cancelClosure: @escaping () -> Void) {
+        self.cancelClosure = cancelClosure
+    }
+
+    func cancel() {
+        guard isCancelled == false else { return }
+        isCancelled = true
+        cancelClosure()
+    }
+}
+
 public protocol NetworkCredentialProvider {
     var accessToken: String? { get }
     var refreshToken: String? { get }
@@ -52,17 +67,26 @@ struct DefaultNetworkCredentialProvider: NetworkCredentialProvider {
 struct DefaultTokenRefreshService: TokenRefreshService {
     @discardableResult
     func refreshToken(_ token: String, completion: @escaping (Bool, String?) -> Void) -> Cancellable? {
-        let target = OAuthApi.refresh(token)
-        let task = ResponseModel<OAuthModel>.requestable(target) { response, error in
-            guard error == nil, let oauth = response?.data else {
-                completion(false, error?.localizedDescription ?? NSLocalizedString("未知错误", bundle: .module, comment: ""))
-                return
-            }
+        let task = _Concurrency.Task {
+            do {
+                let response = try await NetworkExecutor().request(OAuthApi.refresh(token), as: ResponseModel<OAuthModel>.self)
+                guard let oauth = response.data else {
+                    completion(false, response.msg ?? NSLocalizedString("未知错误", bundle: .module, comment: ""))
+                    return
+                }
 
-            Router.perform(key: AccountSessionStore.self)?.update(account: oauth)
-            completion(true, nil)
+                Router.perform(key: AccountSessionStore.self)?.update(account: oauth)
+                completion(true, nil)
+            } catch is CancellationError {
+                completion(false, NSLocalizedString("未知错误", bundle: .module, comment: ""))
+            } catch {
+                completion(false, error.localizedDescription)
+            }
         }
-        return task
+
+        return TaskCancellable {
+            task.cancel()
+        }
     }
 }
 
