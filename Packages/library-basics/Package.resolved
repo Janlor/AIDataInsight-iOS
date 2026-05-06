@@ -1,24 +1,6 @@
 {
   "pins" : [
     {
-      "identity" : "alamofire",
-      "kind" : "remoteSourceControl",
-      "location" : "https://gitee.com/neveremo/Alamofire.git",
-      "state" : {
-        "revision" : "e16d3481f5ed35f0472cb93350085853d754913f",
-        "version" : "5.10.1"
-      }
-    },
-    {
-      "identity" : "moya",
-      "kind" : "remoteSourceControl",
-      "location" : "https://gitee.com/Janlor/Moya.git",
-      "state" : {
-        "revision" : "7f1dd1756526aa4c0237662608eacb1600ca4232",
-        "version" : "15.0.5"
-      }
-    },
-    {
       "identity" : "svprogresshud",
       "kind" : "remoteSourceControl",
       "location" : "https://gitee.com/dingjiarui/SVProgressHUD.git",

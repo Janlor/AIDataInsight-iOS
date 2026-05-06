@@ -8,6 +8,20 @@
 import Foundation
 
 public struct DownloadNetwork {
+    static var downloadFileRequest: (
+        _ request: URLRequest,
+        _ destinationURL: URL,
+        _ progress: ((Double) -> Void)?,
+        _ completion: @escaping (Result<URL, Error>) -> Void
+    ) -> Void = { request, destinationURL, progress, completion in
+        URLSessionTransfer.downloadFile(
+            request,
+            destinationURL: destinationURL,
+            progress: progress,
+            completion: completion
+        )
+    }
+
     /// 下载后自动保存
     public static func downloadFile(from target: DownloadApi,
                                     fileName: String,
@@ -22,11 +36,11 @@ public struct DownloadNetwork {
         }
 
         let request = URLSessionRequestFactory.request(for: target)
-        URLSessionTransfer.downloadFile(
+        downloadFileRequest(
             request,
-            destinationURL: destinationPath,
-            progress: progressBlock,
-            completion: completion
+            destinationPath,
+            progressBlock,
+            completion
         )
     }
 }

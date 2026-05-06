@@ -164,7 +164,7 @@ struct NetworkExecutorTests {
 private struct MockTarget: CustomTargetType {
     let baseURL: URL = URL(string: "https://example.com")!
     let path: String
-    let method: Method = .post
+    let method: Networking.Method = .post
     let parameters: [String : Any] = [:]
     let task: Task = .requestPlain
     let headers: [String : String]? = nil

@@ -10,9 +10,9 @@ struct RequestBuilderTests {
         let target = MockTarget(
             baseURL: URL(string: "https://example.com")!,
             path: "/ping",
-            method: Method.get,
+            method: Networking.Method.get,
             parameters: [:],
-            task: Task.requestPlain,
+            task: Networking.Task.requestPlain,
             headers: ["X-Test": "1"]
         )
 
@@ -28,10 +28,13 @@ struct RequestBuilderTests {
         let target = MockTarget(
             baseURL: URL(string: "https://example.com")!,
             path: "/history",
-            method: Method.get,
+            method: Networking.Method.get,
             parameters: ["page": 2, "size": 20],
-            task: Task.requestParameters(parameters: ["page": 2, "size": 20], encoding: URLEncoding.queryString),
-            headers: nil
+            task: Networking.Task.requestParameters(
+                parameters: ["page": 2, "size": 20],
+                encoding: URLEncoding.queryString
+            ),
+            headers: nil as [String: String]?
         )
 
         let request = try builder.buildRequest(from: target)
@@ -47,9 +50,9 @@ struct RequestBuilderTests {
         let target = MockTarget(
             baseURL: URL(string: "https://example.com")!,
             path: "/login",
-            method: Method.post,
+            method: Networking.Method.post,
             parameters: ["name": "demo", "pwd": "123456"],
-            task: Task.requestParameters(
+            task: Networking.Task.requestParameters(
                 parameters: ["name": "demo", "pwd": "123456"],
                 encoding: JSONEncoding.prettyPrinted
             ),
@@ -58,11 +61,11 @@ struct RequestBuilderTests {
 
         let request = try builder.buildRequest(from: target)
         let body = try #require(request.httpBody)
-        let object = try JSONSerialization.jsonObject(with: body) as? [String: Any]
+        let object = try #require(try JSONSerialization.jsonObject(with: body) as? [String: Any])
 
         #expect(request.httpMethod == "POST")
-        #expect(object?["name"] as? String == "demo")
-        #expect(object?["pwd"] as? String == "123456")
+        #expect(object["name"] as? String == "demo")
+        #expect(object["pwd"] as? String == "123456")
     }
 
     @Test
@@ -70,10 +73,10 @@ struct RequestBuilderTests {
         let target = MockTarget(
             baseURL: URL(string: "https://example.com")!,
             path: "/upload",
-            method: Method.post,
+            method: Networking.Method.post,
             parameters: [:],
-            task: Task.uploadFile(URL(fileURLWithPath: "/tmp/demo.txt")),
-            headers: nil
+            task: Networking.Task.uploadFile(URL(fileURLWithPath: "/tmp/demo.txt")),
+            headers: nil as [String: String]?
         )
 
         #expect(throws: RequestBuilderError.self) {
@@ -85,9 +88,9 @@ struct RequestBuilderTests {
 private struct MockTarget: CustomTargetType {
     let baseURL: URL
     let path: String
-    let method: Method
+    let method: Networking.Method
     let parameters: [String : Any]
-    let task: Task
+    let task: Networking.Task
     let headers: [String : String]?
     let sampleData: Data = Data()
 }

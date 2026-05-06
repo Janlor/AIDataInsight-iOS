@@ -8,6 +8,18 @@
 import Foundation
 
 public struct DataNetwork {
+    static var requestData: (
+        _ request: URLRequest,
+        _ progress: ((Double) -> Void)?,
+        _ completion: @escaping (Result<Data, Error>) -> Void
+    ) -> Void = { request, progress, completion in
+        URLSessionTransfer.requestData(
+            request,
+            progress: progress,
+            completion: completion
+        )
+    }
+
     public static func downloadFile(from target: DataApi,
                                     fileName: String,
                                     progressBlock: ((Double) -> Void)? = nil,
@@ -15,9 +27,9 @@ public struct DataNetwork {
         let destinationPath = DownloadApi.destinationPath(fileName)
         let request = URLSessionRequestFactory.request(for: target)
 
-        URLSessionTransfer.requestData(
+        requestData(
             request,
-            progress: progressBlock
+            progressBlock
         ) { result in
             switch result {
             case .success(let data):
