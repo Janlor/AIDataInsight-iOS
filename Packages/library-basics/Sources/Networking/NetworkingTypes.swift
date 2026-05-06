@@ -1,5 +1,5 @@
 //
-//  Netwrok+Moya.swift
+//  NetworkingTypes.swift
 //  LibraryBasics
 //
 //  Created by Janlor on 2024/5/22.
