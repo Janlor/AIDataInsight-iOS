@@ -43,6 +43,7 @@ public protocol SessionInvalidationHandler: Sendable {
 public enum NetworkDependencies {
     private static let defaultTokenRefreshService = DefaultTokenRefreshService()
 
+    public static var networkClient: NetworkClient = URLSessionNetworkClient()
     public static var credentialProvider: NetworkCredentialProvider = DefaultNetworkCredentialProvider()
     public static var tokenRefreshService: TokenRefreshService = defaultTokenRefreshService {
         didSet {

@@ -17,7 +17,7 @@ public struct NetworkExecutor {
 
     public init(
         requestBuilder: RequestBuilder = RequestBuilder(),
-        networkClient: NetworkClient = URLSessionNetworkClient(),
+        networkClient: NetworkClient = NetworkDependencies.networkClient,
         credentialProvider: NetworkCredentialProvider = NetworkDependencies.credentialProvider,
         tokenRefreshCoordinator: TokenRefreshCoordinator = NetworkDependencies.tokenRefreshCoordinator,
         sessionInvalidationHandler: SessionInvalidationHandler = NetworkDependencies.sessionInvalidationHandler

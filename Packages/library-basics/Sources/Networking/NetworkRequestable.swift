@@ -31,24 +31,17 @@ public extension NetworkRequestable {
     @discardableResult
     static func requestable(_ target: CustomTargetType,
                             completion: @escaping (Self?, NetworkError?) -> Void) -> Cancellable {
-        return Network.requet(target) { data in
-//            do {
-//                let object = try JSONSerialization.jsonObject(with: data, options: .mutableContainers)
-//                appLog(object)
-//            } catch {
-//
-//            }
+        let task = _Concurrency.Task {
             do {
-                let model = try NetworkDecoder.decode(Self.self, from: data)
+                let model = try await NetworkExecutor().request(target, as: Self.self)
                 completion(model, nil)
             } catch {
-//                print("Failed to decode JSON: \(error)")
-                completion(nil, nil)
+                completion(nil, error as? NetworkError ?? .underlying(error, nil))
             }
-        } error: { error in
-            completion(nil, error)
-        } failure: { error in
-            completion(nil, error)
+        }
+
+        return TaskCancellable {
+            task.cancel()
         }
     }
     
