@@ -7,17 +7,28 @@
 
 import Foundation
 import CommonViewModel
+import Networking
 
 struct DefaultHistoryRepository: HistoryRepository {
+    private let networkExecutor: NetworkExecutor
+
+    init(networkExecutor: NetworkExecutor = NetworkExecutor()) {
+        self.networkExecutor = networkExecutor
+    }
+
     func loadHistoryPage(pageNo: Int, pageSize: Int) async throws -> RecordPageModel {
-        try await CommonRequester.requestNet(HistoryApi.page(pageNo, pageSize))
+        let response = try await networkExecutor.request(HistoryApi.page(pageNo, pageSize), as: ResponseModel<RecordPageModel>.self)
+        guard let data = response.data else {
+            throw CommonRequesterError.emptyResponse
+        }
+        return data
     }
     
     func deleteHistory(historyId: Int) async throws {
-        try await CommonRequester.requestVoid(HistoryApi.delete(historyId))
+        _ = try await networkExecutor.request(HistoryApi.delete(historyId), as: ResponseModel<AnyCodable>.self)
     }
     
     func deleteAllHistory() async throws {
-        try await CommonRequester.requestVoid(HistoryApi.deleteAll)
+        _ = try await networkExecutor.request(HistoryApi.deleteAll, as: ResponseModel<AnyCodable>.self)
     }
 }

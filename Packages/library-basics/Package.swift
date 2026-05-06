@@ -197,6 +197,7 @@ let package = Package(
         .testTarget(
             name: "LibraryBasicsTests",
             dependencies: [
+                "Account",
                 "Networking",
                 "AccountProtocol",
                 "Environment",
