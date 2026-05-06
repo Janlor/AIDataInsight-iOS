@@ -24,11 +24,18 @@ final class HistoryViewModel: BaseViewModel {
     private(set) var pageModel: RecordPageModel?
     private(set) var dataSourse: [[RecordModel]] = []
     
+    private let repository: HistoryRepository
+    
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
         return formatter
     }()
+    
+    init(repository: HistoryRepository = DefaultHistoryRepository()) {
+        self.repository = repository
+        super.init()
+    }
 }
 
 extension HistoryViewModel {
@@ -75,8 +82,7 @@ extension HistoryViewModel {
             throw CommonRequesterError.requestFailed
         }
         
-        let target = HistoryApi.delete(historyId)
-        try await CommonRequester.requestVoid(target)
+        try await repository.deleteHistory(historyId: historyId)
         
         dataSourse[indexPath.section].remove(at: indexPath.row)
         if dataSourse[indexPath.section].isEmpty {
@@ -87,8 +93,7 @@ extension HistoryViewModel {
     }
     
     func deleteAllHistory() async throws {
-        let target = HistoryApi.deleteAll
-        try await CommonRequester.requestVoid(target)
+        try await repository.deleteAllHistory()
         dataSourse = []
         pageModel = nil
     }
@@ -97,10 +102,8 @@ extension HistoryViewModel {
 private extension HistoryViewModel {
     
     func getDataList(pageNo: Int, pageSize: Int) async {
-        let target = HistoryApi.page(pageNo, pageSize)
-
         do {
-            let model: RecordPageModel = try await CommonRequester.requestNet(target)
+            let model = try await repository.loadHistoryPage(pageNo: pageNo, pageSize: pageSize)
             pageModel = model
             
             let groupedNewRecords = RecordModel.groupRecordsByDate(
