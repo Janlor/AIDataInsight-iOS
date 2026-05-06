@@ -10,75 +10,12 @@
       }
     },
     {
-      "identity" : "eureka",
-      "kind" : "remoteSourceControl",
-      "location" : "https://gitee.com/Janlor/Eureka.git",
-      "state" : {
-        "revision" : "028ef8e3191a256b8f6b8bb6b9496efcb0762dbc",
-        "version" : "5.5.0"
-      }
-    },
-    {
-      "identity" : "jxpagingview",
-      "kind" : "remoteSourceControl",
-      "location" : "https://gitee.com/dingjiarui/JXPagingView.git",
-      "state" : {
-        "revision" : "a55dd07adfa9729677e2287943af5aa40f5df31f",
-        "version" : "2.1.3"
-      }
-    },
-    {
-      "identity" : "jxsegmentedview",
-      "kind" : "remoteSourceControl",
-      "location" : "https://gitee.com/mirrors/JXSegmentedView.git",
-      "state" : {
-        "revision" : "fbbf965d7396bd99ac1ce88a80b6c950b85313f6",
-        "version" : "1.4.1"
-      }
-    },
-    {
-      "identity" : "kingfisher",
-      "kind" : "remoteSourceControl",
-      "location" : "https://gitee.com/liyu2015/Kingfisher.git",
-      "state" : {
-        "revision" : "2ef543ee21d63734e1c004ad6c870255e8716c50",
-        "version" : "7.12.0"
-      }
-    },
-    {
-      "identity" : "mjrefresh",
-      "kind" : "remoteSourceControl",
-      "location" : "https://gitee.com/mirrors/MJRefresh.git",
-      "state" : {
-        "revision" : "535d39c86e592d73f8b8e75f9bf1eda62ca4a4ce",
-        "version" : "3.7.9"
-      }
-    },
-    {
       "identity" : "moya",
       "kind" : "remoteSourceControl",
       "location" : "https://gitee.com/Janlor/Moya.git",
       "state" : {
         "revision" : "7f1dd1756526aa4c0237662608eacb1600ca4232",
         "version" : "15.0.5"
-      }
-    },
-    {
-      "identity" : "realm-core",
-      "kind" : "remoteSourceControl",
-      "location" : "https://gitee.com/Janlor/realm-core.git",
-      "state" : {
-        "branch" : "fork/14.14.0",
-        "revision" : "49c10abb4419aa94b3a33f7c0042cc7425cdd83b"
-      }
-    },
-    {
-      "identity" : "realm-swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://gitee.com/Janlor/realm-swift.git",
-      "state" : {
-        "branch" : "fork/10.54.6",
-        "revision" : "bddea80d62ca6bf0b851e5af4f8f906c35cc5902"
       }
     },
     {
@@ -97,24 +34,6 @@
       "state" : {
         "revision" : "5a6de915bb80234e1e31b3e3e5f7a7995fc1f4db",
         "version" : "7.0.0"
-      }
-    },
-    {
-      "identity" : "zip",
-      "kind" : "remoteSourceControl",
-      "location" : "https://gitee.com/yeseni/Zip.git",
-      "state" : {
-        "revision" : "67fa55813b9e7b3b9acee9c0ae501def28746d76",
-        "version" : "2.1.2"
-      }
-    },
-    {
-      "identity" : "zlphotobrowser",
-      "kind" : "remoteSourceControl",
-      "location" : "https://gitee.com/cyfBorderlands/ZLPhotoBrowser.git",
-      "state" : {
-        "revision" : "b420c49bd0576e7db363f75d31ca6bfcb84d001f",
-        "version" : "4.6.0"
       }
     }
   ],

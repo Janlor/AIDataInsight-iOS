@@ -155,5 +155,13 @@ let package = Package(
         .target(
             name: "SettingProtocol"
         ),
+        .testTarget(
+            name: "LibraryCommonTests",
+            dependencies: [
+                "Setting",
+                "Privacy",
+                "PrivacyProtocol",
+            ]
+        ),
     ]
 )
