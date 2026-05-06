@@ -9,6 +9,7 @@ import Foundation
 import BaseKit
 import CommonViewModel
 
+@MainActor
 final class HistoryViewModel: BaseViewModel {
     
     // MARK: - Output
@@ -32,17 +33,17 @@ final class HistoryViewModel: BaseViewModel {
 
 extension HistoryViewModel {
     
-    func reloadData() {
-        getNewData()
+    func reloadData() async {
+        await getNewData()
     }
     
-    func getNewData() {
-        getDataList(pageNo: 1, pageSize: pageSize)
+    func getNewData() async {
+        await getDataList(pageNo: 1, pageSize: pageSize)
     }
     
-    func getMoreData() {
+    func getMoreData() async {
         let current = (pageModel?.currentPage ?? 0) + 1
-        getDataList(pageNo: current, pageSize: pageSize)
+        await getDataList(pageNo: current, pageSize: pageSize)
     }
     
     func numberOfSections() -> Int {
@@ -68,82 +69,62 @@ extension HistoryViewModel {
 
 extension HistoryViewModel {
     
-    func deleteHistory(at indexPath: IndexPath, completion: @escaping (Bool, Int?) -> Void) {
+    func deleteHistory(at indexPath: IndexPath) async throws -> Int {
         let history = record(at: indexPath)
         guard let historyId = history.id else {
-            completion(false, nil)
-            return
+            throw CommonRequesterError.requestFailed
         }
         
         let target = HistoryApi.delete(historyId)
-        CommonRequester.requestVoid(target) { [weak self] success, _ in
-            guard let self else { return }
-            
-            guard success else {
-                completion(false, historyId)
-                return
-            }
-            
-            self.dataSourse[indexPath.section].remove(at: indexPath.row)
-            if self.dataSourse[indexPath.section].isEmpty {
-                self.dataSourse.remove(at: indexPath.section)
-            }
-            
-            completion(true, historyId)
+        try await CommonRequester.requestVoid(target)
+        
+        dataSourse[indexPath.section].remove(at: indexPath.row)
+        if dataSourse[indexPath.section].isEmpty {
+            dataSourse.remove(at: indexPath.section)
         }
+        
+        return historyId
     }
     
-    func deleteAllHistory(completion: @escaping (Bool) -> Void) {
+    func deleteAllHistory() async throws {
         let target = HistoryApi.deleteAll
-        CommonRequester.requestVoid(target) { [weak self] success, _ in
-            guard let self else { return }
-            
-            if success {
-                self.dataSourse = []
-                self.pageModel = nil
-            }
-            completion(success)
-        }
+        try await CommonRequester.requestVoid(target)
+        dataSourse = []
+        pageModel = nil
     }
 }
 
 private extension HistoryViewModel {
     
-    func getDataList(pageNo: Int, pageSize: Int) {
+    func getDataList(pageNo: Int, pageSize: Int) async {
         let target = HistoryApi.page(pageNo, pageSize)
-        
-        CommonRequester.requestNet(target) { [weak self] (model: RecordPageModel?, error) in
-            guard let self else { return }
+
+        do {
+            let model: RecordPageModel = try await CommonRequester.requestNet(target)
+            pageModel = model
             
-            guard error == nil,
-                  let model else {
-                self.onDataLoadFailed?(error?.localizedDescription)
-                return
-            }
+            let groupedNewRecords = RecordModel.groupRecordsByDate(
+                records: model.records,
+                dateFormatter: dateFormatter
+            )
             
-            self.pageModel = model
-            
-            DispatchQueue.global().async {
-                let groupedNewRecords = RecordModel.groupRecordsByDate(
-                    records: model.records,
-                    dateFormatter: self.dateFormatter
+            let mergedDataSource: [[RecordModel]]
+            if (model.currentPage ?? 1) == 1 || dataSourse.isEmpty {
+                mergedDataSource = groupedNewRecords
+            } else {
+                var merged = dataSourse
+                RecordModel.mergeGroupedRecords(
+                    existing: &merged,
+                    new: groupedNewRecords,
+                    dateFormatter: dateFormatter
                 )
-                
-                if model.currentPage ?? 1 == 1 || self.dataSourse.isEmpty {
-                    self.dataSourse = groupedNewRecords
-                } else {
-                    RecordModel.mergeGroupedRecords(
-                        existing: &self.dataSourse,
-                        new: groupedNewRecords,
-                        dateFormatter: self.dateFormatter
-                    )
-                }
-                
-                let dataSourse = self.dataSourse
-                DispatchQueue.main.async {
-                    self.onDataLoaded?(dataSourse)
-                }
+                mergedDataSource = merged
             }
+            
+            dataSourse = mergedDataSource
+            onDataLoaded?(mergedDataSource)
+        } catch {
+            onDataLoadFailed?(error.localizedDescription)
         }
     }
 }

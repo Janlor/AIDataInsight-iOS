@@ -21,6 +21,8 @@ class HistoryViewController: BaseViewController {
     var openHistoryClosure: ((Int?) -> Void)?
     
     private let viewModel = HistoryViewModel()
+    private var loadTask: Task<Void, Never>?
+    private var deleteTask: Task<Void, Never>?
     
     private var tableView: UITableView!
     
@@ -97,8 +99,16 @@ class HistoryViewController: BaseViewController {
     }
     
     func reloadData() {
-        self.tableView.startLoading()
-        viewModel.reloadData()
+        tableView.startLoading()
+        loadTask?.cancel()
+        loadTask = Task { [weak self] in
+            await self?.viewModel.reloadData()
+        }
+    }
+    
+    deinit {
+        loadTask?.cancel()
+        deleteTask?.cancel()
     }
 }
 
@@ -229,15 +239,20 @@ private extension HistoryViewController {
     }
 
     func deleteAllHistory() {
-        viewModel.deleteAllHistory { [weak self] result in
-            guard let `self` = self else { return }
-            guard result == true else {
-                ProgressHUD.showError(withStatus: "删除失败")
+        deleteTask?.cancel()
+        deleteTask = Task { [weak self] in
+            guard let self else { return }
+            
+            do {
+                try await viewModel.deleteAllHistory()
+                tableView.reloadData()
+                displayEmpty(.empty)
+                NotificationCenter.default.post(name: .historyDidDeleteAll, object: nil)
+            } catch is CancellationError {
                 return
+            } catch {
+                ProgressHUD.showError(withStatus: "删除失败")
             }
-            self.tableView.reloadData()
-            self.displayEmpty(.empty)
-            NotificationCenter.default.post(name: .historyDidDeleteAll, object: nil)
         }
     }
 
@@ -250,27 +265,32 @@ private extension HistoryViewController {
         tableView.isUserInteractionEnabled = false
         tableView.startLoading()
 
-        viewModel.deleteHistory(at: indexPath) { [weak self] result, historyId in
-            guard let `self` = self else { return }
-            self.tableView.endLoading()
-            self.tableView.isUserInteractionEnabled = true
-            guard result == true else {
-                ProgressHUD.showError(withStatus: "删除失败")
+        deleteTask?.cancel()
+        deleteTask = Task { [weak self] in
+            guard let self else { return }
+            
+            defer {
+                tableView.endLoading()
+                tableView.isUserInteractionEnabled = true
+            }
+            
+            do {
+                let historyId = try await viewModel.deleteHistory(at: indexPath)
+                
+                tableView.deleteRows(at: [indexPath], with: .fade)
+                
+                if indexPath.section >= viewModel.numberOfSections() ||
+                    indexPath.row >= viewModel.numberOfRows(in: indexPath.section) {
+                    tableView.deleteSections(IndexSet(integer: indexPath.section), with: .fade)
+                }
+                
+                displayEmpty(.empty)
+                NotificationCenter.default.post(name: .historyDidDeleteChat, object: historyId)
+            } catch is CancellationError {
                 return
+            } catch {
+                ProgressHUD.showError(withStatus: "删除失败")
             }
-            
-            // 从数据源删除
-            // 从界面删除
-            self.tableView.deleteRows(at: [indexPath], with: .fade)
-            
-            // 如果该分组没有数据了，删除整个分组
-            if indexPath.section >= self.viewModel.numberOfSections() ||
-                indexPath.row >= self.viewModel.numberOfRows(in: indexPath.section) {
-                self.tableView.deleteSections(IndexSet(integer: indexPath.section), with: .fade)
-            }
-            
-            self.displayEmpty(.empty)
-            NotificationCenter.default.post(name: .historyDidDeleteChat, object: historyId)
         }
     }
 }
