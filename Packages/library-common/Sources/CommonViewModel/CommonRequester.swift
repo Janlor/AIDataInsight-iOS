@@ -17,6 +17,20 @@ public enum DataState<T> {
 
 public struct AnyCodable: Codable { }
 
+public enum CommonRequesterError: LocalizedError {
+    case emptyResponse
+    case requestFailed
+    
+    public var errorDescription: String? {
+        switch self {
+        case .emptyResponse:
+            return "请求成功，但返回数据为空。"
+        case .requestFailed:
+            return "请求失败。"
+        }
+    }
+}
+
 public protocol Requesting {
 
     @discardableResult
@@ -44,6 +58,22 @@ public protocol Requesting {
         onEvent: @escaping (String) -> Void,
         completion: @escaping (Error?) -> Void
     ) -> CancellableTask
+    
+    static func requestNet<T: Codable>(
+        _ target: CustomTargetType
+    ) async throws -> T
+    
+    static func requestVoid(
+        _ target: CustomTargetType
+    ) async throws
+    
+    static func requestSSE(
+        _ request: URLRequest
+    ) -> AsyncThrowingStream<String, Error>
+}
+
+private final class CancellableTaskBox: @unchecked Sendable {
+    var task: CancellableTask?
 }
 
 public final class NetworkCancellableTask: CancellableTask {
@@ -159,6 +189,28 @@ public enum CommonRequester: Requesting {
         return wrapper
     }
     
+    public static func requestNet<T: Codable>(
+        _ target: CustomTargetType
+    ) async throws -> T {
+        let taskBox = CancellableTaskBox()
+        
+        return try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                taskBox.task = requestNet(target) { (model: T?, error) in
+                    if let error {
+                        continuation.resume(throwing: error)
+                    } else if let model {
+                        continuation.resume(returning: model)
+                    } else {
+                        continuation.resume(throwing: CommonRequesterError.emptyResponse)
+                    }
+                }
+            }
+        } onCancel: {
+            taskBox.task?.cancel()
+        }
+    }
+    
     @discardableResult
     public static func requestVoid(
         _ target: CustomTargetType,
@@ -180,6 +232,28 @@ public enum CommonRequester: Requesting {
         
         wrapper.bind(cancellable)
         return wrapper
+    }
+    
+    public static func requestVoid(
+        _ target: CustomTargetType
+    ) async throws {
+        let taskBox = CancellableTaskBox()
+        
+        try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                taskBox.task = requestVoid(target) { success, error in
+                    if let error {
+                        continuation.resume(throwing: error)
+                    } else if success {
+                        continuation.resume()
+                    } else {
+                        continuation.resume(throwing: CommonRequesterError.requestFailed)
+                    }
+                }
+            }
+        } onCancel: {
+            taskBox.task?.cancel()
+        }
     }
     
     @discardableResult
@@ -208,6 +282,32 @@ public enum CommonRequester: Requesting {
         
         client.start()
         return task
+    }
+    
+    public static func requestSSE(
+        _ request: URLRequest
+    ) -> AsyncThrowingStream<String, Error> {
+        AsyncThrowingStream { continuation in
+            let taskBox = CancellableTaskBox()
+            
+            taskBox.task = requestSSE(
+                request,
+                onEvent: { event in
+                    continuation.yield(event)
+                },
+                completion: { error in
+                    if let error {
+                        continuation.finish(throwing: error)
+                    } else {
+                        continuation.finish()
+                    }
+                }
+            )
+            
+            continuation.onTermination = { @Sendable _ in
+                taskBox.task?.cancel()
+            }
+        }
     }
     
     private static func deliver(_ block: @escaping () -> Void) {
