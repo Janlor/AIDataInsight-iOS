@@ -65,13 +65,71 @@ private func performRefresh(
     _ token: String,
     service: TokenRefreshService
 ) async throws -> Bool {
-    try await withCheckedThrowingContinuation { continuation in
-        _ = service.refreshToken(token) { succeed, errorMessage in
-            if let errorMessage, succeed == false {
-                continuation.resume(throwing: ResponseError.server(402, errorMessage))
-            } else {
-                continuation.resume(returning: succeed)
+    let state = RefreshContinuationState()
+
+    return try await withTaskCancellationHandler {
+        try await withCheckedThrowingContinuation { continuation in
+            state.setContinuation(continuation)
+
+            let cancellable = service.refreshToken(token) { succeed, errorMessage in
+                if let errorMessage, succeed == false {
+                    state.resume(throwing: ResponseError.server(402, errorMessage))
+                } else {
+                    state.resume(returning: succeed)
+                }
             }
+
+            state.setCancellable(cancellable)
         }
+    } onCancel: {
+        state.cancel()
+    }
+}
+
+private final class RefreshContinuationState: @unchecked Sendable {
+    private let lock = NSLock()
+    private var continuation: CheckedContinuation<Bool, Error>?
+    private var cancellable: Cancellable?
+    private var hasResumed = false
+
+    func setContinuation(_ continuation: CheckedContinuation<Bool, Error>) {
+        lock.lock()
+        defer { lock.unlock() }
+        self.continuation = continuation
+    }
+
+    func setCancellable(_ cancellable: Cancellable?) {
+        lock.lock()
+        defer { lock.unlock() }
+        self.cancellable = cancellable
+    }
+
+    func resume(returning value: Bool) {
+        let continuation = takeContinuation()
+        continuation?.resume(returning: value)
+    }
+
+    func resume(throwing error: Error) {
+        let continuation = takeContinuation()
+        continuation?.resume(throwing: error)
+    }
+
+    func cancel() {
+        lock.lock()
+        let cancellable = self.cancellable
+        lock.unlock()
+
+        cancellable?.cancel()
+        resume(throwing: CancellationError())
+    }
+
+    private func takeContinuation() -> CheckedContinuation<Bool, Error>? {
+        lock.lock()
+        defer { lock.unlock() }
+        guard hasResumed == false else { return nil }
+        hasResumed = true
+        let continuation = continuation
+        self.continuation = nil
+        return continuation
     }
 }

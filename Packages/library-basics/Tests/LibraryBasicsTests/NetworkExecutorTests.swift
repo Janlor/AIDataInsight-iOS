@@ -87,6 +87,79 @@ struct NetworkExecutorTests {
         #expect(refreshService.receivedTokens == ["refresh-token"])
         #expect(await client.requestCount == 4)
     }
+
+    @Test
+    func requestData_concurrent402_refreshFailure_failsAllWaiters() async {
+        let refreshService = ConfigurableMockTokenRefreshService(behavior: .failure("refresh failed"))
+        let client = MockNetworkClient(responses: [
+            .success(jsonResponse(statusCode: 200, body: #"{"code":402,"msg":"refresh"}"#)),
+            .success(jsonResponse(statusCode: 200, body: #"{"code":402,"msg":"refresh"}"#))
+        ])
+        let executor = NetworkExecutor(
+            networkClient: client,
+            credentialProvider: MockCredentialProvider(refreshToken: "refresh-token"),
+            tokenRefreshCoordinator: TokenRefreshCoordinator(tokenRefreshService: refreshService),
+            sessionInvalidationHandler: MockInvalidationHandler()
+        )
+
+        async let firstResult = captureRequestError(executor, path: "/demo")
+        async let secondResult = captureRequestError(executor, path: "/demo")
+        let results = await [firstResult, secondResult]
+
+        #expect(refreshService.receivedTokens == ["refresh-token"])
+        #expect(results.count == 2)
+        #expect(results.allSatisfy { $0 == "refresh failed" })
+    }
+
+    @Test
+    func requestData_concurrent402_refreshTimeout_failsAllWaiters() async {
+        let refreshService = ConfigurableMockTokenRefreshService(behavior: .never)
+        let client = MockNetworkClient(responses: [
+            .success(jsonResponse(statusCode: 200, body: #"{"code":402,"msg":"refresh"}"#)),
+            .success(jsonResponse(statusCode: 200, body: #"{"code":402,"msg":"refresh"}"#))
+        ])
+        let coordinator = TokenRefreshCoordinator(
+            tokenRefreshService: refreshService,
+            timeoutNanoseconds: 50_000_000
+        )
+        let executor = NetworkExecutor(
+            networkClient: client,
+            credentialProvider: MockCredentialProvider(refreshToken: "refresh-token"),
+            tokenRefreshCoordinator: coordinator,
+            sessionInvalidationHandler: MockInvalidationHandler()
+        )
+
+        async let firstResult = captureRequestError(executor, path: "/demo")
+        async let secondResult = captureRequestError(executor, path: "/demo")
+        let results = await [firstResult, secondResult]
+
+        #expect(refreshService.receivedTokens == ["refresh-token"])
+        #expect(results.count == 2)
+        #expect(results.allSatisfy { $0 == "Token refresh timed out." })
+    }
+
+    @Test
+    func requestData_concurrentDifferentTargets_retryAndReturnOwnResponses() async throws {
+        let refreshService = ConfigurableMockTokenRefreshService(behavior: .success)
+        let client = PathAwareMockNetworkClient()
+        let executor = NetworkExecutor(
+            networkClient: client,
+            credentialProvider: MockCredentialProvider(refreshToken: "refresh-token"),
+            tokenRefreshCoordinator: TokenRefreshCoordinator(tokenRefreshService: refreshService),
+            sessionInvalidationHandler: MockInvalidationHandler()
+        )
+
+        async let firstData = executor.requestData(MockTarget(path: "/history"))
+        async let secondData = executor.requestData(MockTarget(path: "/template"))
+        let (historyData, templateData) = try await (firstData, secondData)
+
+        let historyJSON = try #require(JSONSerialization.jsonObject(with: historyData) as? [String: Any])
+        let templateJSON = try #require(JSONSerialization.jsonObject(with: templateData) as? [String: Any])
+
+        #expect(refreshService.receivedTokens == ["refresh-token"])
+        #expect(historyJSON["msg"] as? String == "/history-ok")
+        #expect(templateJSON["msg"] as? String == "/template-ok")
+    }
 }
 
 private struct MockTarget: CustomTargetType {
@@ -152,8 +225,69 @@ private final class MockInvalidationHandler: @unchecked Sendable, SessionInvalid
     }
 }
 
-private func jsonResponse(statusCode: Int, body: String) -> NetworkClientResponse {
-    let url = URL(string: "https://example.com/demo")!
+private final class ConfigurableMockTokenRefreshService: @unchecked Sendable, TokenRefreshService {
+    enum Behavior {
+        case success
+        case failure(String)
+        case never
+    }
+
+    private let behavior: Behavior
+    private(set) var receivedTokens: [String] = []
+
+    init(behavior: Behavior) {
+        self.behavior = behavior
+    }
+
+    func refreshToken(_ token: String, completion: @escaping (Bool, String?) -> Void) -> Moya.Cancellable? {
+        receivedTokens.append(token)
+        switch behavior {
+        case .success:
+            completion(true, nil)
+        case .failure(let message):
+            completion(false, message)
+        case .never:
+            break
+        }
+        return nil
+    }
+}
+
+private actor PathAwareMockNetworkClient: NetworkClient {
+    private var attemptsByPath: [String: Int] = [:]
+
+    func send(_ request: URLRequest) async throws -> NetworkClientResponse {
+        let path = request.url?.path ?? "/unknown"
+        let attempt = (attemptsByPath[path] ?? 0) + 1
+        attemptsByPath[path] = attempt
+
+        if attempt == 1 {
+            return jsonResponse(
+                statusCode: 200,
+                body: #"{"code":402,"msg":"refresh"}"#,
+                path: path
+            )
+        }
+
+        return jsonResponse(
+            statusCode: 200,
+            body: #"{"code":200,"msg":"\#(path)-ok","data":{"path":"\#(path)"}}"#,
+            path: path
+        )
+    }
+}
+
+private func captureRequestError(_ executor: NetworkExecutor, path: String) async -> String? {
+    do {
+        _ = try await executor.requestData(MockTarget(path: path))
+        return nil
+    } catch {
+        return error.localizedDescription
+    }
+}
+
+private func jsonResponse(statusCode: Int, body: String, path: String = "/demo") -> NetworkClientResponse {
+    let url = URL(string: "https://example.com\(path)")!
     let response = HTTPURLResponse(
         url: url,
         statusCode: statusCode,
