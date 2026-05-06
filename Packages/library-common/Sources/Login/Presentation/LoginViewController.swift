@@ -6,14 +6,11 @@
 //
 
 import UIKit
-import AccountProtocol
 import PrivacyProtocol
 import BaseUI
 import Router
 import BaseEnv
 import Environment
-import Networking
-import AppSecurity
 
 class LoginViewController: BaseViewController {
     /// 最大账号长度
@@ -156,6 +153,9 @@ class LoginViewController: BaseViewController {
     private lazy var linkDict: [String: String] = {
         return [NSLocalizedString("《隐私政策》", bundle: .module, comment: ""): Environment.server.privacyPolicyURL]
     }()
+
+    private let viewModel = LoginViewModel()
+    private var loginTask: Task<Void, Never>?
     
     // MARK: - Life Cycle
 
@@ -165,6 +165,7 @@ class LoginViewController: BaseViewController {
         addSubviews()
         addGestureRecognizer()
         addNotifications()
+        bindViewModel()
         
         scrollView.contentInsetAdjustmentBehavior = .never
         view.backgroundColor = .theme.background
@@ -186,9 +187,23 @@ class LoginViewController: BaseViewController {
         checkBoxButton.isSelected = true
         textFieldDidChanged(passwordTextField)
     }
+
+    deinit {
+        loginTask?.cancel()
+        NotificationCenter.default.removeObserver(self)
+    }
 }
 
 private extension LoginViewController {
+    func bindViewModel() {
+        viewModel.onLoadingStateChange = { [weak self] isLoading in
+            self?.requestLock(isLoading)
+        }
+        viewModel.onError = { message in
+            ProgressHUD.showError(withStatus: message)
+        }
+    }
+
     /// 添加子视图
     func addSubviews() {
         let margin: CGFloat = 38.0
@@ -508,25 +523,16 @@ private extension LoginViewController {
     /// 发起登录请求
     func postLoginRequest() {
         guard let username = usernameTextField.text,
-              let password = passwordTextField.text,
-        let encryptedPassword = PasswordCrypto.encrypt(password)
-        else { return }
-        appLog("Encrypted and Base64 encoded password: \(encryptedPassword)")
-        
-        requestLock(true)
-        let target = OAuthApi.login(username, encryptedPassword)
-        ResponseModel<OAuthModel>.requestable(target) {
-            [weak self] response, error in
-            guard let `self` = self else { return }
-            guard error == nil, let oauth = response?.data else {
-                self.requestLock(false)
-                ProgressHUD.showError(withStatus: error?.localizedDescription)
+              let password = passwordTextField.text else {
+            return
+        }
+
+        loginTask?.cancel()
+        loginTask = Task { [weak self] in
+            guard let self else {
                 return
             }
-            Router.perform(key: AccountProtocol.self)?.update(account: oauth)
-
-            // 鉴权成功
-            NotificationCenter.default.post(name: .authSucceed, object: nil)
+            await viewModel.login(username: username, password: password)
         }
     }
     
