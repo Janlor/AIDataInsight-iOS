@@ -200,25 +200,54 @@
 
 ### Networking
 
-这是这轮最关键的收敛点。
+这是当前仓库最接近“可跨平台镜像”的基础设施层。
 
-当前已经新增：
+当前已经真实落地：
 
-- `NetworkCredentialProvider`
-- `TokenRefreshService`
-- `SessionInvalidationHandler`
-- `NetworkDependencies`
+- 自定义请求描述层
+  - `TargetType`
+  - `CustomTargetType`
+  - `Method`
+  - `Task`
+  - `ParameterEncoding`
+- 请求构造层
+  - `RequestBuilder`
+- 执行层
+  - `NetworkClient`
+  - `URLSessionNetworkClient`
+  - `NetworkExecutor`
+- 依赖层
+  - `NetworkCredentialProvider`
+  - `TokenRefreshService`
+  - `TokenRefreshCoordinator`
+  - `SessionInvalidationHandler`
+  - `NetworkDependencies`
+- 流式层
+  - `SSEClient`
+  - `SSEEventParser`
+- 可达性层
+  - `NetworkReachabilityAdapter`
+  - `NWPathMonitor`
+
+当前已经移除：
+
+- `Moya`
+- `Alamofire`
+- `MoyaProvider`
+- `NetworkAuthPlugin`
+- `CustomMultiTarget`
 
 当前规则：
 
-- `NetworkAuthPlugin` 不再直接从 `AccountProtocol` 取 token / orgId
-- `Network` 的 402 刷新流程不再直接把账户和会话失效逻辑写死在网络层
-- 网络层通过依赖注入抽象接触会话能力
+- 网络层不再直接依赖第三方请求执行框架
+- 网络层通过依赖注入接触会话能力
+- 并发 `402` 只 refresh 一次，成功后各请求自动重试一次
+- 业务层继续通过 `CommonRequester / NetworkRequestable / Network` 这些 façade 使用新链路
 
 这一步的意义非常大：
 
-- Android / Web 可以复用“网络层职责边界”
-- 只需替换 credential / refresh / invalidation 三组默认实现
+- Android / Web 可以直接镜像网络职责边界
+- 只需替换平台实现，不必重想架构职责
 
 ### AccountProtocol
 
@@ -237,17 +266,18 @@
 
 ### AccountRouter
 
-`AccountRouter` 目前仍然是具体实现，但已经按上面四个子协议分组整理。
+`AccountRouter` 已不再承担远程账户请求。
 
-当前还保留的现实问题：
+当前状态：
 
-- 远程用户信息拉取仍在 `AccountRouter` 中
-- 存储、远程访问、UIKit 路由 هنوز在同一个实现类型里
+- 本地会话和用户存储能力仍由它承接
+- UIKit 路由能力仍由它承接
+- 远程请求已抽到 `DefaultAccountRemoteService`
 
 这说明：
 
 - 结构已经清楚
-- 但实现还没完全进一步拆成 repository/service
+- `Account` 相关职责已经比第一阶段更稳定
 
 ### 已经开始生效的窄依赖
 
@@ -322,13 +352,7 @@
 
 下面这些事还没做完，但已经有清楚入口。
 
-### 1. `AccountRemoteService` 还没进一步抽成独立 service/repository
-
-当前它还留在 `AccountRouter` 里。
-
-这是后续 `library-basics` 最自然的下一刀。
-
-### 2. `Environment` 仍然偏 iOS 运行时配置层
+### 1. `Environment` 仍然偏 iOS 运行时配置层
 
 它还不是多端共享配置中心。
 
@@ -340,29 +364,28 @@
 
 和平台运行时能力继续分开。
 
-### 3. `module-ai` 还没有 use case 层
+### 2. `module-ai` 还没有 use case 层
 
 现在有 repository 和 viewmodel，但还没有明确的 use case 层。
 
 如果后续要进一步为 Android/Web 提供稳定生成基线，这层可以补。
 
-### 4. 测试仍然偏少
+### 3. 测试仍然偏少
 
 当前最值得补的测试优先是：
 
-- `FunctionResponseDTO -> FunctionModel`
-- `HistoryListViewData`
-- `AIChatIntentResolver`
-- `SettingViewModel` 的 snapshot -> view data
-- `PrivacyPolicyViewModel`
+- `NetworkReachabilityAdapter`
+- `CommonRequester` 在新网络链路上的边界行为
+- 上传 / 下载链路
+- `module-ai` 更多非 happy path 场景
 
 ## 建议的下一步
 
 如果继续往下做，优先级建议如下：
 
-1. 给当前结构补最小测试，先保护已完成分层
-2. 继续把 `AccountRemoteService` 从 `AccountRouter` 抽出去
-3. 审查 `Environment`，区分配置数据和 iOS 运行时适配
+1. 给当前网络层和上传/下载补收尾测试
+2. 审查 `Environment`，区分配置数据和 iOS 运行时适配
+3. 视需要给 `module-ai` 增加 use case 层
 4. 再决定是否开始 Android/Web 初始仓库搭建
 
 ## 一句话结论
