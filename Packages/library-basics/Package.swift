@@ -78,7 +78,6 @@ let package = Package(
     dependencies: [
         .package(url: "https://gitee.com/mirrors/SwifterSwift.git", exact: "7.0.0"),
         .package(url: "https://gitee.com/dingjiarui/SVProgressHUD.git", exact: "2.3.1"),
-        .package(url: "https://gitee.com/neveremo/Alamofire.git", exact: "5.10.1"),
     ],
     targets: [
         .target(
@@ -172,14 +171,14 @@ let package = Package(
                 "AccountProtocol",
                 "Environment",
                 "Router",
-                "Storage",
-                "Alamofire"
+                "Storage"
             ],
             resources: [
                 .process("Localizable.xcstrings")
             ],
             linkerSettings: [
                 .linkedFramework("Foundation"),
+                .linkedFramework("Network"),
                 .linkedFramework("UIKit"),
                 .linkedFramework("MobileCoreServices"),
             ]

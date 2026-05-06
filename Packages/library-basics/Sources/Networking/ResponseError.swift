@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Alamofire
 
 public enum ResponseError: Swift.Error {
     /// 未知错误
@@ -63,9 +62,9 @@ extension NetworkError {
             let code = response.statusCode
             return String(format: NSLocalizedString("Status code %d didn't fall within the given range.", bundle: .module, comment: ""), code) 
         case .underlying(let error, _):
-            if case let .sessionTaskFailed(innerError) = error as? AFError,
-               let nsError = innerError as NSError?,
-               let errorMessage = nsError.userInfo[NSLocalizedDescriptionKey] as? String {
+            if let nsError = error as NSError?,
+               let errorMessage = nsError.userInfo[NSLocalizedDescriptionKey] as? String,
+               errorMessage.isEmpty == false {
                 return errorMessage
             }
             return error.localizedDescription

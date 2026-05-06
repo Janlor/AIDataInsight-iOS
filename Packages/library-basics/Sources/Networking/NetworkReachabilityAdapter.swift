@@ -6,35 +6,58 @@
 //
 
 import Foundation
-import Alamofire
+import Network
 
 @objc
-/// 对Alamofire的NetworkReachabilityManager进行了一层转发
+/// 对系统 Network.NWPathMonitor 进行了一层转发
 open class NetworkReachabilityAdapter: NSObject {
     
     public typealias ListenerCallBack = (NetworkReachabilityAdapter) -> Void
     
-    fileprivate lazy var manager: NetworkReachabilityManager? = NetworkReachabilityManager()
+    private var monitor: NWPathMonitor?
+    private let monitorQueue = DispatchQueue(label: "com.aidatainsight.network.reachability")
+    private var isMonitoring = false
+    private var listener: ListenerCallBack?
+    private var currentStatus: NWPath.Status = .requiresConnection
     
     @objc
     /// 是否网络可达
     open var isReachable: Bool {
-        manager?.isReachable ?? false
+        currentStatus == .satisfied
     }
     
     @objc
     open func startListening(_ callBack: @escaping ListenerCallBack) {
-        manager?.startListening(onUpdatePerforming: {[weak self] status in
-            guard let current = self else {
-                return
+        listener = callBack
+
+        guard isMonitoring == false else {
+            callBack(self)
+            return
+        }
+
+        isMonitoring = true
+        let monitor = NWPathMonitor()
+        monitor.pathUpdateHandler = { [weak self] path in
+            guard let self else { return }
+            self.currentStatus = path.status
+            DispatchQueue.main.async {
+                self.listener?(self)
             }
-            callBack(current)
-        })
+        }
+        self.monitor = monitor
+        monitor.start(queue: monitorQueue)
+        DispatchQueue.main.async {
+            callBack(self)
+        }
     }
     
     @objc
     open func stopListening() {
-        manager?.stopListening()
+        guard isMonitoring else { return }
+        isMonitoring = false
+        listener = nil
+        monitor?.cancel()
+        monitor = nil
     }
     
     deinit {
