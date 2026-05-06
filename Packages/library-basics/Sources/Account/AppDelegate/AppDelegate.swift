@@ -27,10 +27,11 @@ class AppDelegate: UIResponder, AppDelegateModule {
     
     func applicationHighPriority(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]?) {
         let router = AccountRouter()
+        let remoteService = DefaultAccountRemoteService(accountUserStore: router)
         Router.register(key: AccountProtocol.self, module: router)
         Router.register(key: AccountSessionStore.self, module: router)
         Router.register(key: AccountUserStore.self, module: router)
-        Router.register(key: AccountRemoteService.self, module: router)
+        Router.register(key: AccountRemoteService.self, module: remoteService)
         Router.register(key: AccountRouteService.self, module: router)
     }
 }

@@ -257,23 +257,27 @@ extension AccountRouter: AccountUserStore {
     }
 }
 
-extension AccountRouter: AccountRemoteService {
+private extension AccountRouter {
     private func prepareSession() {
         let group = DispatchGroup()
         var errors = StringSet()
-        
-        group.enter()
-        getUserInfo { (m: UserInfoMO?, e: String?) in
-            errors.insert(e)
-            group.leave()
+
+        if let remoteService = Router.perform(key: AccountRemoteService.self) {
+            group.enter()
+            remoteService.getUserInfo { (m: UserInfoMO?, e: String?) in
+                errors.insert(e)
+                group.leave()
+            }
+        } else {
+            errors.insert(NSLocalizedString("未知错误", bundle: .module, comment: ""))
         }
-        
+
 //        group.enter()
-//        getMenuTree { (m: [MenuModel]?, e: String?) in
+//        Router.perform(key: AccountRemoteService.self)?.getMenuTree { (m: [MenuModel]?, e: String?) in
 //            errors.insert(e)
 //            group.leave()
 //        }
-        
+
         group.notify(queue: .main) {
             if errors.isEmpty {
                 NotificationCenter.default.post(name: .sessionReady, object: nil)
@@ -282,35 +286,16 @@ extension AccountRouter: AccountRemoteService {
                 NotificationCenter.default.post(name: .authFailed, object: errors.values)
             }
         }
+    }
+}
 
+extension AccountRouter: AccountRemoteService {
+    func getUserInfo<T>(_ reslut: @escaping (T?, String?) -> Void) where T : UserInfo, T : Codable {
+        Router.perform(key: AccountRemoteService.self)?.getUserInfo(reslut)
     }
 
-    /// 获取用户信息
-    func getUserInfo<T>(_ reslut: @escaping (T?, String?) -> Void) where T: UserInfo, T: Codable {
-        let target = AccountApi.getUserInfo
-        ResponseModel<T>.requestable(target) {
-            response, error in
-            guard error == nil, let model = response?.data else {
-                reslut(nil, error?.localizedDescription ?? NSLocalizedString("未知错误", bundle: .module, comment: ""))
-                return
-            }
-            self.updateUser(model)
-            reslut(model, nil)
-        }
-    }
-
-    /// 获取菜单
-    func getMenuTree<T>(_ reslut: @escaping ([T]?, String?) -> Void) where T: MenuProtocol, T: Codable {
-        let target = AccountApi.menuTree
-        ResponseModel<[T]>.requestable(target) {
-            response, error in
-            guard error == nil, let models = response?.data else {
-                reslut(nil, error?.localizedDescription ?? NSLocalizedString("未知错误", bundle: .module, comment: ""))
-                return
-            }
-            self.update(menus: models)
-            reslut(models, nil)
-        }
+    func getMenuTree<T>(_ reslut: @escaping ([T]?, String?) -> Void) where T : MenuProtocol, T : Codable {
+        Router.perform(key: AccountRemoteService.self)?.getMenuTree(reslut)
     }
 }
 
@@ -323,6 +308,7 @@ extension AccountRouter: AccountRouteService {
 }
 
 extension AccountRouter: AccountProtocol {
+    
 }
 
 private extension AccountRouter {
