@@ -6,13 +6,8 @@
 //
 
 import Foundation
-import Moya
 
 public struct DownloadNetwork {
-    static let provider = MoyaProvider<DownloadApi>(plugins: [
-        NetworkAuthPlugin()
-    ])
-
     /// 下载后自动保存
     public static func downloadFile(from target: DownloadApi,
                                     fileName: String,
@@ -25,18 +20,13 @@ public struct DownloadNetwork {
             completion(.success(destinationPath))
             return
         }
-        // 下载
-        provider.request(target) { progress in
-//            print(progress.progress)
-            progressBlock?(progress.progress)
-        } completion: { result in
-            switch result {
-            case .success:
-                // 下载成功后，文件已保存到指定的目标路径
-                completion(.success(destinationPath))
-            case let .failure(error):
-                completion(.failure(error))
-            }
-        }
+
+        let request = URLSessionRequestFactory.request(for: target)
+        URLSessionTransfer.downloadFile(
+            request,
+            destinationURL: destinationPath,
+            progress: progressBlock,
+            completion: completion
+        )
     }
 }
