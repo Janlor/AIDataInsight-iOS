@@ -75,7 +75,7 @@ private extension SettingViewController {
     func didSelectAction(_ action: SettingItemAction) {
         switch action {
         case .updatePassword:
-            Router.perform(key: AccountProtocol.self)?.toUpdatePassword(from: self)
+            Router.perform(key: AccountRouteService.self)?.toUpdatePassword(from: self)
         case .privacy:
             let urlString = Environment.server.privacyPolicyURL
             Router.push(from: self, to: PrivacyProtocol.self, animated: true)?

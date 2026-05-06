@@ -46,7 +46,7 @@ class AppDelegate: UIResponder, AppDelegateModule {
         
         /// 退出登录
         let token_1 = NotificationCenter.default.addObserver(forName: .logoutSucceed, object: nil, queue: .main) {[weak self] noti in
-            Router.perform(key: AccountProtocol.self)?.remove()
+            Router.perform(key: AccountSessionStore.self)?.remove()
             if let msg = noti.userInfo?["msg"] as? String {
                 ProgressHUD.showError(withStatus: msg)
             }
@@ -71,7 +71,7 @@ class AppDelegate: UIResponder, AppDelegateModule {
 
 extension AppDelegate {
     func rootViewController() -> UIViewController? {
-        let isLogin = Router.perform(key: AccountProtocol.self)?.isLogin ?? false
+        let isLogin = Router.perform(key: AccountSessionStore.self)?.isLogin ?? false
         if isLogin {
             let vc = Router.target(to: ProtocolAI.self)!
 //            let nav = BaseNavigationController(rootViewController: vc)

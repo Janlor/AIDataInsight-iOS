@@ -13,15 +13,18 @@ import AccountProtocol
 
 struct DefaultSettingRepository: SettingRepository {
     private let accountService: AccountUserStore?
+    private let accountRouteService: AccountRouteService?
     private let loginService: LoginProtocol?
     private let privacyService: PrivacyProtocol?
 
     init(
         accountService: AccountUserStore? = Router.perform(key: AccountUserStore.self) ?? Router.perform(key: AccountProtocol.self),
+        accountRouteService: AccountRouteService? = Router.perform(key: AccountRouteService.self) ?? Router.perform(key: AccountProtocol.self),
         loginService: LoginProtocol? = Router.perform(key: LoginProtocol.self),
         privacyService: PrivacyProtocol? = Router.perform(key: PrivacyProtocol.self)
     ) {
         self.accountService = accountService
+        self.accountRouteService = accountRouteService
         self.loginService = loginService
         self.privacyService = privacyService
     }
@@ -38,7 +41,7 @@ struct DefaultSettingRepository: SettingRepository {
                 phone: userInfo?.phone
             ),
             capability: SettingCapability(
-                canUpdatePassword: accountService != nil,
+                canUpdatePassword: accountRouteService != nil,
                 canOpenPrivacy: privacyService != nil,
                 canLogout: loginService != nil
             ),
