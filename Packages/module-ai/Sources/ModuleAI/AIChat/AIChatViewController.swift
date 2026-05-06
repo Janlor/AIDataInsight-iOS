@@ -28,6 +28,9 @@ class AIChatViewController: BaseViewController {
     
     /// 数据源
     private let viewModel = AIChatViewModel()
+    private var loadTask: Task<Void, Never>?
+    private var sendTask: Task<Void, Never>?
+    private var feedbackTask: Task<Void, Never>?
     
     /// AI 是否思考中 思考中不能发送消息
     private var isAIThinking = false {
@@ -67,9 +70,16 @@ class AIChatViewController: BaseViewController {
         bindViewModel()
         
         if let historyId = historyId {
-            viewModel.getHistoryDetail(historyId)
+            loadTask?.cancel()
+            loadTask = Task { [weak self] in
+                await self?.viewModel.getHistoryDetail(historyId)
+            }
+            navigationItem.rightBarButtonItem?.isEnabled = true
         } else {
-            viewModel.loadTemplate()
+            loadTask?.cancel()
+            loadTask = Task { [weak self] in
+                await self?.viewModel.loadTemplate()
+            }
         }
     }
     
@@ -88,6 +98,9 @@ class AIChatViewController: BaseViewController {
     }
     
     deinit {
+        loadTask?.cancel()
+        sendTask?.cancel()
+        feedbackTask?.cancel()
         stopStreamDisplayLink()
         NotificationCenter.default.removeObserver(self)
     }
@@ -393,7 +406,10 @@ private extension AIChatViewController {
         startStreamDisplayLink()
         
         /// 函数调用分析
-        viewModel.sendFunctionMessage(text)
+        sendTask?.cancel()
+        sendTask = Task { [weak self] in
+            await self?.viewModel.sendFunctionMessage(text)
+        }
     }
     
     func sendUserStreamMessage(_ text: String) {
@@ -491,7 +507,10 @@ private extension AIChatViewController {
     }
     
     func clearChat() {
-        viewModel.cancelTask(for: .custom("ai-chat-stream"))
+        loadTask?.cancel()
+        sendTask?.cancel()
+        feedbackTask?.cancel()
+        viewModel.resetConversation()
         resetStreamingState()
         var snapshot = dataSource.snapshot()
         snapshot.deleteAllItems()
@@ -683,9 +702,12 @@ extension AIChatViewController: AIChatChartCellDelegate {
         guard let historyDetailId = historyDetailId else { return }
         print("反馈: \(like)")
         sender.isUserInteractionEnabled = false
-        viewModel.sendLikeFeedback(historyDetailId: historyDetailId, like: like) { result in
+        feedbackTask?.cancel()
+        feedbackTask = Task { [weak self, weak sender] in
+            guard let self, let sender else { return }
+            let result = await viewModel.sendLikeFeedback(historyDetailId: historyDetailId, like: like)
             sender.isUserInteractionEnabled = true
-            guard result == true else {
+            guard result else {
                 ProgressHUD.showError(withStatus: "操作失败")
                 sender.isSelected = false
                 return
