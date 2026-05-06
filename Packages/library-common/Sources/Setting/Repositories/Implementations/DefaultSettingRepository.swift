@@ -7,17 +7,17 @@
 
 import Foundation
 import Router
-import AccountProtocol
 import LoginProtocol
 import PrivacyProtocol
+import AccountProtocol
 
 struct DefaultSettingRepository: SettingRepository {
-    private let accountService: AccountProtocol?
+    private let accountService: AccountUserStore?
     private let loginService: LoginProtocol?
     private let privacyService: PrivacyProtocol?
 
     init(
-        accountService: AccountProtocol? = Router.perform(key: AccountProtocol.self),
+        accountService: AccountUserStore? = Router.perform(key: AccountUserStore.self) ?? Router.perform(key: AccountProtocol.self),
         loginService: LoginProtocol? = Router.perform(key: LoginProtocol.self),
         privacyService: PrivacyProtocol? = Router.perform(key: PrivacyProtocol.self)
     ) {

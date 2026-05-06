@@ -42,12 +42,12 @@ private let accountDecoder: JSONDecoder = {
     return decoder
 }()
 
-extension AccountRouter: AccountProtocol {
+extension AccountRouter: AccountSessionStore {
     static var account: AccountInfoMO?
     static var user: UserInfoMO?
     static var userOrgList: [UserOrgModel]?
     static var menuList: [MenuModel]?
-    
+
     func update<T>(account info: T) -> Bool where T : AccountInfo, T : Codable {
         do {
             let data = try accountEncoder.encode(info)
@@ -60,85 +60,11 @@ extension AccountRouter: AccountProtocol {
         }
     }
     
-    func updateUser<T>(_ info: T) -> Bool where T : UserInfo, T : Codable {
-        do {
-            let data = try accountEncoder.encode(info)
-            KeychainStore.shared.saveData(data, for: user_data_key, sync: .iCloud)
-            Self.user = try? accountDecoder.decode(UserInfoMO.self, from: data)
-            NotificationCenter.default.post(name: .userDidUpdate, object: Self.user)
-            return true
-        } catch {
-            return false
-        }
-    }
-    
-    func update<T>(menus info: [T]) -> Bool where T : MenuProtocol, T : Codable {
-        do {
-            let data = try accountEncoder.encode(info)
-            KeychainStore.shared.saveData(data, for: menu_list_key, sync: .iCloud)
-            Self.menuList = try? accountDecoder.decode([MenuModel].self, from: data)
-            NotificationCenter.default.post(name: .menuListDidUpdate, object: Self.menuList)
-            return true
-        } catch {
-            return false
-        }
-    }
-    
-    /// 更新用户所属机构列表
-    func updateUserOrgList<T>(_ info: [T]) -> Bool where T : UserOrgProtocal, T : Codable {
-        do {
-            let data = try accountEncoder.encode(info)
-            KeychainStore.shared.saveData(data, for: user_org_list_key, sync: .iCloud)
-            Self.userOrgList = try? accountDecoder.decode([UserOrgModel].self, from: data)
-            NotificationCenter.default.post(name: .userOrgListDidUpdate, object: Self.userOrgList)
-            return true
-        } catch {
-            return false
-        }
-    }
-    
-    func update<T>(userOrg info: T) -> Bool where T : UserOrgProtocal, T : Codable {
-        guard let userId = username else { return false }
-        let key = "\(user_org_key)_\(userId)"
-        
-        migrateUserOrgDataIfNeed()
-        
-        do {
-            let data = try accountEncoder.encode(info)
-            KeychainStore.shared.saveData(data, for: key, sync: .iCloud)
-            return true
-        } catch {
-            return false
-        }
-    }
-    
-    func remove() {
-        if let userId = username {
-            KeychainStore.shared.remove(for: "\(user_org_key)_\(userId)", sync: .iCloud)
-        }
-        
-        KeychainStore.shared.remove(for: account_data_key, sync: .iCloud)
-        KeychainStore.shared.remove(for: user_data_key, sync: .iCloud)
-        KeychainStore.shared.remove(for: user_org_list_key, sync: .iCloud)
-        KeychainStore.shared.remove(for: menu_list_key, sync: .iCloud)
-        
-        UserDefaults.standard.set(nil, forKey: account_data_key)
-        UserDefaults.standard.set(nil, forKey: user_data_key)
-        UserDefaults.standard.set(nil, forKey: user_org_list_key)
-        UserDefaults.standard.set(nil, forKey: user_org_key)
-        UserDefaults.standard.set(nil, forKey: menu_list_key)
-        UserDefaults.standard.synchronize()
-        
-        Self.account = nil
-        Self.user = nil
-        Self.userOrgList = nil
-    }
-    
     func get<T>(_ type: T.Type) -> T? where T: AccountInfo, T: Codable {
         if type is AccountInfoMO.Type, let account = Self.account {
             return account as? T
         }
-        
+
         // 迁移老数据
         migrateDataIfNeed(for: account_data_key)
 
@@ -153,7 +79,108 @@ extension AccountRouter: AccountProtocol {
 
         return try? accountDecoder.decode(type, from: data)
     }
-    
+
+    func remove() {
+        if let userId = username {
+            KeychainStore.shared.remove(for: "\(user_org_key)_\(userId)", sync: .iCloud)
+        }
+
+        KeychainStore.shared.remove(for: account_data_key, sync: .iCloud)
+        KeychainStore.shared.remove(for: user_data_key, sync: .iCloud)
+        KeychainStore.shared.remove(for: user_org_list_key, sync: .iCloud)
+        KeychainStore.shared.remove(for: menu_list_key, sync: .iCloud)
+
+        UserDefaults.standard.set(nil, forKey: account_data_key)
+        UserDefaults.standard.set(nil, forKey: user_data_key)
+        UserDefaults.standard.set(nil, forKey: user_org_list_key)
+        UserDefaults.standard.set(nil, forKey: user_org_key)
+        UserDefaults.standard.set(nil, forKey: menu_list_key)
+        UserDefaults.standard.synchronize()
+
+        Self.account = nil
+        Self.user = nil
+        Self.userOrgList = nil
+    }
+
+    var isLogin: Bool {
+        guard let _ = accessToken else {
+            return false
+        }
+        return true
+    }
+
+    var accessToken: String? {
+        self.get(AccountInfoMO.self)?.accessToken
+    }
+
+    var refreshToken: String? {
+        self.get(AccountInfoMO.self)?.refreshToken
+    }
+
+    /// 当前组织ID
+    var orgId: Int? {
+        self.fetch(userOrg: UserOrgModel.self)?.id
+    }
+
+    /// 登录名
+    var username: String? {
+        self.getUser(UserInfoMO.self)?.username
+    }
+}
+
+extension AccountRouter: AccountUserStore {
+    func updateUser<T>(_ info: T) -> Bool where T : UserInfo, T : Codable {
+        do {
+            let data = try accountEncoder.encode(info)
+            KeychainStore.shared.saveData(data, for: user_data_key, sync: .iCloud)
+            Self.user = try? accountDecoder.decode(UserInfoMO.self, from: data)
+            NotificationCenter.default.post(name: .userDidUpdate, object: Self.user)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    func update<T>(menus info: [T]) -> Bool where T : MenuProtocol, T : Codable {
+        do {
+            let data = try accountEncoder.encode(info)
+            KeychainStore.shared.saveData(data, for: menu_list_key, sync: .iCloud)
+            Self.menuList = try? accountDecoder.decode([MenuModel].self, from: data)
+            NotificationCenter.default.post(name: .menuListDidUpdate, object: Self.menuList)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    /// 更新用户所属机构列表
+    func updateUserOrgList<T>(_ info: [T]) -> Bool where T : UserOrgProtocal, T : Codable {
+        do {
+            let data = try accountEncoder.encode(info)
+            KeychainStore.shared.saveData(data, for: user_org_list_key, sync: .iCloud)
+            Self.userOrgList = try? accountDecoder.decode([UserOrgModel].self, from: data)
+            NotificationCenter.default.post(name: .userOrgListDidUpdate, object: Self.userOrgList)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    func update<T>(userOrg info: T) -> Bool where T : UserOrgProtocal, T : Codable {
+        guard let userId = username else { return false }
+        let key = "\(user_org_key)_\(userId)"
+
+        migrateUserOrgDataIfNeed()
+
+        do {
+            let data = try accountEncoder.encode(info)
+            KeychainStore.shared.saveData(data, for: key, sync: .iCloud)
+            return true
+        } catch {
+            return false
+        }
+    }
+
     func getUser<T: UserInfo & Codable>(_ type: T.Type) -> T? {
         if type is UserInfoMO.Type, let user = Self.user as? T {
             return user
@@ -173,7 +200,7 @@ extension AccountRouter: AccountProtocol {
         
         return try? accountDecoder.decode(type, from: data)
     }
-    
+
     /// 查询用户所属机构列表
     func fetchUserOrgList<T>(_ type: T.Type) -> [T]? where T: UserOrgProtocal & Codable {
         if type is [UserOrgModel].Type, let userOrgList = Self.userOrgList {
@@ -194,21 +221,21 @@ extension AccountRouter: AccountProtocol {
         
         return try? accountDecoder.decode([T].self, from: data)
     }
-    
+
     func fetch<T>(userOrg type: T.Type) -> T? where T : UserOrgProtocal, T : Codable {
         guard let userId = username else { return nil }
         let key = "\(user_org_key)_\(userId)"
-        
+
         // 迁移老数据
         migrateUserOrgDataIfNeed()
 
         guard let data = KeychainStore.shared.loadData(for: key, sync: .iCloud) else {
             return nil
         }
-        
+
         return try? accountDecoder.decode(type, from: data)
     }
-    
+
     func fetch<T>(menu type: T.Type) -> [T]? where T : MenuProtocol, T : Codable {
         if type is [MenuModel].Type, let menuList = Self.menuList {
             return menuList as? [T]
@@ -228,34 +255,9 @@ extension AccountRouter: AccountProtocol {
         
         return try? accountDecoder.decode([T].self, from: data)
     }
-    
-    var isLogin: Bool {
-        guard let _ = accessToken else {
-            return false
-        }
-        return true
-    }
-    
-    var accessToken: String? {
-        self.get(AccountInfoMO.self)?.accessToken
-    }
-    
-    var refreshToken: String? {
-        self.get(AccountInfoMO.self)?.refreshToken
-    }
-    
-    /// 当前组织ID
-    var orgId: Int? {
-        self.fetch(userOrg: UserOrgModel.self)?.id
-    }
-    
-    /// 登录名
-    var username: String? {
-        self.getUser(UserInfoMO.self)?.username
-    }
-    
-    // MARK: - Network
-    
+}
+
+extension AccountRouter: AccountRemoteService {
     private func prepareSession() {
         let group = DispatchGroup()
         var errors = StringSet()
@@ -282,7 +284,7 @@ extension AccountRouter: AccountProtocol {
         }
 
     }
-    
+
     /// 获取用户信息
     func getUserInfo<T>(_ reslut: @escaping (T?, String?) -> Void) where T: UserInfo, T: Codable {
         let target = AccountApi.getUserInfo
@@ -296,7 +298,7 @@ extension AccountRouter: AccountProtocol {
             reslut(model, nil)
         }
     }
-    
+
     /// 获取菜单
     func getMenuTree<T>(_ reslut: @escaping ([T]?, String?) -> Void) where T: MenuProtocol, T: Codable {
         let target = AccountApi.menuTree
@@ -310,14 +312,17 @@ extension AccountRouter: AccountProtocol {
             reslut(models, nil)
         }
     }
-    
-    // MARK: - Event
-    
+}
+
+extension AccountRouter: AccountRouteService {
     /// 打开修改密码页面
     func toUpdatePassword(from: UIViewController) {
         let vc = UpdatePasswordController()
         from.navigationController?.pushViewController(vc, animated: true)
     }
+}
+
+extension AccountRouter: AccountProtocol {
 }
 
 private extension AccountRouter {
