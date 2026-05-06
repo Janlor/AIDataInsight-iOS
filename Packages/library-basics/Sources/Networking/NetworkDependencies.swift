@@ -32,8 +32,8 @@ public enum NetworkDependencies {
 }
 
 struct DefaultNetworkCredentialProvider: NetworkCredentialProvider {
-    private var accountService: AccountProtocol? {
-        Router.perform(key: AccountProtocol.self)
+    private var accountService: AccountSessionStore? {
+        Router.perform(key: AccountSessionStore.self) ?? Router.perform(key: AccountProtocol.self)
     }
 
     var accessToken: String? {
@@ -59,7 +59,8 @@ struct DefaultTokenRefreshService: TokenRefreshService {
                 return
             }
 
-            Router.perform(key: AccountProtocol.self)?.update(account: oauth)
+            let accountService = Router.perform(key: AccountSessionStore.self) ?? Router.perform(key: AccountProtocol.self)
+            accountService?.update(account: oauth)
             completion(true, nil)
         }
         return task
