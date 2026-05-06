@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "AppDependencies",
-    platforms: [.iOS(.v13)],
+    platforms: [.iOS(.v15)],
     products: [
         .library(
             name: "AppDependencies",

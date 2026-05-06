@@ -20,15 +20,6 @@
       }
     },
     {
-      "identity" : "mjrefresh",
-      "kind" : "remoteSourceControl",
-      "location" : "https://gitee.com/mirrors/MJRefresh.git",
-      "state" : {
-        "revision" : "535d39c86e592d73f8b8e75f9bf1eda62ca4a4ce",
-        "version" : "3.7.9"
-      }
-    },
-    {
       "identity" : "moya",
       "kind" : "remoteSourceControl",
       "location" : "https://gitee.com/Janlor/Moya.git",
