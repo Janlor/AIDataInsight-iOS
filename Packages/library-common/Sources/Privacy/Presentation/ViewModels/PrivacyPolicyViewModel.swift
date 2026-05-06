@@ -8,7 +8,6 @@
 import Foundation
 import Environment
 
-@MainActor
 final class PrivacyPolicyViewModel {
     private let repository: PrivacyRepository
     private(set) var hasShownPolicy = false
