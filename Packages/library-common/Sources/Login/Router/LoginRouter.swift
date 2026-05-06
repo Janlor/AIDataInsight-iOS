@@ -33,7 +33,7 @@ extension LoginRouter: LoginProtocol {
                 reslut(false, error?.localizedDescription ?? NSLocalizedString("未知错误", bundle: .module, comment: ""))
                 return
             }
-            Router.perform(key: AccountProtocol.self)?.update(account: oauth)
+            Router.perform(key: AccountSessionStore.self)?.update(account: oauth)
             reslut(true, nil)
         }
         return NetworkCancellableTask(cancellable: task)

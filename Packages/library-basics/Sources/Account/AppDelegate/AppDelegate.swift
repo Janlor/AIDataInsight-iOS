@@ -26,7 +26,12 @@ class AppDelegate: UIResponder, AppDelegateModule {
     }
     
     func applicationHighPriority(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]?) {
-        Router.register(key: AccountProtocol.self, module: AccountRouter())
+        let router = AccountRouter()
+        Router.register(key: AccountProtocol.self, module: router)
+        Router.register(key: AccountSessionStore.self, module: router)
+        Router.register(key: AccountUserStore.self, module: router)
+        Router.register(key: AccountRemoteService.self, module: router)
+        Router.register(key: AccountRouteService.self, module: router)
     }
 }
 

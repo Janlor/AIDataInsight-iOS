@@ -12,7 +12,7 @@ import AccountProtocol
 @MainActor
 final class LoginViewModel {
     private let repository: LoginRepository
-    private let accountService: AccountProtocol?
+    private let accountService: AccountSessionStore?
 
     var onLoadingStateChange: ((Bool) -> Void)?
     var onError: ((String) -> Void)?
@@ -26,7 +26,7 @@ final class LoginViewModel {
 
     init(
         repository: LoginRepository = DefaultLoginRepository(),
-        accountService: AccountProtocol? = Router.perform(key: AccountProtocol.self)
+        accountService: AccountSessionStore? = Router.perform(key: AccountSessionStore.self)
     ) {
         self.repository = repository
         self.accountService = accountService
