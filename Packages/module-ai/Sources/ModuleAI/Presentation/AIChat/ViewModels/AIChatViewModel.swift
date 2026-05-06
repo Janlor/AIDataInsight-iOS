@@ -65,6 +65,7 @@ extension AIChatViewModel {
                 for try await chunk in repository.streamMessage(text) {
                     onStreamText?(chunk)
                 }
+                guard Task.isCancelled == false else { return }
                 onStreamCompleted?()
             } catch is CancellationError {
                 return
