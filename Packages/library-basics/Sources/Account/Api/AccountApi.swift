@@ -8,7 +8,7 @@
 import Foundation
 import Networking
 
-enum AccountApi: CustomTargetType {
+enum AccountApi: RequestDescriptor {
     /// 查询用户信息
     case getUserInfo
     

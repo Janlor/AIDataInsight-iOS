@@ -85,7 +85,7 @@ struct RequestBuilderTests {
     }
 }
 
-private struct MockTarget: CustomTargetType {
+private struct MockTarget: RequestDescriptor {
     let baseURL: URL
     let path: String
     let method: Networking.Method

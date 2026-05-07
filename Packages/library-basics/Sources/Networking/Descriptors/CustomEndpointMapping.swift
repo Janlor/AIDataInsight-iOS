@@ -25,7 +25,7 @@ public let deviceModelKey = "deviceModel"
 public let deviceBrandKey = "deviceBrand"
 public let channelKey = "channel"
 
-public extension CustomTargetType {
+public extension RequestDescriptor {
     
     /// 默认header
     func defaultHeaders() -> [String: String]? {
@@ -109,7 +109,7 @@ public extension CustomTargetType {
     }
 }
 
-private extension CustomTargetType {
+private extension RequestDescriptor {
     // 默认非上传请求
     var isUpload: Bool {
         switch self.task {

@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum OAuthApi: CustomTargetType {
+enum OAuthApi: RequestDescriptor {
     /// 刷新 Token
     /// refreshToken 刷新令牌
     case refresh(String)

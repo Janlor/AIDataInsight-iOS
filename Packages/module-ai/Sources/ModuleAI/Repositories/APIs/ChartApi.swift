@@ -9,7 +9,7 @@ import Foundation
 import BaseKit
 import Networking
 
-enum ChartApi: CustomTargetType {
+enum ChartApi: RequestDescriptor {
     /// 17个数据接口
     case chart(String, Int, DictionaryConvertible)
     

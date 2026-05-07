@@ -8,7 +8,7 @@
 import Foundation
 import Networking
 
-enum HistoryApi: CustomTargetType {
+enum HistoryApi: RequestDescriptor {
     /// 查询历史会话列表
     case page(Int, Int)
     /// 查询历史会话详情

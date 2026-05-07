@@ -8,7 +8,7 @@
 import Foundation
 import Networking
 
-enum OAuthApi: CustomTargetType {
+enum OAuthApi: RequestDescriptor {
     
     /// 账号登录
     /// name 账号

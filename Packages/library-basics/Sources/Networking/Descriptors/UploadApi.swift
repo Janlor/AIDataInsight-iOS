@@ -9,7 +9,7 @@ import UIKit
 //import UniformTypeIdentifiers // iOS 14+ 专属
 import MobileCoreServices
 
-public enum UploadApi: CustomTargetType {
+public enum UploadApi: RequestDescriptor {
     /// 上传图片
     /// (image图片，filename 图片名称)
     case image(UIImage, String?)

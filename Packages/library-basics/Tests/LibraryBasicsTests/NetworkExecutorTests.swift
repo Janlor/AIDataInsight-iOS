@@ -161,7 +161,7 @@ struct NetworkExecutorTests {
     }
 }
 
-private struct MockTarget: CustomTargetType {
+private struct MockTarget: RequestDescriptor {
     let baseURL: URL = URL(string: "https://example.com")!
     let path: String
     let method: Networking.Method = .post

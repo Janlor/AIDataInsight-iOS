@@ -8,7 +8,7 @@
 import Foundation
 import Networking
 
-enum ChatApi: CustomTargetType {
+enum ChatApi: RequestDescriptor {
     /// 函数调用分析
     case function(String, Int?)
     /// 聊天模板配置
