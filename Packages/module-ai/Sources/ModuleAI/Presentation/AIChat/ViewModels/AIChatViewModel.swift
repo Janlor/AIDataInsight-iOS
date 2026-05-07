@@ -38,10 +38,14 @@ final class AIChatViewModel: BaseViewModel {
     
     private(set) var historyId: Int?
     private let repository: AIChatRepository
+    private let loadTemplateUseCase: LoadTemplateUseCase
+    private let loadHistoryDetailUseCase: LoadHistoryDetailUseCase
     private var streamTask: Task<Void, Never>?
     
     init(repository: AIChatRepository = DefaultAIChatRepository()) {
         self.repository = repository
+        self.loadTemplateUseCase = LoadTemplateUseCase(repository: repository)
+        self.loadHistoryDetailUseCase = LoadHistoryDetailUseCase(repository: repository)
         super.init()
     }
     
@@ -83,8 +87,7 @@ extension AIChatViewModel {
     func getHistoryDetail(_ historyId: Int) async {
         do {
             self.historyId = historyId
-            let model = try await repository.loadHistoryDetail(historyId)
-            let chats = AIChatHistoryMapper.makeChats(from: model.detailList ?? [])
+            let chats = try await loadHistoryDetailUseCase.execute(historyId: historyId)
             onHistoryLoaded?(chats)
         } catch {
             onHistoryLoaded?([])
@@ -93,8 +96,8 @@ extension AIChatViewModel {
     
     func loadTemplate() async {
         do {
-            let configure = try await repository.loadTemplate()
-            onTemplateLoaded?(configure.questions)
+            let questions = try await loadTemplateUseCase.execute()
+            onTemplateLoaded?(questions)
         } catch {
             onTemplateLoaded?(nil)
         }
