@@ -49,8 +49,8 @@ AIDataInsight-iOS
 
 `Packages/library-basics` 提供基础设施能力：
 
-- `Networking`：Moya / 网络封装 / 统一响应模型
-- `SSEClient`：基于 `URLSession + dataTask` 的流式 SSE 客户端
+- `Networking`：自定义请求描述层 + `URLSession` 执行层 + 统一响应模型
+- `SSEClient`：基于 `URLSession.bytes(for:)` 的流式 SSE 客户端
 - `BaseViewModel`：任务管理与取消
 - `BaseUI` / `BaseKit`：UI 组件和通用工具
 - `Router` / `Environment` / `AccountProtocol` 等基础能力
@@ -107,12 +107,13 @@ AIDataInsight-iOS
 - UIKit
 - Swift Package Manager
 - MVVM（Closure 回调风格）
-- Moya / Alamofire 风格网络封装
+- URLSession / NWPathMonitor / 自定义 Networking 分层
 - DGCharts
 - URLSession SSE
 
 ## 文档
 
+- Networking 定稿文档：[Docs/architecture/networking-architecture-final.md](Docs/architecture/networking-architecture-final.md)
 - 架构设计说明书：[Docs/架构设计说明书.md](Docs/架构设计说明书.md)
 - Mermaid 索引说明：[Docs/组件依赖关系图.mmd.md](Docs/组件依赖关系图.mmd.md)
 - 高层依赖图源文件：[Docs/组件依赖关系图-高层.mmd](Docs/组件依赖关系图-高层.mmd)

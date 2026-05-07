@@ -320,8 +320,8 @@ protocol AIHistoryRepository {
 
 ```swift
 extension CommonRequester {
-    static func requestNet<T: Codable>(_ target: CustomTargetType) async throws -> T
-    static func requestVoid(_ target: CustomTargetType) async throws
+    static func requestNet<T: Codable>(_ target: RequestDescriptor) async throws -> T
+    static func requestVoid(_ target: RequestDescriptor) async throws
     static func requestSSE(_ request: URLRequest) -> AsyncThrowingStream<String, Error>
 }
 ```

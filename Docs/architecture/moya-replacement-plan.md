@@ -209,5 +209,5 @@
 如果后续还要继续做：
 
 1. 优先给 `NetworkReachabilityAdapter` 增加最小测试或手工验证记录
-2. 逐步把业务代码中的旧 `CustomTargetType` 调用名替换成 `RequestDescriptor`
+2. 后续新代码统一使用 `RequestDescriptor`
 3. 再决定是否把 `Networking` 继续抽成更明确的 `Domain-neutral` 结构
