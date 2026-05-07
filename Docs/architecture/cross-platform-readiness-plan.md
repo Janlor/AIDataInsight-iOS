@@ -18,6 +18,35 @@
 
 ## 当前真实现状
 
+## 当前进度判断
+
+按当前仓库真实状态看，跨平台准备已经不在“刚开始拆分”的阶段。
+
+更准确的判断是：
+
+- 第一阶段：结构止血
+  - 已完成
+- 第二阶段：基础设施可迁移
+  - 基本完成
+- 第三阶段：业务结构可镜像
+  - 已进入，但未完成
+- 第四阶段：平台无关业务核心
+  - 还未系统展开
+
+当前已经完成的关键前置包括：
+
+- `Networking` 已完成 `URLSession + NWPathMonitor + RequestDescriptor` 化
+- `Moya / Alamofire` 已移除
+- `CommonRequester` 已具备 async bridge
+- `module-ai` 已形成第一轮 `Repository / Presentation / Views` 结构
+- `library-common` 的核心业务模块已完成第一轮分层
+
+这意味着：
+
+- 当前最难的基础设施收敛已经做完
+- 现在重点不再是“先把网络层重写掉”
+- 而是继续把业务结构、契约和文档稳定成多端母版
+
 ### 1. 壳工程很薄
 
 壳工程里的 [AppDelegate.swift](/Users/janlor/workspace/GitHub/AIDataInsight-iOS/AIDataInsight/AIDataInsight/AppDelegate.swift:19) 和 [SceneDelegate.swift](/Users/janlor/workspace/GitHub/AIDataInsight-iOS/AIDataInsight/AIDataInsight/SceneDelegate.swift:16) 主要负责：
@@ -455,25 +484,25 @@ UIKit 层再把意图翻译成：
 
 ## async/await 改造优先级
 
-按你当前真实代码，建议这样排：
+按当前真实进度看，这部分已经不是“从 0 开始”的任务，而是“继续清理剩余回调与旧状态管理”的任务。
 
-### 第一优先级
+### 已完成
 
 - `CommonRequester.requestNet`
 - `CommonRequester.requestVoid`
 - `CommonRequester.requestSSE`
 
-### 第二优先级
+### 仍需继续推进
 
 - `AIChatViewModel`
 - `HistoryViewModel`
 
-### 第三优先级
+### 后续阶段
 
 - `LoginProtocol` 的 `refresh` / `logout`
 - `AccountProtocol` 里所有 completion 风格的网络方法
 
-### 第四优先级
+### 基础设施层补强
 
 - `Networking` 内部 token refresh 链路
 - `NetworkMonitor` 观察模型
@@ -490,34 +519,39 @@ UIKit 层再把意图翻译成：
 
 这些都会让复杂度失控。
 
-## 本轮改造完成后的“跨平台就绪”标准
+## 当前已达到的“跨平台就绪”程度
 
-达到下面几个条件，就算准备好了：
+下面这些条件，当前已经达到或基本达到：
 
 - `module-ai` 的网络访问不再直接写在 `ViewModel`
 - AI/History 的核心流程已有 repository 抽象
 - SSE 已能通过 `AsyncThrowingStream` 使用
 - 领域模型不再依赖 UIKit 格式化对象
+
+下面这些条件，当前还没有完全达到：
+
 - 路由开始从 UIViewController 导向转为业务意图导向
 - `library-basics` / `library-common` 中的平台相关边界已明确
+- `module-ai` use case 层成型
+- 更多业务模型彻底去 UIKit 化
 
-到这一步，AI 才能更稳定地帮你平移到：
+以当前状态，AI 已经可以较稳定地帮你平移到：
 
 - Android：Kotlin + Compose + suspend/Flow
 - Web：TypeScript + Next.js + async/query hooks
 
 ## 下一步建议
 
-最合理的后续动作是：
+基于当前真实进度，最合理的后续动作是：
 
-1. 先把三个 `Package.swift` 的平台版本同步到 `iOS 15+`
-2. 先给 `CommonRequester` 增加 async bridge
-3. 以 `HistoryViewModel` 为第一个样板做 async 迁移
-4. 再处理 `AIChatViewModel`
-5. 最后再开始模块拆层
+1. 继续给 `module-ai` 增加更明确的 application/use case 层
+2. 继续削弱 UIKit-only 模型和路由耦合
+3. 给 `Networking / Reachability / Transfers` 补最后一轮收尾测试
+4. 继续冻结领域契约和请求契约
+5. 再开始 Android / Web 的正式实现
 
 如果你要我继续做，下一步最有价值的是直接基于真实代码继续产出：
 
-- `module-ai` 文件级现状审计表
-- `CommonRequester` 的 async/await 改造设计
-- `HistoryViewModel` 的第一版重构方案
+- `module-ai` use case 切入点审计表
+- Android / Web 针对当前仓库的映射补充文档
+- `Account` 模块的第二轮结构整理方案

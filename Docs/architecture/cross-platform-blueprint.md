@@ -10,6 +10,18 @@
 
 这份文档不要求你马上共享代码，而是要求你先共享架构语言。
 
+## 当前执行进度
+
+基于当前仓库，下面这些蓝图前置已经完成：
+
+- `Networking` 已不再依赖 `Moya / Alamofire`
+- 请求描述层已经中性化为 `RequestDescriptor`
+- `CommonRequester` 已具备 async bridge
+- `module-ai` 已完成第一轮 `Repository / Presentation / Views` 化
+- `library-common` 的核心业务模块已完成第一轮分层
+
+所以这份蓝图当前更适合作为“下一阶段映射文档”，而不是“从零开始的目标草图”。
+
 ## 设计原则
 
 你的目标不是“一个人写三套完全不同的程序”，而是“一个人维护一套稳定的业务模型，让 AI 去帮助生成三端实现”。
@@ -296,7 +308,7 @@ enum AppRouteIntent {
 ### iOS
 
 - UIKit 继续保留
-- 先做 async/await 和平台无关化
+- 继续做平台无关化和 application 层收敛
 - SwiftUI 只做增量接入，不做一次性重写
 
 ## 第一阶段里程碑
@@ -309,6 +321,11 @@ enum AppRouteIntent {
 - `HistoryViewModel` 改造完成
 - `AIChatViewModel` 去掉直接请求逻辑
 - 历史与聊天核心模型完成“领域/显示”拆分
+
+当前判断：
+
+- 前 3 项已完成或基本完成
+- 最后一项已完成第一轮，但仍可继续深化
 
 ### 里程碑 2：契约冻结
 
@@ -329,15 +346,13 @@ enum AppRouteIntent {
 
 ## 你现在最值得做的事
 
-不是立刻新建 Android 或 Web 仓库，而是按下面顺序推进：
+不是立刻重写平台 UI，而是按下面顺序推进：
 
-1. 同步三个包的最低版本到 `iOS 15+`
-2. 给 `CommonRequester` 增加 async/await
-3. 先重构 `HistoryViewModel`
-4. 再重构 `AIChatViewModel`
-5. 把 `module-ai` 内部按层整理
-6. 冻结领域契约
-7. 再开始 Android/Web
+1. 继续收敛 `module-ai` 的 application/use case 层
+2. 冻结领域契约与请求契约
+3. 继续减少 UIKit-only 模型和路由耦合
+4. 把当前 iOS 结构作为 Android / Web 的正式母版
+5. 再开始 Android/Web 实现
 
 ## 结论
 
