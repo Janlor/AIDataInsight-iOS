@@ -14,6 +14,18 @@ struct MockAIChatRepository: AIChatRepository {
         updateTime: nil,
         detailList: []
     )
+    var functionModel: FunctionModel = FunctionModel(
+        historyId: nil,
+        hasTool: nil,
+        name: nil,
+        msg: nil,
+        arguments: nil
+    )
+    var historyDetailModel: HistoryDetailModel = HistoryDetailModel(
+        funcType: nil,
+        chartCommonVoList: nil,
+        accountAgeGroupVoList: nil
+    )
 
     func loadTemplate() async throws -> TemplateModel {
         template
@@ -24,11 +36,11 @@ struct MockAIChatRepository: AIChatRepository {
     }
 
     func sendFunctionMessage(_ text: String, historyId: Int?) async throws -> FunctionModel {
-        throw CancellationError()
+        functionModel
     }
 
     func loadChartData(name: FunctionName, historyId: Int, arguments: FunctionArguments) async throws -> HistoryDetailModel {
-        throw CancellationError()
+        historyDetailModel
     }
 
     func sendLikeFeedback(historyDetailId: Int, like: String) async throws {}

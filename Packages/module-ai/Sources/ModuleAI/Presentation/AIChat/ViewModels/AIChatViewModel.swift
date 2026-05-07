@@ -40,12 +40,16 @@ final class AIChatViewModel: BaseViewModel {
     private let repository: AIChatRepository
     private let loadTemplateUseCase: LoadTemplateUseCase
     private let loadHistoryDetailUseCase: LoadHistoryDetailUseCase
+    private let sendFunctionMessageUseCase: SendFunctionMessageUseCase
+    private let loadChartDataUseCase: LoadChartDataUseCase
     private var streamTask: Task<Void, Never>?
     
     init(repository: AIChatRepository = DefaultAIChatRepository()) {
         self.repository = repository
         self.loadTemplateUseCase = LoadTemplateUseCase(repository: repository)
         self.loadHistoryDetailUseCase = LoadHistoryDetailUseCase(repository: repository)
+        self.sendFunctionMessageUseCase = SendFunctionMessageUseCase(repository: repository)
+        self.loadChartDataUseCase = LoadChartDataUseCase(repository: repository)
         super.init()
     }
     
@@ -117,27 +121,16 @@ extension AIChatViewModel {
     
     func sendFunctionMessage(_ text: String) async {
         do {
-            let model = try await repository.sendFunctionMessage(text, historyId: historyId)
-            
-            guard let historyId = model.historyId else {
-                onFunctionResult?(.error(model.msg))
-                return
+            let result = try await sendFunctionMessageUseCase.execute(text: text, historyId: historyId)
+            switch result {
+            case .intent(let text, let type):
+                onFunctionResult?(.intent(text: text, type: type))
+            case .chartRequest(let name, let historyId, let arguments):
+                self.historyId = historyId
+                await getChartData(name: name, historyId: historyId, arguments: arguments)
+            case .failure(let message):
+                onFunctionResult?(.error(message))
             }
-            self.historyId = historyId
-            
-            guard let hasTool = model.hasTool, hasTool,
-                  let name = model.name,
-                  let arguments = model.arguments else {
-                onFunctionResult?(.error(model.msg))
-                return
-            }
-            
-            if let intent = AIChatIntentResolver.resolve(text: text, arguments: arguments) {
-                onFunctionResult?(intent)
-                return
-            }
-            
-            await getChartData(name: name, historyId: historyId, arguments: arguments)
         } catch {
             onFunctionResult?(.timeout)
         }
@@ -148,15 +141,17 @@ extension AIChatViewModel {
     
     func getChartData(name: FunctionName, historyId: Int, arguments: FunctionArguments) async {
         do {
-            let model = try await repository.loadChartData(name: name, historyId: historyId, arguments: arguments)
-            let result = AIChatChartBuilder.build(from: model)
-            
-            guard let datas = result.0 else {
-                onChartResult?(.error(result.1 ?? "数据分析还在测试阶段，很快就能上线，敬请期待！"))
-                return
+            let result = try await loadChartDataUseCase.execute(
+                name: name,
+                historyId: historyId,
+                arguments: arguments
+            )
+            switch result {
+            case .success(let funcType, let datas):
+                onChartResult?(.success(funcType: funcType, historyDetailId: nil, datas: datas))
+            case .failure(let message):
+                onChartResult?(.error(message))
             }
-            
-            onChartResult?(.success(funcType: model.funcType, historyDetailId: nil, datas: datas))
         } catch {
             onChartResult?(.timeout)
         }

@@ -8,14 +8,14 @@
 import Foundation
 
 enum AIChatIntentResolver {
-    static func resolve(text: String, arguments: FunctionArguments) -> FunctionResult? {
+    static func resolve(arguments: FunctionArguments) -> AIChatIntentType? {
         switch arguments {
         case .timeRange(let timeRange):
             if timeRange.startDate == nil {
-                return .intent(text: text, type: .time)
+                return .time
             }
         case .performanceType:
-            return .intent(text: text, type: .index)
+            return .index
         default:
             break
         }
