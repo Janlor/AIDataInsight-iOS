@@ -26,6 +26,8 @@ final class HistoryViewModel: BaseViewModel {
     private(set) var sections: [HistorySectionViewData] = []
     
     private let repository: HistoryRepository
+    private let loadHistoryPageUseCase: LoadHistoryPageUseCase
+    private let deleteHistoryUseCase: DeleteHistoryUseCase
     
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -35,6 +37,11 @@ final class HistoryViewModel: BaseViewModel {
     
     init(repository: HistoryRepository = DefaultHistoryRepository()) {
         self.repository = repository
+        self.loadHistoryPageUseCase = LoadHistoryPageUseCase(
+            repository: repository,
+            dateFormatter: Self.makeDateFormatter()
+        )
+        self.deleteHistoryUseCase = DeleteHistoryUseCase(repository: repository)
         super.init()
     }
 }
@@ -78,20 +85,13 @@ extension HistoryViewModel {
 extension HistoryViewModel {
     
     func deleteHistory(at indexPath: IndexPath) async throws -> Int {
-        let history = record(at: indexPath)
-        guard let historyId = history.id else {
-            throw CommonRequesterError.requestFailed
-        }
-        
-        try await repository.deleteHistory(historyId: historyId)
-        
-        recordGroups[indexPath.section].records.remove(at: indexPath.row)
-        if recordGroups[indexPath.section].records.isEmpty {
-            recordGroups.remove(at: indexPath.section)
-        }
-        sections = HistoryListViewDataBuilder.makeSections(from: recordGroups)
-        
-        return historyId
+        let result = try await deleteHistoryUseCase.execute(
+            recordGroups: recordGroups,
+            indexPath: indexPath
+        )
+        recordGroups = result.recordGroups
+        sections = result.sections
+        return result.historyId
     }
     
     func deleteAllHistory() async throws {
@@ -106,28 +106,25 @@ private extension HistoryViewModel {
     
     func getDataList(pageNo: Int, pageSize: Int) async {
         do {
-            let model = try await repository.loadHistoryPage(pageNo: pageNo, pageSize: pageSize)
-            pageModel = model
-            
-            let groupedNewRecords = HistoryListViewDataBuilder.groupRecords(
-                model.records,
-                dateFormatter: dateFormatter
+            let result = try await loadHistoryPageUseCase.execute(
+                pageNo: pageNo,
+                pageSize: pageSize,
+                existingGroups: recordGroups
             )
-            
-            let mergedGroups: [HistoryRecordGroup]
-            if (model.currentPage ?? 1) == 1 || recordGroups.isEmpty {
-                mergedGroups = groupedNewRecords
-            } else {
-                var merged = recordGroups
-                HistoryListViewDataBuilder.mergeGroups(existing: &merged, new: groupedNewRecords)
-                mergedGroups = merged
-            }
-            
-            recordGroups = mergedGroups
-            sections = HistoryListViewDataBuilder.makeSections(from: mergedGroups)
+            pageModel = result.pageModel
+            recordGroups = result.recordGroups
+            sections = result.sections
             onDataLoaded?(sections)
         } catch {
             onDataLoadFailed?(error.localizedDescription)
         }
+    }
+}
+
+private extension HistoryViewModel {
+    static func makeDateFormatter() -> DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        return formatter
     }
 }
