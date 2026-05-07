@@ -35,20 +35,20 @@ public protocol Requesting {
 
     @discardableResult
     static func request<T: Codable>(
-        _ target: CustomTargetType,
+        _ target: RequestDescriptor,
         loadCache: Bool,
         completion: @escaping (DataState<T>) -> Void
     ) -> CancellableTask
     
     @discardableResult
     static func requestNet<T: Codable>(
-        _ target: CustomTargetType,
+        _ target: RequestDescriptor,
         completion: @escaping (T?, Error?) -> Void
     ) -> CancellableTask
     
     @discardableResult
     static func requestVoid(
-        _ target: CustomTargetType,
+        _ target: RequestDescriptor,
         completion: @escaping (Bool, Error?) -> Void
     ) -> CancellableTask
     
@@ -60,11 +60,11 @@ public protocol Requesting {
     ) -> CancellableTask
     
     static func requestNet<T: Codable>(
-        _ target: CustomTargetType
+        _ target: RequestDescriptor
     ) async throws -> T
     
     static func requestVoid(
-        _ target: CustomTargetType
+        _ target: RequestDescriptor
     ) async throws
     
     static func requestSSE(
@@ -131,7 +131,7 @@ public enum CommonRequester: Requesting {
 
     @discardableResult
     public static func request<T: Codable>(
-        _ target: CustomTargetType,
+        _ target: RequestDescriptor,
         loadCache: Bool = true,
         completion: @escaping (DataState<T>) -> Void
     ) -> CancellableTask {
@@ -172,7 +172,7 @@ public enum CommonRequester: Requesting {
     
     @discardableResult
     public static func requestNet<T: Codable>(
-        _ target: CustomTargetType,
+        _ target: RequestDescriptor,
         completion: @escaping (T?, Error?) -> Void
     ) -> CancellableTask {
         var task: _Concurrency.Task<Void, Never>?
@@ -196,7 +196,7 @@ public enum CommonRequester: Requesting {
     }
     
     public static func requestNet<T: Codable>(
-        _ target: CustomTargetType
+        _ target: RequestDescriptor
     ) async throws -> T {
         let taskBox = CancellableTaskBox()
         
@@ -219,7 +219,7 @@ public enum CommonRequester: Requesting {
     
     @discardableResult
     public static func requestVoid(
-        _ target: CustomTargetType,
+        _ target: RequestDescriptor,
         completion: @escaping (Bool, Error?) -> Void
     ) -> CancellableTask {
         var task: _Concurrency.Task<Void, Never>?
@@ -243,7 +243,7 @@ public enum CommonRequester: Requesting {
     }
     
     public static func requestVoid(
-        _ target: CustomTargetType
+        _ target: RequestDescriptor
     ) async throws {
         let taskBox = CancellableTaskBox()
         

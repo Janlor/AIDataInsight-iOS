@@ -16,7 +16,7 @@ public protocol NetworkRequestable: Codable {
     ///   - completion: 回调
     @discardableResult
     static func requestable(
-        _ target: CustomTargetType,
+        _ target: RequestDescriptor,
         completion: @escaping (Self?, NetworkError?) -> Void
     ) -> Cancellable
     
@@ -29,7 +29,7 @@ public extension NetworkRequestable {
     ///   - target: 接口信息
     ///   - completion: 回调
     @discardableResult
-    static func requestable(_ target: CustomTargetType,
+    static func requestable(_ target: RequestDescriptor,
                             completion: @escaping (Self?, NetworkError?) -> Void) -> Cancellable {
         let task = _Concurrency.Task {
             do {
@@ -70,7 +70,7 @@ public extension NetworkRequestable where Self: NetworkCacheable {
     /// - Returns: 可取消
     @discardableResult
     static func requestableWithState(
-        _ target: CustomTargetType,
+        _ target: RequestDescriptor,
         loadCache: Bool = false,
         completion: @escaping (DataState<Self>) -> Void
     ) -> Cancellable {
@@ -103,7 +103,7 @@ public extension NetworkRequestable where Self: NetworkCacheable {
     }
     
     /// 加载缓存
-    static func loadCacheData(_ target: CustomTargetType) -> DataState<Self>? {
+    static func loadCacheData(_ target: RequestDescriptor) -> DataState<Self>? {
         guard let policy = target as? NetworkCachePolicy,
               policy.cacheStrategy != .networkOnly else {
             return nil
@@ -128,7 +128,7 @@ public extension NetworkRequestable where Self: NetworkCacheable {
     }
     
     /// 保存缓存
-    static func saveCacheData(_ target: CustomTargetType, _ model: Self) {
+    static func saveCacheData(_ target: RequestDescriptor, _ model: Self) {
         guard let policy = target as? NetworkCachePolicy,
               policy.cacheStrategy != .networkOnly else {
             return

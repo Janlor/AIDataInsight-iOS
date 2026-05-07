@@ -206,7 +206,7 @@
 
 - 自定义请求描述层
   - `TargetType`
-  - `CustomTargetType`
+  - `RequestDescriptor`
   - `Method`
   - `Task`
   - `ParameterEncoding`

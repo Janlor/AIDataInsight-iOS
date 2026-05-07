@@ -29,7 +29,7 @@
 当前由以下类型组成：
 
 - `TargetType`
-- `CustomTargetType`
+- `RequestDescriptor`
 - `Method`
 - `Task`
 - `ParameterEncoding`
@@ -47,7 +47,7 @@
 
 职责：
 
-- 从 `CustomTargetType` 构造 `URLRequest`
+- 从 `RequestDescriptor` 构造 `URLRequest`
 - 处理 query / body / JSON / composite task
 - 处理默认 header
 
@@ -183,13 +183,13 @@
 
 下面这些点说明它已经“高度可迁移”，但还不能称为“完美平台无关”。
 
-### 1. `CustomTargetType` 仍然偏 iOS 命名
+### 1. `RequestDescriptor` 已经成为当前推荐命名
 
-它已经不依赖第三方框架，但名字和组织习惯仍然带有旧 iOS 网络层历史。
-
-后续如果要进一步中性化，可以演进成：
+当前已经完成中性化命名：
 
 - `RequestDescriptor`
+
+`CustomTargetType` 仅作为兼容别名保留，用于避免一次性改动所有调用点。
 
 ### 2. 错误模型仍偏 iOS 客户端语义
 
@@ -209,5 +209,5 @@
 如果后续还要继续做：
 
 1. 优先给 `NetworkReachabilityAdapter` 增加最小测试或手工验证记录
-2. 视需要把 `CustomTargetType` 中性化命名为 `RequestDescriptor`
+2. 逐步把业务代码中的旧 `CustomTargetType` 调用名替换成 `RequestDescriptor`
 3. 再决定是否把 `Networking` 继续抽成更明确的 `Domain-neutral` 结构

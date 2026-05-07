@@ -28,11 +28,11 @@ public struct NetworkExecutor {
         self.sessionInvalidationHandler = sessionInvalidationHandler
     }
 
-    public func requestData(_ target: CustomTargetType) async throws -> Data {
+    public func requestData(_ target: RequestDescriptor) async throws -> Data {
         try await requestData(target, hasRetriedAfterRefresh: false)
     }
 
-    public func request<Model: Decodable>(_ target: CustomTargetType, as type: Model.Type) async throws -> Model {
+    public func request<Model: Decodable>(_ target: RequestDescriptor, as type: Model.Type) async throws -> Model {
         let data = try await requestData(target)
 
         do {
@@ -44,7 +44,7 @@ public struct NetworkExecutor {
 }
 
 private extension NetworkExecutor {
-    func requestData(_ target: CustomTargetType, hasRetriedAfterRefresh: Bool) async throws -> Data {
+    func requestData(_ target: RequestDescriptor, hasRetriedAfterRefresh: Bool) async throws -> Data {
         let request = try requestBuilder.buildRequest(from: target)
         let result = try await networkClient.send(request)
         let response = makeResponse(

@@ -1,5 +1,5 @@
 //
-//  CustomTargetType.swift
+//  RequestDescriptor.swift
 //  LibraryBasics
 //
 //  Created by Janlor on 2024/5/22.
@@ -7,18 +7,21 @@
 
 import Foundation
 
-/// 业务请求必须要实现的协议
+/// 请求描述协议。
 /// parameters 属于必须实现，其它内容有默认实现
-public protocol CustomTargetType: TargetType {
+public protocol RequestDescriptor: TargetType {
     
-    /// 实现CustomTargetType协议的类型，如果实现该协议则能够走默认的请求任务类型
+    /// 实现 RequestDescriptor 协议的类型，如果实现该协议则能够走默认的请求任务类型
     /// 否则需要自己实现Task
     /// 默认Task请求类型： Task.requestParameters(parameters: target.toParameters(), encoding: JSONEncoding.default)
     var parameters: [String: Any] { get }
     
 }
 
-public extension CustomTargetType {
+/// 兼容旧命名，后续新代码应优先使用 `RequestDescriptor`。
+public typealias CustomTargetType = RequestDescriptor
+
+public extension RequestDescriptor {
     
     /// 默认的host
     var baseURL: URL { NetworkServer.baseURL }
@@ -38,7 +41,7 @@ public extension CustomTargetType {
     var headers: [String: String]? { defaultHeaders() }
 }
 
-public extension CustomTargetType {
+public extension RequestDescriptor {
     
     /// 默认的请求任务类型
     func defalutTask() -> Task {
@@ -94,7 +97,7 @@ public extension CustomTargetType {
     }
 }
 
-public extension CustomTargetType {
+public extension RequestDescriptor {
 
     var cacheKey: String {
         var components: [String] = []

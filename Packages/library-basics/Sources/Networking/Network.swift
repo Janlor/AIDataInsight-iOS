@@ -12,7 +12,7 @@ import Foundation
 public struct Network {
     @discardableResult
     public static func requet(
-        _ target: CustomTargetType,
+        _ target: RequestDescriptor,
         success successCallback: @escaping (Data) -> Void,
         failure failureCallback: @escaping ((NetworkError) -> Void)
     ) -> Cancellable {
@@ -26,7 +26,7 @@ public struct Network {
 
     @discardableResult
     public static func requet(
-        _ target: CustomTargetType,
+        _ target: RequestDescriptor,
         success successCallback: @escaping (Data) -> Void,
         error errorCallback: @escaping ((NetworkError) -> Void),
         failure failureCallback: @escaping ((NetworkError) -> Void)

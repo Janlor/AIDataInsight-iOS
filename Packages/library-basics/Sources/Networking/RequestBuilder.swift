@@ -24,7 +24,7 @@ public enum RequestBuilderError: LocalizedError {
 public struct RequestBuilder {
     public init() {}
 
-    public func buildRequest(from target: CustomTargetType) throws -> URLRequest {
+    public func buildRequest(from target: RequestDescriptor) throws -> URLRequest {
         let url = try buildURL(from: target)
         var request = URLRequest(url: url)
         request.httpMethod = target.method.rawValue
@@ -83,7 +83,7 @@ public struct RequestBuilder {
 }
 
 private extension RequestBuilder {
-    func buildURL(from target: CustomTargetType) throws -> URL {
+    func buildURL(from target: RequestDescriptor) throws -> URL {
         if target.path.isEmpty {
             return target.baseURL
         }
