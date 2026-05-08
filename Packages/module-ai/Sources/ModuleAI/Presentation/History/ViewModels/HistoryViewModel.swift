@@ -25,19 +25,11 @@ final class HistoryViewModel: BaseViewModel {
     private(set) var recordGroups: [HistoryRecordGroup] = []
     private(set) var sections: [HistorySectionViewData] = []
     
-    private let repository: HistoryRepository
     private let loadHistoryPageUseCase: LoadHistoryPageUseCase
     private let deleteHistoryUseCase: DeleteHistoryUseCase
     private let deleteAllHistoryUseCase: DeleteAllHistoryUseCase
     
-    private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        return formatter
-    }()
-    
     init(repository: HistoryRepository = DefaultHistoryRepository()) {
-        self.repository = repository
         self.loadHistoryPageUseCase = LoadHistoryPageUseCase(
             repository: repository,
             dateFormatter: Self.makeDateFormatter()

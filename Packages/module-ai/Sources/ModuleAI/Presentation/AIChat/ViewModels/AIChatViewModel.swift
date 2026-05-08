@@ -37,20 +37,20 @@ final class AIChatViewModel: BaseViewModel {
     // MARK: - State
     
     private(set) var historyId: Int?
-    private let repository: AIChatRepository
     private let loadTemplateUseCase: LoadTemplateUseCase
     private let loadHistoryDetailUseCase: LoadHistoryDetailUseCase
     private let sendFunctionMessageUseCase: SendFunctionMessageUseCase
     private let loadChartDataUseCase: LoadChartDataUseCase
+    private let sendLikeFeedbackUseCase: SendLikeFeedbackUseCase
     private let streamAIResponseUseCase: StreamAIResponseUseCase
     private var streamTask: Task<Void, Never>?
     
     init(repository: AIChatRepository = DefaultAIChatRepository()) {
-        self.repository = repository
         self.loadTemplateUseCase = LoadTemplateUseCase(repository: repository)
         self.loadHistoryDetailUseCase = LoadHistoryDetailUseCase(repository: repository)
         self.sendFunctionMessageUseCase = SendFunctionMessageUseCase(repository: repository)
         self.loadChartDataUseCase = LoadChartDataUseCase(repository: repository)
+        self.sendLikeFeedbackUseCase = SendLikeFeedbackUseCase(repository: repository)
         self.streamAIResponseUseCase = StreamAIResponseUseCase(repository: repository)
         super.init()
     }
@@ -111,7 +111,7 @@ extension AIChatViewModel {
     
     func sendLikeFeedback(historyDetailId: Int, like: String) async -> Bool {
         do {
-            try await repository.sendLikeFeedback(historyDetailId: historyDetailId, like: like)
+            try await sendLikeFeedbackUseCase.execute(historyDetailId: historyDetailId, like: like)
             return true
         } catch {
             return false
