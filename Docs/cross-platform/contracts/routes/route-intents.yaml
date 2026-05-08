@@ -1,0 +1,23 @@
+version: 0.1.0
+routeIntents:
+  - name: openAIHome
+    parameters: {}
+  - name: openHistory
+    parameters:
+      historyId: integer?
+  - name: openSettings
+    parameters: {}
+  - name: openLogin
+    parameters:
+      reason: string?
+  - name: openPrivacy
+    parameters: {}
+  - name: openUpdatePassword
+    parameters: {}
+  - name: back
+    parameters: {}
+rules:
+  - Route intents describe business navigation meaning, not UIKit, Compose, React, or Desktop APIs.
+  - Platform routers must translate these intents into local navigation calls.
+  - Use cases must not depend on platform route implementations.
+

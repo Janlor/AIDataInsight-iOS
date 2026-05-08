@@ -1,0 +1,368 @@
+openapi: 3.1.0
+info:
+  title: AIDataInsight Cross-Platform API Contract
+  version: 0.1.0
+  description: >
+    Shared HTTP contract for iOS, Android, Web, and Desktop. Platform networking
+    stacks can differ, but paths, methods, parameters, response envelope,
+    session behavior, and dynamic AI function payloads must stay aligned.
+servers:
+  - url: "{baseUrl}"
+    variables:
+      baseUrl:
+        default: https://example.invalid
+        description: Environment-injected DEV/PRE/PROD host.
+tags:
+  - name: Auth
+  - name: Account
+  - name: History
+  - name: AIChat
+  - name: Chart
+paths:
+  /oauth2/login:
+    post:
+      tags: [Auth]
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login response.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ResponseEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/OAuthModel"
+  /oauth2/refresh:
+    get:
+      tags: [Auth]
+      operationId: refreshToken
+      parameters:
+        - name: refreshToken
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Refresh response.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ResponseEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/OAuthModel"
+  /oauth2/logout:
+    get:
+      tags: [Auth]
+      operationId: logout
+      responses:
+        "200":
+          $ref: "#/components/responses/EmptyEnvelope"
+  /oauth2/getUserInfo:
+    get:
+      tags: [Account]
+      operationId: getUserInfo
+      responses:
+        "200":
+          description: User info response.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ResponseEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/AccountUser"
+  /oauth2/updatePwd:
+    post:
+      tags: [Account]
+      operationId: updatePassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePasswordRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/EmptyEnvelope"
+  /oauth2/menuTree:
+    get:
+      tags: [Account]
+      operationId: getMenuTree
+      responses:
+        "200":
+          description: Menu tree response.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ResponseEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/MenuItem"
+  /history/page:
+    get:
+      tags: [History]
+      operationId: pageHistory
+      parameters:
+        - name: currentPage
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: pageSize
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: History page response.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ResponseEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/RecordPage"
+  /history/detail:
+    get:
+      tags: [History]
+      operationId: historyDetail
+      parameters:
+        - name: historyId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Complete history record response.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ResponseEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/HistoryRecord"
+  /history/like:
+    post:
+      tags: [History]
+      operationId: likeHistoryDetail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LikeHistoryDetailRequest"
+      responses:
+        "200":
+          $ref: "#/components/responses/EmptyEnvelope"
+  /history/delete:
+    get:
+      tags: [History]
+      operationId: deleteHistory
+      parameters:
+        - name: historyId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          $ref: "#/components/responses/EmptyEnvelope"
+  /history/deleteAll:
+    get:
+      tags: [History]
+      operationId: deleteAllHistory
+      responses:
+        "200":
+          $ref: "#/components/responses/EmptyEnvelope"
+  /chat/template:
+    get:
+      tags: [AIChat]
+      operationId: loadChatTemplate
+      responses:
+        "200":
+          description: Template questions response.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ResponseEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/TemplateQuestionSet"
+  /chat/function:
+    get:
+      tags: [AIChat]
+      operationId: functionAnalysis
+      parameters:
+        - name: question
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: historyId
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Function analysis response.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ResponseEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/FunctionResponse"
+  /chart/{functionName}:
+    get:
+      tags: [Chart]
+      operationId: loadChartData
+      parameters:
+        - name: functionName
+          in: path
+          required: true
+          schema:
+            $ref: "#/components/schemas/FunctionName"
+        - name: historyId
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Chart data response.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ResponseEnvelope"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/HistoryChartDetail"
+components:
+  responses:
+    EmptyEnvelope:
+      description: Empty success response.
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/ResponseEnvelope"
+              - type: object
+                properties:
+                  data:
+                    nullable: true
+  schemas:
+    ResponseEnvelope:
+      type: object
+      additionalProperties: false
+      properties:
+        msg:
+          type: [string, "null"]
+        code:
+          type: [integer, "null"]
+          description: 200 success, 401 invalid session, 402 expired access token.
+        data: true
+        trace:
+          type: [string, "null"]
+        tid:
+          type: [string, "null"]
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required: [name, pwd]
+      properties:
+        name:
+          type: string
+        pwd:
+          type: string
+    UpdatePasswordRequest:
+      type: object
+      additionalProperties: false
+      required: [oldPwd, newPwd]
+      properties:
+        oldPwd:
+          type: string
+        newPwd:
+          type: string
+    LikeHistoryDetailRequest:
+      type: object
+      additionalProperties: false
+      required: [historyDetailId, like]
+      properties:
+        historyDetailId:
+          type: integer
+        like:
+          type: string
+          enum: ["1", "0"]
+    OAuthModel:
+      type: object
+      additionalProperties: true
+      properties:
+        accessToken:
+          type: [string, "null"]
+        refreshToken:
+          type: [string, "null"]
+    AccountUser:
+      $ref: "../domain/account.schema.json#/$defs/AccountUser"
+    MenuItem:
+      $ref: "../domain/account.schema.json#/$defs/MenuItem"
+    RecordPage:
+      $ref: "../domain/history.schema.json#/$defs/RecordPage"
+    HistoryRecord:
+      $ref: "../domain/history.schema.json#/$defs/HistoryRecord"
+    TemplateQuestionSet:
+      $ref: "../domain/ai-chat.schema.json#/$defs/TemplateQuestionSet"
+    FunctionName:
+      $ref: "../domain/ai-chat.schema.json#/$defs/FunctionName"
+    FunctionResponse:
+      $ref: "../domain/ai-chat.schema.json#/$defs/FunctionModel"
+    HistoryChartDetail:
+      $ref: "../domain/ai-chat.schema.json#/$defs/HistoryChartDetail"
+x-session-rules:
+  "401":
+    meaning: sessionInvalid
+    action: clearSessionAndTriggerReauth
+  "402":
+    meaning: accessTokenExpired
+    action: refreshTokenThenRetryOriginalRequestOnce
+  orgIdHeader:
+    name: Org-Id
+    fallback: session.orgId
+x-cache-key:
+  parts:
+    - path
+    - method
+    - Org-Id
+    - sortedParameters
+

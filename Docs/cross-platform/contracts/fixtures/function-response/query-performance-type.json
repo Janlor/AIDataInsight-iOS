@@ -1,0 +1,26 @@
+{
+  "description": "Performance type arguments should produce an index intent.",
+  "response": {
+    "msg": null,
+    "code": 200,
+    "trace": "fixture-trace-performance",
+    "tid": "fixture-tid-performance",
+    "data": {
+      "historyId": 321,
+      "hasTool": true,
+      "name": "queryPerformanceType",
+      "msg": null,
+      "arguments": {
+        "indexType": null
+      }
+    }
+  },
+  "expected": {
+    "argumentsKind": "performanceType",
+    "useCaseOutput": {
+      "kind": "intent",
+      "type": "index"
+    }
+  }
+}
+

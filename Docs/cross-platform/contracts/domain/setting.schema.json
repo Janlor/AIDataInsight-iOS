@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aidatainsight.local/contracts/domain/setting.schema.json",
+  "title": "AIDataInsight Setting Domain",
+  "type": "object",
+  "$defs": {
+    "SettingAccountInfo": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "nickname": { "type": ["string", "null"] },
+        "username": { "type": ["string", "null"] },
+        "phone": { "type": ["string", "null"] }
+      }
+    },
+    "SettingCapability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canUpdatePassword", "canOpenPrivacy", "canLogout"],
+      "properties": {
+        "canUpdatePassword": { "type": "boolean" },
+        "canOpenPrivacy": { "type": "boolean" },
+        "canLogout": { "type": "boolean" }
+      }
+    },
+    "SettingSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["accountInfo", "capability", "appVersion"],
+      "properties": {
+        "accountInfo": { "$ref": "#/$defs/SettingAccountInfo" },
+        "capability": { "$ref": "#/$defs/SettingCapability" },
+        "appVersion": { "type": "string" }
+      }
+    },
+    "SettingItemAction": {
+      "type": "string",
+      "enum": ["updatePassword", "privacy", "logout"]
+    }
+  }
+}
+

@@ -1,0 +1,56 @@
+{
+  "description": "History detail containing a user question and assistant text answer.",
+  "response": {
+    "msg": null,
+    "code": 200,
+    "trace": "fixture-trace-history-text",
+    "tid": "fixture-tid-history-text",
+    "data": {
+      "id": 456,
+      "name": "Greeting",
+      "createId": 1,
+      "updateId": 1,
+      "createName": "Janlor",
+      "updateName": "Janlor",
+      "createTime": "2026-02-01 09:00:00",
+      "updateTime": "2026-02-01 09:01:00",
+      "detailList": [
+        {
+          "id": 2001,
+          "historyId": 456,
+          "type": "1",
+          "contentType": "1",
+          "content": "你好",
+          "isLike": null,
+          "createTime": "2026-02-01 09:00:00",
+          "updateTime": "2026-02-01 09:00:00"
+        },
+        {
+          "id": 2002,
+          "historyId": 456,
+          "type": "2",
+          "contentType": "1",
+          "content": "{\"historyId\":456,\"hasTool\":false,\"name\":null,\"msg\":\"你好，我可以帮你分析经营数据。\",\"arguments\":null}",
+          "isLike": null,
+          "createTime": "2026-02-01 09:01:00",
+          "updateTime": "2026-02-01 09:01:00"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "messages": [
+      {
+        "role": "user",
+        "contentKind": "text",
+        "text": "你好"
+      },
+      {
+        "role": "assistant",
+        "contentKind": "text",
+        "text": "你好，我可以帮你分析经营数据。"
+      }
+    ]
+  }
+}
+

@@ -1,0 +1,34 @@
+{
+  "description": "Function analysis result that should produce a chartRequest.",
+  "response": {
+    "msg": null,
+    "code": 200,
+    "trace": "fixture-trace-sales-month",
+    "tid": "fixture-tid-sales-month",
+    "data": {
+      "historyId": 123,
+      "hasTool": true,
+      "name": "querySalesGroupByMonth",
+      "msg": null,
+      "arguments": {
+        "startDate": "2026-01-01",
+        "endDate": "2026-01-31",
+        "orgId": 1,
+        "customerName": null,
+        "goodsType": null,
+        "orderType": null,
+        "operator": null,
+        "value": null
+      }
+    }
+  },
+  "expected": {
+    "argumentsKind": "timeRange",
+    "useCaseOutput": {
+      "kind": "chartRequest",
+      "name": "querySalesGroupByMonth",
+      "historyId": 123
+    }
+  }
+}
+

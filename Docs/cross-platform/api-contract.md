@@ -4,6 +4,9 @@
 
 这份文档定义 AIDataInsight 当前四端应该共享的 API 契约母版。
 
+> 机器可读源事实位于 `docs/cross-platform/contracts/api/openapi.yaml`。
+> 本文档用于解释接口语义、会话规则和实现边界；新增或变更接口时，必须先更新 OpenAPI 契约。
+
 它回答的是：
 
 - 请求路径是什么

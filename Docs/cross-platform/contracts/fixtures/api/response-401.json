@@ -1,0 +1,16 @@
+{
+  "description": "Invalid session should clear local session and trigger re-auth.",
+  "response": {
+    "msg": "登录已失效，请重新登录",
+    "code": 401,
+    "data": null,
+    "trace": "fixture-trace-401",
+    "tid": "fixture-tid-401"
+  },
+  "expected": {
+    "errorType": "server",
+    "code": 401,
+    "action": "clearSessionAndTriggerReauth"
+  }
+}
+

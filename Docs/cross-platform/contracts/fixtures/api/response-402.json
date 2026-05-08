@@ -1,0 +1,16 @@
+{
+  "description": "Expired access token should refresh token and retry original request once.",
+  "response": {
+    "msg": "access token expired",
+    "code": 402,
+    "data": null,
+    "trace": "fixture-trace-402",
+    "tid": "fixture-tid-402"
+  },
+  "expected": {
+    "errorType": "server",
+    "code": 402,
+    "action": "refreshTokenThenRetryOriginalRequestOnce"
+  }
+}
+

@@ -1,0 +1,33 @@
+{
+  "description": "Missing startDate in timeRange arguments should produce a time intent.",
+  "response": {
+    "msg": null,
+    "code": 200,
+    "trace": "fixture-trace-sales-month-intent",
+    "tid": "fixture-tid-sales-month-intent",
+    "data": {
+      "historyId": 123,
+      "hasTool": true,
+      "name": "querySalesGroupByMonth",
+      "msg": null,
+      "arguments": {
+        "startDate": null,
+        "endDate": null,
+        "orgId": 1,
+        "customerName": null,
+        "goodsType": null,
+        "orderType": null,
+        "operator": null,
+        "value": null
+      }
+    }
+  },
+  "expected": {
+    "argumentsKind": "timeRange",
+    "useCaseOutput": {
+      "kind": "intent",
+      "type": "time"
+    }
+  }
+}
+

@@ -1,0 +1,136 @@
+version: 0.1.0
+feature: ai-chat
+repository:
+  name: AIChatRepository
+  methods:
+    - name: loadTemplate
+      returns: TemplateQuestionSet
+    - name: loadHistoryDetail
+      parameters:
+        historyId: integer
+      returns: HistoryRecord
+    - name: sendFunctionMessage
+      parameters:
+        text: string
+        historyId: integer?
+      returns: FunctionModel
+    - name: loadChartData
+      parameters:
+        name: FunctionName
+        historyId: integer
+        arguments: FunctionArguments
+      returns: HistoryChartDetail
+    - name: sendLikeFeedback
+      parameters:
+        historyDetailId: integer
+        like: string
+      returns: void
+    - name: streamMessage
+      parameters:
+        text: string
+      returns: stream<string>
+usecases:
+  - name: LoadTemplateUseCase
+    input: {}
+    output:
+      questions: string[]
+    rules:
+      - Return an empty array only when the backend returns an empty question set.
+      - Transport or decoding errors are failures, not empty success.
+  - name: LoadHistoryDetailUseCase
+    input:
+      historyId: integer
+    output:
+      messages: ConversationMessage[]
+    rules:
+      - Map question details to user text messages.
+      - Map answer details with ai content to assistant text messages.
+      - Map answer details with chart content to assistant chart messages.
+      - Do not return platform-specific view models from this use case.
+  - name: SendFunctionMessageUseCase
+    input:
+      text: string
+      historyId: integer?
+    output:
+      oneOf:
+        - kind: intent
+          fields:
+            text: string
+            type: AIChatIntentType
+        - kind: chartRequest
+          fields:
+            name: FunctionName
+            historyId: integer
+            arguments: FunctionArguments
+        - kind: failure
+          fields:
+            message: string?
+    rules:
+      - Missing historyId is a failure.
+      - Missing or false hasTool is a failure.
+      - Missing function name or arguments is a failure.
+      - timeRange arguments with missing startDate produce intent type time.
+      - performanceType arguments produce intent type index.
+      - Otherwise produce a chartRequest.
+  - name: LoadChartDataUseCase
+    input:
+      name: FunctionName
+      historyId: integer
+      arguments: FunctionArguments
+    output:
+      oneOf:
+        - kind: chart
+          fields:
+            payload: ChartPayload
+        - kind: failure
+          fields:
+            message: string?
+    rules:
+      - chartCommonVoList maps to one single-value series per item.
+      - accountAgeGroupVoList maps to one multi-value series per item.
+      - accountAgeGroupVoList with first.chartType = "2" and first.msg returns failure message.
+      - Unit is "ton" for stock functions, otherwise "currency".
+      - Do not return platform chart view objects.
+  - name: SendLikeFeedbackUseCase
+    input:
+      historyDetailId: integer
+      like: string
+    output:
+      success: boolean
+    rules:
+      - 'like must keep string semantics: "1" is like, "0" is dislike.'
+  - name: StreamAIResponseUseCase
+    input:
+      text: string
+    output:
+      stream: string
+    rules:
+      - Stream chunks are emitted in order.
+      - Cancellation must stop delivery without emitting failure UI.
+domainOutputs:
+  AIChatIntentType:
+    enum: [time, index]
+  ConversationMessage:
+    fields:
+      id: string
+      role: "user | assistant"
+      contentKind: "text | chart | intent | welcome"
+      text: string?
+      intentType: AIChatIntentType?
+      chartPayload: ChartPayload?
+      feedback: FeedbackState?
+      historyDetailId: integer?
+      functionName: FunctionName?
+  FeedbackState:
+    enum: [liked, disliked, none, unknown]
+  ChartPayload:
+    fields:
+      functionName: FunctionName?
+      unit: "currency | ton"
+      series: ChartSeries[]
+      emptyMessage: string?
+  ChartSeries:
+    fields:
+      xAxis: string
+      labels: string[]
+      values: number[]

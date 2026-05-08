@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aidatainsight.local/contracts/domain/history.schema.json",
+  "title": "AIDataInsight History Domain",
+  "type": "object",
+  "$defs": {
+    "HistoryDetailType": {
+      "type": "string",
+      "enum": ["1", "2"],
+      "x-enumNames": ["question", "answer"]
+    },
+    "HistoryContentType": {
+      "type": "string",
+      "enum": ["1", "2"],
+      "x-enumNames": ["ai", "chart"]
+    },
+    "HistoryDetail": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": ["integer", "null"] },
+        "historyId": { "type": ["integer", "null"] },
+        "type": { "anyOf": [{ "$ref": "#/$defs/HistoryDetailType" }, { "type": "null" }] },
+        "contentType": { "anyOf": [{ "$ref": "#/$defs/HistoryContentType" }, { "type": "null" }] },
+        "content": { "type": ["string", "null"] },
+        "isLike": {
+          "type": ["string", "null"],
+          "enum": ["1", "0", null],
+          "description": "String semantics are intentional: 1 = like, 0 = dislike."
+        },
+        "createTime": { "type": ["string", "null"] },
+        "updateTime": { "type": ["string", "null"] }
+      }
+    },
+    "HistoryRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": ["integer", "null"] },
+        "name": { "type": ["string", "null"] },
+        "createId": { "type": ["integer", "null"] },
+        "updateId": { "type": ["integer", "null"] },
+        "createName": { "type": ["string", "null"] },
+        "updateName": { "type": ["string", "null"] },
+        "createTime": { "type": ["string", "null"] },
+        "updateTime": { "type": ["string", "null"] },
+        "detailList": {
+          "type": ["array", "null"],
+          "items": { "$ref": "#/$defs/HistoryDetail" }
+        }
+      }
+    },
+    "RecordPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "currentPage": { "type": ["integer", "null"] },
+        "pageSize": { "type": ["integer", "null"] },
+        "total": { "type": ["integer", "null"] },
+        "pages": { "type": ["integer", "null"] },
+        "cacheKey": { "type": ["string", "null"] },
+        "records": {
+          "type": ["array", "null"],
+          "items": { "$ref": "#/$defs/HistoryRecord" }
+        }
+      }
+    }
+  }
+}
+

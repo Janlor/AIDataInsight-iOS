@@ -1,0 +1,201 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aidatainsight.local/contracts/domain/ai-chat.schema.json",
+  "title": "AIDataInsight AI Chat Domain",
+  "type": "object",
+  "$defs": {
+    "TemplateQuestionSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["questions"],
+      "properties": {
+        "questions": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "FunctionName": {
+      "type": "string",
+      "enum": [
+        "queryArGroupByOrg",
+        "queryArGroupByCustomer",
+        "querySalesGroupByOrgAndGoodsType",
+        "querySalesGroupByMonth",
+        "querySalesGroupByCustomer",
+        "queryPurchaseGroupByOrg",
+        "queryPurchaseGroupByMonth",
+        "queryPurchaseGroupByCustomer",
+        "queryStockGroupByOrg",
+        "queryStockGroupByWarehouse",
+        "queryInventoryGroupByOrg",
+        "queryInventoryGroupByWarehouse",
+        "queryProcurementGroupByOrg",
+        "queryProcurementGroupByCustomer",
+        "queryAccountAgeGroupByOrg",
+        "queryAccountAgeGroupByCustomer",
+        "queryAccountGroupByAge",
+        "queryPerformanceType"
+      ]
+    },
+    "BasicQuery": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "orgId": { "type": ["integer", "null"] },
+        "customerName": { "type": ["string", "null"] },
+        "orderType": { "type": ["string", "null"] },
+        "operator": { "type": ["string", "null"] },
+        "value": { "type": ["number", "null"] }
+      }
+    },
+    "TimeRangeQuery": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "startDate": { "type": ["string", "null"] },
+        "endDate": { "type": ["string", "null"] },
+        "orgId": { "type": ["integer", "null"] },
+        "customerName": { "type": ["string", "null"] },
+        "goodsType": { "type": ["integer", "null"] },
+        "orderType": { "type": ["string", "null"] },
+        "operator": { "type": ["string", "null"] },
+        "value": { "type": ["number", "null"] }
+      }
+    },
+    "WarehouseQuery": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "orgId": { "type": ["integer", "null"] },
+        "warehouseName": { "type": ["string", "null"] },
+        "goodsType": { "type": ["integer", "null"] },
+        "orderType": { "type": ["string", "null"] },
+        "operator": { "type": ["string", "null"] },
+        "value": { "type": ["number", "null"] }
+      }
+    },
+    "AccountAgeQuery": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "orgId": { "type": ["integer", "null"] },
+        "customerName": { "type": ["string", "null"] },
+        "orderType": { "type": ["string", "null"] },
+        "valueArray": {
+          "type": ["array", "null"],
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "PerformanceTypeQuery": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "indexType": { "type": ["string", "null"] }
+      }
+    },
+    "FunctionArguments": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "value"],
+          "properties": {
+            "kind": { "const": "basic" },
+            "value": { "$ref": "#/$defs/BasicQuery" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "value"],
+          "properties": {
+            "kind": { "const": "timeRange" },
+            "value": { "$ref": "#/$defs/TimeRangeQuery" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "value"],
+          "properties": {
+            "kind": { "const": "warehouse" },
+            "value": { "$ref": "#/$defs/WarehouseQuery" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "value"],
+          "properties": {
+            "kind": { "const": "accountAge" },
+            "value": { "$ref": "#/$defs/AccountAgeQuery" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "value"],
+          "properties": {
+            "kind": { "const": "performanceType" },
+            "value": { "$ref": "#/$defs/PerformanceTypeQuery" }
+          }
+        }
+      ]
+    },
+    "FunctionModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "historyId": { "type": ["integer", "null"] },
+        "hasTool": { "type": ["boolean", "null"] },
+        "name": { "anyOf": [{ "$ref": "#/$defs/FunctionName" }, { "type": "null" }] },
+        "msg": { "type": ["string", "null"] },
+        "arguments": { "anyOf": [{ "$ref": "#/$defs/FunctionArguments" }, { "type": "null" }] }
+      }
+    },
+    "ChartCommonItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "bizId": { "type": ["string", "null"] },
+        "name": { "type": ["string", "null"] },
+        "value": { "type": ["number", "null"] }
+      }
+    },
+    "AccountAgeGroupItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": ["string", "null"] },
+        "valueList": {
+          "type": ["array", "null"],
+          "items": { "type": "number" }
+        },
+        "labelList": {
+          "type": ["array", "null"],
+          "items": { "type": "string" }
+        },
+        "msg": { "type": ["string", "null"] },
+        "chartType": { "type": ["string", "null"] }
+      }
+    },
+    "HistoryChartDetail": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "funcType": { "anyOf": [{ "$ref": "#/$defs/FunctionName" }, { "type": "null" }] },
+        "chartCommonVoList": {
+          "type": ["array", "null"],
+          "items": { "$ref": "#/$defs/ChartCommonItem" }
+        },
+        "accountAgeGroupVoList": {
+          "type": ["array", "null"],
+          "items": { "$ref": "#/$defs/AccountAgeGroupItem" }
+        }
+      }
+    }
+  }
+}
+

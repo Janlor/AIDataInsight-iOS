@@ -44,6 +44,29 @@
 
 如果变更影响跨端源事实，顺序必须是：
 
+1. 先更新 `docs/cross-platform/contracts/` 中的机器可读契约
+2. 再更新跨端解释文档
+3. 再更新当前端实现
+4. 再同步到其它端
+5. 最后记录本次变更影响范围
+
+机器可读契约包括：
+
+- `contracts/domain/*.schema.json`
+- `contracts/api/openapi.yaml`
+- `contracts/usecases/*.usecases.yaml`
+- `contracts/ui-state/*.yaml`
+- `contracts/routes/route-intents.yaml`
+- `contracts/design/tokens.json`
+- `contracts/fixtures/**/*`
+
+旧流程中的“母版文档”现在拆成两层：
+
+- `contracts/` 是四端生成和测试的源事实
+- Markdown 文档是语义说明和决策背景
+
+历史顺序曾经是：
+
 1. 先更新跨端母版文档
 2. 再更新当前端实现
 3. 再同步到其它端
@@ -75,7 +98,8 @@
 
 需要更新：
 
-- `Docs/cross-platform/domain-models.md`
+- `docs/cross-platform/contracts/domain/*.schema.json`
+- `docs/cross-platform/domain-models.md`
 - `Docs/architecture/*` 中相关映射文档
 - 各端 domain / usecase / viewmodel
 
@@ -95,7 +119,8 @@
 
 需要更新：
 
-- `Docs/cross-platform/api-contract.md`
+- `docs/cross-platform/contracts/api/openapi.yaml`
+- `docs/cross-platform/api-contract.md`
 - 各端 network / repository / dto / mapper
 
 ### 2.3 Design Token Change
@@ -121,7 +146,8 @@
 
 需要更新：
 
-- `Docs/cross-platform/design-tokens.md`
+- `docs/cross-platform/contracts/design/tokens.json`
+- `docs/cross-platform/design-tokens.md`
 - iOS / Android / Web / Desktop theme token 映射
 
 ### 2.4 Interaction Rule Change
@@ -142,6 +168,8 @@
 
 需要更新：
 
+- `docs/cross-platform/contracts/usecases/*.usecases.yaml`
+- `docs/cross-platform/contracts/ui-state/*.yaml`
 - `Docs/cross-platform/interaction-rules.md`
 - 各端 coordinator / route / state / event handling
 
@@ -204,10 +232,13 @@
 
 如果属于跨端源事实，必须先更新：
 
-- `Docs/cross-platform/design-tokens.md`
-- `Docs/cross-platform/domain-models.md`
-- `Docs/cross-platform/api-contract.md`
-- `Docs/cross-platform/interaction-rules.md`
+- `docs/cross-platform/contracts/design/tokens.json`
+- `docs/cross-platform/contracts/domain/*.schema.json`
+- `docs/cross-platform/contracts/api/openapi.yaml`
+- `docs/cross-platform/contracts/usecases/*.usecases.yaml`
+- `docs/cross-platform/contracts/ui-state/*.yaml`
+- `docs/cross-platform/contracts/routes/route-intents.yaml`
+- `docs/cross-platform/contracts/fixtures/**/*`
 
 按实际类型选择，不要求每次都改全部。
 

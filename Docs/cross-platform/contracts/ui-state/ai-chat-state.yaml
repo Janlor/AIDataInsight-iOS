@@ -1,0 +1,28 @@
+version: 0.1.0
+feature: ai-chat
+state:
+  name: AIChatUiState
+  fields:
+    historyId: integer?
+    messages: ConversationMessage[]
+    templateQuestions: string[]
+    inputText: string
+    isLoadingTemplate: boolean
+    isSending: boolean
+    isStreaming: boolean
+    errorMessage: string?
+events:
+  - loadTemplate
+  - loadHistoryDetail(historyId)
+  - sendMessage(text)
+  - receiveStreamChunk(text)
+  - completeStream
+  - failStream(message)
+  - sendFeedback(historyDetailId, like)
+  - resetConversation
+platformNotes:
+  ios: UIKit may map messages to AIChat cells and AIBarChartData.
+  android: Compose may expose the state as StateFlow.
+  web: React may expose the state through query/action hooks.
+  desktop: Desktop UI may keep the same state shape with native widgets.
+

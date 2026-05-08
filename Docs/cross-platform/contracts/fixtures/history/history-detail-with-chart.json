@@ -1,0 +1,62 @@
+{
+  "description": "History detail containing a user question and assistant chart answer.",
+  "response": {
+    "msg": null,
+    "code": 200,
+    "trace": "fixture-trace-history-chart",
+    "tid": "fixture-tid-history-chart",
+    "data": {
+      "id": 123,
+      "name": "January sales",
+      "createId": 1,
+      "updateId": 1,
+      "createName": "Janlor",
+      "updateName": "Janlor",
+      "createTime": "2026-01-31 10:00:00",
+      "updateTime": "2026-01-31 10:01:00",
+      "detailList": [
+        {
+          "id": 1001,
+          "historyId": 123,
+          "type": "1",
+          "contentType": "1",
+          "content": "查看一月销售额",
+          "isLike": null,
+          "createTime": "2026-01-31 10:00:00",
+          "updateTime": "2026-01-31 10:00:00"
+        },
+        {
+          "id": 1002,
+          "historyId": 123,
+          "type": "2",
+          "contentType": "2",
+          "content": "{\"funcType\":\"querySalesGroupByMonth\",\"chartCommonVoList\":[{\"bizId\":\"2026-01\",\"name\":\"2026-01\",\"value\":128800.5}],\"accountAgeGroupVoList\":null}",
+          "isLike": "1",
+          "createTime": "2026-01-31 10:01:00",
+          "updateTime": "2026-01-31 10:01:00"
+        }
+      ]
+    }
+  },
+  "expected": {
+    "messages": [
+      {
+        "role": "user",
+        "contentKind": "text",
+        "text": "查看一月销售额"
+      },
+      {
+        "role": "assistant",
+        "contentKind": "chart",
+        "feedback": "liked",
+        "historyDetailId": 1002,
+        "functionName": "querySalesGroupByMonth",
+        "chartPayload": {
+          "unit": "currency",
+          "seriesCount": 1
+        }
+      }
+    ]
+  }
+}
+

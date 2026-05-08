@@ -4,6 +4,9 @@
 
 这份文档是 AIDataInsight 四端共享的第一份设计母版。
 
+> 机器可读源事实位于 `docs/cross-platform/contracts/design/tokens.json`。
+> 本文档用于解释设计方向和 token 用法；新增或变更 token 时，必须先更新 JSON token 文件。
+
 它不描述某个端怎么写界面代码，只描述这些跨端应该保持一致的设计事实：
 
 - 品牌主色与辅助色

@@ -1,0 +1,53 @@
+version: 0.1.0
+feature: history
+repository:
+  name: HistoryRepository
+  methods:
+    - name: loadHistoryPage
+      parameters:
+        currentPage: integer
+        pageSize: integer
+      returns: RecordPage
+    - name: deleteHistory
+      parameters:
+        historyId: integer
+      returns: void
+    - name: deleteAllHistory
+      returns: void
+usecases:
+  - name: LoadHistoryPageUseCase
+    input:
+      currentPage: integer
+      pageSize: integer
+      existingRecords: HistoryRecord[]
+    output:
+      page: RecordPage
+      groups: HistoryRecordGroup[]
+      hasMore: boolean
+    rules:
+      - Page 1 replaces existing records.
+      - Page greater than 1 appends to existing records.
+      - Records are grouped by date label in presentation-neutral groups.
+      - Do not return platform table/list section objects.
+  - name: DeleteHistoryUseCase
+    input:
+      historyId: integer
+      existingRecords: HistoryRecord[]
+    output:
+      deletedHistoryId: integer
+      groups: HistoryRecordGroup[]
+    rules:
+      - Remove the deleted record locally after repository success.
+      - Empty groups must be removed.
+  - name: DeleteAllHistoryUseCase
+    input: {}
+    output:
+      groups: HistoryRecordGroup[]
+    rules:
+      - Output groups must be empty after success.
+domainOutputs:
+  HistoryRecordGroup:
+    fields:
+      title: string
+      records: HistoryRecord[]
+

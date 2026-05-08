@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aidatainsight.local/contracts/domain/account.schema.json",
+  "title": "AIDataInsight Account Domain",
+  "type": "object",
+  "$defs": {
+    "AccountSession": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["isLogin"],
+      "properties": {
+        "accessToken": { "type": ["string", "null"] },
+        "refreshToken": { "type": ["string", "null"] },
+        "orgId": { "type": ["integer", "null"] },
+        "username": { "type": ["string", "null"] },
+        "isLogin": {
+          "type": "boolean",
+          "description": "Derived from usable session content; do not treat as the only persisted truth."
+        }
+      }
+    },
+    "AccountUser": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": ["integer", "null"] },
+        "username": { "type": ["string", "null"] },
+        "nickname": { "type": ["string", "null"] },
+        "phone": { "type": ["string", "null"] }
+      }
+    },
+    "MenuId": {
+      "type": "integer",
+      "enum": [9002, 9003, 9004, 9005],
+      "x-enumNames": ["group", "company", "approval", "message"]
+    },
+    "MenuItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": { "anyOf": [{ "$ref": "#/$defs/MenuId" }, { "type": "null" }] },
+        "name": { "type": ["string", "null"] }
+      }
+    },
+    "UserOrg": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": ["integer", "null"] },
+        "name": { "type": ["string", "null"] }
+      }
+    }
+  }
+}
+

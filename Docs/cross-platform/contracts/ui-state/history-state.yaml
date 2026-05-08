@@ -1,0 +1,22 @@
+version: 0.1.0
+feature: history
+state:
+  name: HistoryUiState
+  fields:
+    groups: HistoryRecordGroup[]
+    currentPage: integer
+    pageSize: integer
+    total: integer?
+    hasMore: boolean
+    isLoading: boolean
+    isRefreshing: boolean
+    isDeleting: boolean
+    errorMessage: string?
+events:
+  - loadFirstPage
+  - loadNextPage
+  - refresh
+  - deleteHistory(historyId)
+  - deleteAllHistory
+  - openHistory(historyId)
+

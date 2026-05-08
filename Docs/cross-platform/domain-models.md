@@ -4,6 +4,9 @@
 
 这份文档定义 AIDataInsight 当前跨端应该共享的领域模型母版。
 
+> 机器可读源事实位于 `docs/cross-platform/contracts/domain/`。
+> 本文档用于解释模型语义、命名取舍和 iOS 遗留映射；新增或变更跨端模型时，必须先更新对应 JSON Schema。
+
 它服务于四件事：
 
 - 固定跨端的业务对象命名
