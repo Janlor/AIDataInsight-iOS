@@ -12,7 +12,7 @@ class HistoryCell: UITableViewCell {
 
     let bubbleView: UIView = {
         let view = UIView()
-        view.backgroundColor = .theme.tertieryGroupedBackground
+        view.backgroundColor = .theme.tertiaryGroupedBackground
         view.applyCapsule(.custom(16))
         view.layer.masksToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false

@@ -61,7 +61,7 @@ public class NormalSearchBar: UIView, UITextFieldDelegate {
         view.image = UIImage.imageNamed(for: "BaseUI_search")?.withRenderingMode(.alwaysTemplate)
         view.isUserInteractionEnabled = true
         view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didClickedIconImageView(_:))))
-        view.tintColor = .theme.tertieryLabel
+        view.tintColor = .theme.tertiaryLabel
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()

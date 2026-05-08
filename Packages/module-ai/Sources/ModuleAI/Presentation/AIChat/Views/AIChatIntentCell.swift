@@ -198,7 +198,7 @@ extension AIChatIntentCell {
         let view = UIButton(type: .custom)
         view.setTitleColor(.theme.label, for: .normal)
         view.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
-        view.backgroundColor = .theme.tertieryGroupedBackground
+        view.backgroundColor = .theme.tertiaryGroupedBackground
         view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapedChildView(_:))))
         view.heightAnchor.constraint(equalToConstant: 40).isActive = true
         view.translatesAutoresizingMaskIntoConstraints = false

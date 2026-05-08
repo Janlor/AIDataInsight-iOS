@@ -84,7 +84,7 @@ class VerticalTitleValuesCell: UICollectionViewCell {
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .theme.tertieryLabel
+        label.textColor = .theme.tertiaryLabel
         label.themeFont = .theme.caption1
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

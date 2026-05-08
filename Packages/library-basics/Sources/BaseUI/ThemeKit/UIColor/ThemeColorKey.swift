@@ -11,15 +11,15 @@ public enum ThemeColorKey: String, CaseIterable {
 
     case background
     case secondaryBackground
-    case tertieryBackground
+    case tertiaryBackground
 
     case groupedBackground
     case secondaryGroupedBackground
-    case tertieryGroupedBackground
+    case tertiaryGroupedBackground
 
     case label
     case secondaryLabel
-    case tertieryLabel
+    case tertiaryLabel
     case quaternaryLabel
     case quinaryLabel
 

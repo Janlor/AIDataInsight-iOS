@@ -201,7 +201,7 @@ class AIChatWelcomeExampleView: UIStackView {
     
     let bottomLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .theme.tertieryLabel
+        label.textColor = .theme.tertiaryLabel
         label.font = UIFont.systemFont(ofSize: 10)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label

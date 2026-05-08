@@ -28,7 +28,7 @@ class AIChatLegendChartCell: AIChatChartCell {
     
     private lazy var legendDataView: AIBarChartLegendDataView<AIBarChartLegend> = {
         let view = AIBarChartLegendDataView<AIBarChartLegend>()
-        view.backgroundColor = UIColor.theme.tertieryGroupedBackground
+        view.backgroundColor = UIColor.theme.tertiaryGroupedBackground
         view.applyCapsule(.small)
         view.translatesAutoresizingMaskIntoConstraints = false
         view.didChangeToHeight = { [weak self] height in

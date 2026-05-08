@@ -93,7 +93,7 @@ enum HistoryListViewDataBuilder {
             .font: UIFont.theme.subhead
         ])
         let dateText = AIChatRichText(text: displayTime, attributes: [
-            .foregroundColor: UIColor.theme.tertieryLabel,
+            .foregroundColor: UIColor.theme.tertiaryLabel,
             .font: UIFont.theme.caption1
         ])
         

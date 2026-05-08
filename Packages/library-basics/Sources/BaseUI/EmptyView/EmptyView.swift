@@ -44,14 +44,14 @@ open class EmptyView: UIStackView {
         spacing = 8
         alignment = .center
         
-        activityIndicator.tintColor = .theme.tertieryLabel
+        activityIndicator.tintColor = .theme.tertiaryLabel
         
-        imageView.tintColor = .theme.tertieryLabel
+        imageView.tintColor = .theme.tertiaryLabel
         
         messageLabel.textAlignment = .center
         messageLabel.numberOfLines = 0
         messageLabel.themeFont = .theme.caption1
-        messageLabel.textColor = .theme.tertieryLabel
+        messageLabel.textColor = .theme.tertiaryLabel
         
         retryButton.setTitle(retryTitle, for: .normal)
         retryButton.addTarget(self, action: #selector(didClickedRetryButton(_:)), for: .touchUpInside)

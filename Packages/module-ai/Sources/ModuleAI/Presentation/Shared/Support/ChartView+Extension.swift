@@ -14,7 +14,7 @@ extension ChartViewBase {
         chartDescription.enabled = false
         legend.enabled = false
         noDataText = NSLocalizedString("暂无数据", bundle: .module, comment: "")
-        noDataTextColor = .theme.tertieryLabel
+        noDataTextColor = .theme.tertiaryLabel
     }
 }
 
@@ -31,13 +31,13 @@ extension BarLineChartViewBase {
         xAxis.labelFont = UIFont.systemFont(ofSize: 10)
         xAxis.drawAxisLineEnabled = false
         xAxis.drawGridLinesEnabled = false
-        xAxis.labelTextColor = .theme.tertieryLabel
+        xAxis.labelTextColor = .theme.tertiaryLabel
         xAxis.labelRotationAngle = -75.0
         xAxis.granularity = 1
         
         let leftAxis = self.leftAxis
         leftAxis.labelFont = .theme.caption1
-        leftAxis.labelTextColor = .theme.tertieryLabel
+        leftAxis.labelTextColor = .theme.tertiaryLabel
         leftAxis.labelCount = 5
         leftAxis.drawAxisLineEnabled = false
         leftAxis.gridColor = .theme.separator

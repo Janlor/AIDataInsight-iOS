@@ -56,7 +56,7 @@ open class BasePickerView: UIView {
         var btn = UIButton(type: .system)
         btn.titleLabel?.themeFont = UIFont.theme.title2
         btn.setTitle(NSLocalizedString("取消", bundle: .module, comment: ""), for: .normal)
-        btn.setTitleColor(UIColor.theme.tertieryLabel, for: .normal)
+        btn.setTitleColor(UIColor.theme.tertiaryLabel, for: .normal)
         btn.contentEdgeInsets = UIEdgeInsets(top: 17, left: mSpacing, bottom: 17, right: mSpacing)
         btn.translatesAutoresizingMaskIntoConstraints = false
         btn.addTarget(self, action: #selector(didClickedCancelButton(_:)), for: .touchUpInside)

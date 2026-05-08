@@ -11,7 +11,7 @@ public extension UITabBarItem {
     
     func normal() {
         setTitleTextAttributes([
-            NSAttributedString.Key.foregroundColor: UIColor.theme.tertieryLabel,
+            NSAttributedString.Key.foregroundColor: UIColor.theme.tertiaryLabel,
             NSAttributedString.Key.font: UIFont.theme.caption2
         ], for: .normal)
         setTitleTextAttributes([
@@ -22,7 +22,7 @@ public extension UITabBarItem {
 
     func transparency() {
         setTitleTextAttributes([
-            NSAttributedString.Key.foregroundColor: UIColor.theme.tertieryLabel,
+            NSAttributedString.Key.foregroundColor: UIColor.theme.tertiaryLabel,
             NSAttributedString.Key.font: UIFont.theme.caption2
         ], for: .normal)
         setTitleTextAttributes([
@@ -37,7 +37,7 @@ public extension UITabBarItemStateAppearance {
     
     func normal() {
         titleTextAttributes = [
-            NSAttributedString.Key.foregroundColor: UIColor.theme.tertieryLabel,
+            NSAttributedString.Key.foregroundColor: UIColor.theme.tertiaryLabel,
 //            NSAttributedString.Key.font: UIFont.theme.caption2
         ]
     }

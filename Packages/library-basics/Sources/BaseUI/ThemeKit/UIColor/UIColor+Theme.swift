@@ -33,8 +33,8 @@ public struct ThemeColorPalette {
         ThemeManager.shared.color(for: .secondaryBackground)
     }
 
-    public var tertieryBackground: UIColor {
-        ThemeManager.shared.color(for: .tertieryBackground)
+    public var tertiaryBackground: UIColor {
+        ThemeManager.shared.color(for: .tertiaryBackground)
     }
 
     // MARK: - Grouped Background
@@ -47,8 +47,8 @@ public struct ThemeColorPalette {
         ThemeManager.shared.color(for: .secondaryGroupedBackground)
     }
 
-    public var tertieryGroupedBackground: UIColor {
-        ThemeManager.shared.color(for: .tertieryGroupedBackground)
+    public var tertiaryGroupedBackground: UIColor {
+        ThemeManager.shared.color(for: .tertiaryGroupedBackground)
     }
 
     // MARK: - Labels
@@ -61,8 +61,8 @@ public struct ThemeColorPalette {
         ThemeManager.shared.color(for: .secondaryLabel)
     }
 
-    public var tertieryLabel: UIColor {
-        ThemeManager.shared.color(for: .tertieryLabel)
+    public var tertiaryLabel: UIColor {
+        ThemeManager.shared.color(for: .tertiaryLabel)
     }
 
     public var quaternaryLabel: UIColor {

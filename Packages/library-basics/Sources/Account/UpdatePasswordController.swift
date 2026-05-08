@@ -51,7 +51,7 @@ class UpdatePasswordController: BaseViewController {
     
     private lazy var accountLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .theme.tertieryLabel
+        label.textColor = .theme.tertiaryLabel
         label.themeFont = .theme.caption1
         label.text = NSLocalizedString("账号：", bundle: .module, comment: "")
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -62,7 +62,7 @@ class UpdatePasswordController: BaseViewController {
     private lazy var usernameTextField: UITextField = {
         let text = createTextField("")
 //        text.textContentType = .username
-        text.textColor = .theme.tertieryLabel
+        text.textColor = .theme.tertiaryLabel
         text.themeFont = .theme.caption1
         text.isUserInteractionEnabled = false
         return text
@@ -134,7 +134,7 @@ class UpdatePasswordController: BaseViewController {
     private lazy var descLabel: UILabel = {
         let label = UILabel()
         label.text = NSLocalizedString("PasswordRuleDescription", bundle: .module, comment: "")
-        label.textColor = .theme.tertieryLabel
+        label.textColor = .theme.tertiaryLabel
         label.themeFont = .theme.caption1
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false

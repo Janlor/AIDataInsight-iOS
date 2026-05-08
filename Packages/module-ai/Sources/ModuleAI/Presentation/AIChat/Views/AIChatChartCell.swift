@@ -36,7 +36,7 @@ class AIChatChartCell: AIChatCell {
     private lazy var unitLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 10)
-        label.textColor = .theme.tertieryLabel
+        label.textColor = .theme.tertiaryLabel
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -170,7 +170,7 @@ class AIChatChartCell: AIChatCell {
     func updateChartMarker(_ count: Int?) {
         let shouldShowMarker = count ?? 0 <= 1
         if shouldShowMarker && chartView.marker == nil {
-            let marker = XYMarkerView(color: .theme.tertieryGroupedBackground,
+            let marker = XYMarkerView(color: .theme.tertiaryGroupedBackground,
                                       font: .theme.caption1,
                                       textColor: .theme.label,
                                       insets: UIEdgeInsets(top: 8, left: 8, bottom: 16, right: 8),
