@@ -30,6 +30,26 @@ For any cross-platform change:
 4. Add or update fixtures for dynamic or ambiguous behavior.
 5. Record the change in `docs/cross-platform/change-log.md`.
 
+## Contract Tests
+
+Run the golden fixture validator from the repository root:
+
+```sh
+ruby scripts/validate-cross-platform-contracts.rb
+```
+
+The validator checks:
+
+- every JSON and YAML contract file is parseable;
+- `FunctionName` values match across JSON Schema, dynamic use case contract,
+  and iOS `FunctionName.swift`;
+- dynamic function response fixtures resolve to the expected argument kind and
+  use case branch;
+- chart fixtures map to the expected `/chart/{functionName}` request and
+  `ChartPayload`;
+- history fixtures do not leak embedded JSON as user-facing text;
+- `401` and `402` fixtures map to the expected session actions.
+
 ## First Covered Scope
 
 Version `0.1.0` covers:
@@ -45,4 +65,3 @@ Version `0.1.0` covers:
 
 The current package intentionally focuses on `AIChat` and `History`, because
 they are the highest-risk areas for cross-platform drift.
-
