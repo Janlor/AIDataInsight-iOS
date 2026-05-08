@@ -19,10 +19,13 @@ struct LoadChartDataUseCaseTests {
         let result = try await useCase.execute(
             name: .querySalesGroupByMonth,
             historyId: 1,
-            arguments: .basic(
-                BasicQueryModel(
+            arguments: .timeRange(
+                TimeRangeQueryModel(
+                    startDate: "2025-01-01",
+                    endDate: "2025-01-31",
                     orgId: 1,
                     customerName: nil,
+                    goodsType: nil,
                     orderType: nil,
                     operator: nil,
                     value: 1
@@ -37,6 +40,41 @@ struct LoadChartDataUseCaseTests {
         #expect(output.payload.functionName == .querySalesGroupByMonth)
         #expect(output.payload.series.count == 1)
         #expect(output.payload.series.first?.xAxis == "一月")
+    }
+    
+    @Test
+    func execute_returnsFailureWhenFunctionNameAndArgumentsKindMismatch() async throws {
+        let useCase = LoadChartDataUseCase(
+            repository: MockAIChatRepository(
+                historyDetailModel: HistoryDetailModel(
+                    funcType: .querySalesGroupByMonth,
+                    chartCommonVoList: [
+                        ChartCommonVo(bizId: "1", name: "一月", value: 10)
+                    ],
+                    accountAgeGroupVoList: nil
+                )
+            )
+        )
+
+        let result = try await useCase.execute(
+            name: .querySalesGroupByMonth,
+            historyId: 1,
+            arguments: .basic(
+                BasicQueryModel(
+                    orgId: 1,
+                    customerName: nil,
+                    orderType: nil,
+                    operator: nil,
+                    value: 1
+                )
+            )
+        )
+
+        guard case let .failure(failure) = result else {
+            Issue.record("Expected failure result")
+            return
+        }
+        #expect(failure.message == "函数参数类型不匹配。")
     }
     
     @Test
@@ -90,10 +128,13 @@ struct LoadChartDataUseCaseTests {
         let result = try await useCase.execute(
             name: .querySalesGroupByMonth,
             historyId: 1,
-            arguments: .basic(
-                BasicQueryModel(
+            arguments: .timeRange(
+                TimeRangeQueryModel(
+                    startDate: "2025-01-01",
+                    endDate: "2025-01-31",
                     orgId: 1,
                     customerName: nil,
+                    goodsType: nil,
                     orderType: nil,
                     operator: nil,
                     value: 1
@@ -120,10 +161,13 @@ struct LoadChartDataUseCaseTests {
             _ = try await useCase.execute(
                 name: .querySalesGroupByMonth,
                 historyId: 1,
-                arguments: .basic(
-                    BasicQueryModel(
+                arguments: .timeRange(
+                    TimeRangeQueryModel(
+                        startDate: "2025-01-01",
+                        endDate: "2025-01-31",
                         orgId: 1,
                         customerName: nil,
+                        goodsType: nil,
                         orderType: nil,
                         operator: nil,
                         value: 1

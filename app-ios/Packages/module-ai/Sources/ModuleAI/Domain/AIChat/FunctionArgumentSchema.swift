@@ -57,6 +57,23 @@ extension FunctionName {
     }
 }
 
+extension FunctionArguments {
+    var argumentKind: FunctionArgumentKind {
+        switch self {
+        case .basic:
+            return .basic
+        case .timeRange:
+            return .timeRange
+        case .warehouse:
+            return .warehouse
+        case .accountAge:
+            return .accountAge
+        case .performanceType:
+            return .performanceType
+        }
+    }
+}
+
 extension KeyedDecodingContainer {
     func decodeFunctionArguments(
         name: FunctionName?,
@@ -78,4 +95,3 @@ extension KeyedDecodingContainer {
         }
     }
 }
-

@@ -33,5 +33,13 @@ struct FunctionArgumentSchemaTests {
         
         #expect(FunctionName.queryPerformanceType.argumentKind == .performanceType)
     }
+    
+    @Test
+    func functionArguments_exposeTheirOwnKind() {
+        #expect(FunctionArguments.basic(BasicQueryModel(orgId: nil, customerName: nil, orderType: nil, operator: nil, value: nil)).argumentKind == .basic)
+        #expect(FunctionArguments.timeRange(TimeRangeQueryModel(startDate: nil, endDate: nil, orgId: nil, customerName: nil, goodsType: nil, orderType: nil, operator: nil, value: nil)).argumentKind == .timeRange)
+        #expect(FunctionArguments.warehouse(WarehouseQueryModel(orgId: nil, warehouseName: nil, goodsType: nil, orderType: nil, operator: nil, value: nil)).argumentKind == .warehouse)
+        #expect(FunctionArguments.accountAge(AccountAgeQueryModel(orgId: nil, customerName: nil, orderType: nil, valueArray: nil)).argumentKind == .accountAge)
+        #expect(FunctionArguments.performanceType(PerformanceTypeQueryModel(indexType: nil)).argumentKind == .performanceType)
+    }
 }
-

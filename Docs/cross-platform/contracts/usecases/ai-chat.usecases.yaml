@@ -122,6 +122,7 @@ usecases:
           fields:
             message: string?
     rules:
+      - FunctionArguments.kind must match FunctionName.argumentKind before requesting chart data.
       - chartCommonVoList maps to one single-value series per item.
       - accountAgeGroupVoList maps to one multi-value series per item.
       - accountAgeGroupVoList with first.chartType = "2" and first.msg returns failure message.

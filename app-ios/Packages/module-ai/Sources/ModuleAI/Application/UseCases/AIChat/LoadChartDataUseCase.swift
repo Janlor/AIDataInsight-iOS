@@ -19,6 +19,10 @@ struct LoadChartDataUseCase {
         historyId: Int,
         arguments: FunctionArguments
     ) async throws -> UseCaseResult<LoadChartDataOutput> {
+        guard name.argumentKind == arguments.argumentKind else {
+            return .failure(.message("函数参数类型不匹配。"))
+        }
+        
         let model = try await repository.loadChartData(
             name: name,
             historyId: historyId,
