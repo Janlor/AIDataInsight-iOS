@@ -17,5 +17,6 @@ interface SessionInvalidationHandler {
 object NetworkDependencies {
     lateinit var credentialProvider: NetworkCredentialProvider
     lateinit var tokenRefreshService: TokenRefreshService
+    lateinit var tokenRefreshCoordinator: TokenRefreshCoordinator
     lateinit var sessionInvalidationHandler: SessionInvalidationHandler
 }

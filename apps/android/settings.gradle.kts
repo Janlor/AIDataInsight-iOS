@@ -23,6 +23,7 @@ include(
     ":core:network",
     ":core:account",
     ":core:ui",
+    ":core:testing",
     ":feature:login",
     ":feature:setting",
     ":feature:privacy",

@@ -24,6 +24,11 @@ fun HistoryScreen(viewModel: HistoryViewModel = viewModel()) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         Text("History")
-        uiState.sections.forEach { Text(it) }
+        uiState.sections.forEach { section ->
+            Text(section.title)
+            section.items.forEach { item ->
+                Text(item.title)
+            }
+        }
     }
 }
