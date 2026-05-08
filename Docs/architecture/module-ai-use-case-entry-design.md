@@ -134,6 +134,38 @@ ModuleAI/
 - `AIChat` 的主链路也已经具备可复制母版
 - Android / Web 后续不需要直接照抄 iOS `ViewModel`
 
+## 当前测试覆盖
+
+当前 application 层和相关边界已经有第一轮自动化保护，主要覆盖：
+
+- `LoadTemplateUseCase`
+- `LoadHistoryDetailUseCase`
+- `SendFunctionMessageUseCase`
+- `LoadChartDataUseCase`
+- `StreamAIResponseUseCase`
+- `LoadHistoryPageUseCase`
+- `DeleteHistoryUseCase`
+- `DeleteAllHistoryUseCase`
+- `SendLikeFeedbackUseCase`
+
+同时还覆盖了与 use case 强关联的关键行为：
+
+- `AIChatIntentResolver`
+- `FunctionResponseDTO`
+- `HistoryListViewDataBuilder`
+- `AIChatViewModel` 的模板/历史/函数/图表失败回调
+- `AIChatViewModel` 的流式消息链
+- `HistoryViewModel` 的失败加载和清空状态
+
+这说明当前 `module-ai` 的 use case 层已经不是“只有目录和命名”，而是已经有可回归的最小保护网。
+
+当前仍未完全覆盖的方向包括：
+
+- 更多 repository 抛错组合
+- `ViewModel` 更细的状态切换顺序
+- 更完整的 stream edge case
+- application result model 的契约级测试
+
 ## 当前还没完全做完的点
 
 现在不再是“要不要加 use case”的问题，而是：

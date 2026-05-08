@@ -128,7 +128,38 @@
 - `Domain/AIChat`
 - `Domain/History`
 
-#### 4. `Domain/Models` 已完成一轮清理
+#### 6. `module-ai` 已具备第一轮测试保护网
+
+当前已经有覆盖的重点包括：
+
+- `AIChatIntentResolver`
+- `FunctionResponseDTO`
+- `HistoryListViewDataBuilder`
+- `LoadTemplateUseCase`
+- `LoadHistoryDetailUseCase`
+- `SendFunctionMessageUseCase`
+- `LoadChartDataUseCase`
+- `StreamAIResponseUseCase`
+- `DeleteHistoryUseCase`
+- `DeleteAllHistoryUseCase`
+- `LoadHistoryPageUseCase`
+- `AIChatViewModel` 的主要失败回调行为
+- `AIChatViewModel` 的流式消息链
+- `HistoryViewModel` 的加载失败与清空状态行为
+
+这意味着当前 `module-ai` 已经不只是“结构上完成第一轮分层”，而是：
+
+- use case 主链路已有最小自动化保护
+- 流式消息链已有回归保护
+- history 列表状态变更已有最小保护
+
+但也要明确：
+
+- 当前测试仍以 happy path 和关键边界为主
+- 还没有形成完整的 feature contract 测试集
+- repository 与 viewmodel 的更多异常组合仍可继续补强
+
+#### 7. `Domain/Models` 已完成一轮清理
 
 已经做掉的事情：
 
@@ -137,7 +168,7 @@
 - 历史消息解析挪到 mapper/helper
 - `Networking` 相关 conformances 从部分 domain model 中移出
 
-#### 5. `FunctionModel` 边界已进一步收清
+#### 8. `FunctionModel` 边界已进一步收清
 
 已经形成：
 
