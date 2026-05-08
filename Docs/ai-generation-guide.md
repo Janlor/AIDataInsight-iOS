@@ -2,7 +2,7 @@
 
 ## 文档目的
 
-这份文档固定 AI 生成 iOS / Android / Web / Desktop 代码时必须遵守的协议。
+这份文档固定 AI 生成 iOS / Android / Web / 鸿蒙 / 其它候选端代码时必须遵守的协议。
 
 它的目标不是让 AI “看着某一端页面照抄”，而是让 AI 只从跨平台契约、目标端模块映射和 golden fixtures 出发，稳定地产生各端实现。
 
@@ -73,6 +73,7 @@ AI 生成目标端代码时，不能随手创造新的领域字段、新的 API 
 - Android：`docs/architecture/android-module-mapping-checklist.md`
 - Android / Web 脚手架：`docs/architecture/android-web-scaffold-design.md`
 - 总体蓝图：`docs/architecture/cross-platform-blueprint.md`
+- 端侧优先级和技术栈：`docs/architecture/platform-adaptation-strategy.md`
 
 ---
 
@@ -131,7 +132,7 @@ AI 不应该手写这些生成模型。
 要求：
 
 - UseCase 只返回 application output
-- 不返回 UIKit / Compose / React / Desktop UI model
+- 不返回 UIKit / Compose / React / ArkUI / Desktop UI model
 - 不处理具体页面跳转
 - 不读取平台控件状态
 
@@ -144,6 +145,7 @@ AI 不应该手写这些生成模型。
 - Android 映射到 Compose 需要的 state / model
 - Web 映射到 React state / hook result
 - iOS 映射到 UIKit view data
+- 鸿蒙映射到 ArkUI 页面状态
 - Desktop 映射到本端 native UI model
 
 ### 6. UI Implementation
@@ -242,13 +244,24 @@ FunctionName -> FunctionArguments kind -> /chart/{FunctionName.rawValue} -> Char
 - UIKit view data 必须在 Presentation 层映射
 - 不把 `UIViewController` / `IndexPath` / `NSAttributedString` 放进 Application 层
 
-### Desktop
+### 鸿蒙 HarmonyOS / OpenHarmony
 
 规则：
 
-- 先选定技术栈，再按同一份契约生成
-- 不直接复用 Web UI 状态，除非契约层明确允许
-- Desktop 路由也应该从 `route-intents.yaml` 映射
+- 暂不作为前三端同阶段目标
+- 若启动，优先使用 ArkTS + ArkUI + DevEco Studio
+- 先生成 contract models 和 mapper，再生成 ArkUI 页面
+- 没有真机时，必须明确说明设备能力、性能和发布链路未验证
+- 不从 iOS UIKit、Android Compose 或 Web React 页面反推鸿蒙模型
+
+### macOS / Windows 等候选桌面端
+
+规则：
+
+- macOS 短期依赖 iPadOS 兼容模式即可
+- SwiftUI 化后再评估 macOS 原生 target
+- Windows 暂不规划，未来优先 Web / PWA / Tauri / Electron
+- 只有确认真实桌面端业务需求后，才进入单独适配
 
 ---
 
@@ -297,7 +310,7 @@ AI 最终回复必须说明：
 请严格按 `docs/ai-generation-guide.md` 生成代码。
 
 目标端：
-- Android / Web / iOS / Desktop
+- Android / Web / iOS / 鸿蒙 / 其它候选端
 
 目标功能：
 - 在这里描述功能
@@ -311,4 +324,3 @@ AI 最终回复必须说明：
 6. 修改后运行 contract validation 和目标端可用的测试/编译命令。
 7. 最终说明生成产物、手写实现、验证结果和未验证风险。
 ```
-

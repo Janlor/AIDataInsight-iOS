@@ -1,8 +1,8 @@
 # AIDataInsight 跨平台契约包
 
-这个目录是 iOS、Android、Web、Desktop 四端共享的机器可读契约包。
+这个目录是 iOS、Android、Web 以及未来候选端共享的机器可读契约包。
 
-`docs/cross-platform` 下的 Markdown 文档负责解释设计意图和背景；本目录下的文件是四端生成代码和手写镜像实现的源事实。
+`docs/cross-platform` 下的 Markdown 文档负责解释设计意图和背景；本目录下的文件是多端生成代码和手写镜像实现的源事实。
 
 ## 契约结构
 
@@ -14,7 +14,7 @@ contracts/
   ui-state/     平台中立的 UI state 形状。
   routes/       共享路由意图词表。
   design/       机器可读的设计 token。
-  fixtures/     四端 contract tests 共用的 golden examples。
+  fixtures/     多端 contract tests 共用的 golden examples。
 ```
 
 ## 更新规则
@@ -23,7 +23,7 @@ contracts/
 
 1. 先更新相关契约文件。
 2. 再更新当前参考实现 iOS。
-3. 再同步到 Android、Web、Desktop。
+3. 再同步到 Android、Web，以及已经进入计划的候选端。
 4. 如果行为是动态的或容易歧义，补充或更新 fixtures。
 5. 最后在 `docs/cross-platform/change-log.md` 记录这次变更。
 
@@ -83,4 +83,4 @@ scripts/generate-cross-platform-contracts.sh
 - 共享路由意图。
 - 设计 token。
 
-当前契约包有意优先聚焦 `AIChat` 和 `History`，因为这两块最容易在四端实现中发生语义漂移。
+当前契约包有意优先聚焦 `AIChat` 和 `History`，因为这两块最容易在多端实现中发生语义漂移。
