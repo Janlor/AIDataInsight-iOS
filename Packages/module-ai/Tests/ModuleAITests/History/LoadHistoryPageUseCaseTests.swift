@@ -39,6 +39,11 @@ struct LoadHistoryPageUseCaseTests {
 
     @Test
     func execute_nextPage_mergesIntoExistingGroups() async throws {
+        let formatter = makeDateFormatter()
+        let now = Date()
+        let existingUpdateTime = formatter.string(from: now)
+        let newUpdateTime = formatter.string(from: Calendar.current.date(byAdding: .minute, value: 1, to: now) ?? now)
+
         let useCase = LoadHistoryPageUseCase(
             repository: MockHistoryRepository(
                 pageModel: RecordPageModel(
@@ -47,10 +52,10 @@ struct LoadHistoryPageUseCaseTests {
                     total: 2,
                     pages: 2,
                     cacheKey: nil,
-                    records: [record(id: 2, name: "新增", updateTime: "2025-01-31 11:30:00")]
+                    records: [record(id: 2, name: "新增", updateTime: newUpdateTime)]
                 )
             ),
-            dateFormatter: makeDateFormatter()
+            dateFormatter: formatter
         )
 
         let state = try await useCase.execute(
@@ -59,7 +64,7 @@ struct LoadHistoryPageUseCaseTests {
             existingGroups: [
                 HistoryRecordGroup(
                     kind: .today,
-                    records: [record(id: 1, name: "已有", updateTime: "2025-01-31 10:30:00")]
+                    records: [record(id: 1, name: "已有", updateTime: existingUpdateTime)]
                 )
             ]
         )

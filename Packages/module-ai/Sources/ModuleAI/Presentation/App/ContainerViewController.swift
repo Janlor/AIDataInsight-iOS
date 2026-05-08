@@ -176,13 +176,12 @@ class ContainerViewController: UIViewController {
     }
     
     private func openMenu() {
-        animate(to: view.bounds.width, velocity: 0) { [weak self] in }
+        animate(to: view.bounds.width, velocity: 0)
         isOpen = true
     }
     
     private func closeMenu() {
-        animate(to: 0, velocity: 0) { [weak self] in }
+        animate(to: 0, velocity: 0)
         isOpen = false
     }
 }
-

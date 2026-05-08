@@ -18,7 +18,7 @@ struct MockHistoryRepository: HistoryRepository {
         if let pageError {
             throw pageError
         }
-        pageModel
+        return pageModel
     }
 
     func deleteHistory(historyId: Int) async throws {

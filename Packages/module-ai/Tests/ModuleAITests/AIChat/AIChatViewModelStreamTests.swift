@@ -7,7 +7,7 @@ struct AIChatViewModelStreamTests {
     @MainActor
     @Test
     func sendStreamMessage_success_emitsChunksAndCompletion() async {
-        let repository = MockAIChatRepository { _ in
+        let repository = StreamMockAIChatRepository { _ in
             AsyncThrowingStream { continuation in
                 continuation.yield("hello")
                 continuation.yield("world")
@@ -38,7 +38,7 @@ struct AIChatViewModelStreamTests {
     @MainActor
     @Test
     func sendStreamMessage_failure_emitsFailure() async {
-        let repository = MockAIChatRepository { _ in
+        let repository = StreamMockAIChatRepository { _ in
             AsyncThrowingStream { continuation in
                 continuation.finish(throwing: MockStreamError.failed)
             }
@@ -64,7 +64,7 @@ struct AIChatViewModelStreamTests {
     @Test
     func cancelStream_afterFirstChunk_doesNotEmitFailureOrCompletion() async throws {
         let firstChunk = StreamSignal()
-        let repository = MockAIChatRepository { _ in
+        let repository = StreamMockAIChatRepository { _ in
             AsyncThrowingStream { continuation in
                 Task {
                     continuation.yield("first")
@@ -100,7 +100,7 @@ struct AIChatViewModelStreamTests {
     }
 }
 
-private struct MockAIChatRepository: AIChatRepository {
+private struct StreamMockAIChatRepository: AIChatRepository {
     let streamFactory: (String) -> AsyncThrowingStream<String, Error>
 
     init(streamFactory: @escaping (String) -> AsyncThrowingStream<String, Error>) {

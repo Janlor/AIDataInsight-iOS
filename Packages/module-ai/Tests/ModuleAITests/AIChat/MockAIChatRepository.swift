@@ -36,28 +36,28 @@ struct MockAIChatRepository: AIChatRepository {
         if let templateError {
             throw templateError
         }
-        template
+        return template
     }
 
     func loadHistoryDetail(_ historyId: Int) async throws -> RecordModel {
         if let historyDetailError {
             throw historyDetailError
         }
-        record
+        return record
     }
 
     func sendFunctionMessage(_ text: String, historyId: Int?) async throws -> FunctionModel {
         if let sendFunctionMessageError {
             throw sendFunctionMessageError
         }
-        functionModel
+        return functionModel
     }
 
     func loadChartData(name: FunctionName, historyId: Int, arguments: FunctionArguments) async throws -> HistoryDetailModel {
         if let loadChartDataError {
             throw loadChartDataError
         }
-        historyDetailModel
+        return historyDetailModel
     }
 
     func sendLikeFeedback(historyDetailId: Int, like: String) async throws {
