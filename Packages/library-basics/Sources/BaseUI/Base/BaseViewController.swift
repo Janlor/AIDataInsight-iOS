@@ -82,14 +82,26 @@ open class BaseViewController: UIViewController, LayoutContainer, Quitable {
             layer.removeFromSuperlayer()
             gradientBgLayer = nil
         }
+        
         let bgColors: [UIColor] = [
-            UIColor(appHex: 0x3478F6).withAlphaComponent(0.1),
-            UIColor(appHex: 0x3478F6).withAlphaComponent(0.05),
-            UIColor(appHex: 0x3478F6).withAlphaComponent(0.05),
-            UIColor(appHex: 0x3478F6).withAlphaComponent(0.1)
+            UIColor(appHex: 0x2F7BFF).withAlphaComponent(0.08),
+            UIColor(appHex: 0x18B8FF).withAlphaComponent(0.02),
+            UIColor(appHex: 0x18B8FF).withAlphaComponent(0.02),
+            UIColor(appHex: 0x2F7BFF).withAlphaComponent(0.06)
         ]
-        let frame: CGRect? = size != nil ? CGRect(origin: .zero, size: size!) : nil
-        gradientBgLayer = view.app.gradientLayer(colors: bgColors, locations: [0, 0.3, 0.7, 1], frame: frame, startPoint: CGPoint(x: 0.3, y: 0), endPoint: CGPoint(x: 0.7, y: 1))
+        
+        let frame: CGRect? = size != nil
+        ? CGRect(origin: .zero, size: size!)
+        : nil
+        
+        gradientBgLayer = view.app.gradientLayer(
+            colors: bgColors,
+            locations: [0, 0.3, 0.7, 1],
+            frame: frame,
+            startPoint: CGPoint(x: 0.2, y: 0),
+            endPoint: CGPoint(x: 0.8, y: 1)
+        )
+        
         view.layer.insertSublayer(gradientBgLayer!, at: 0)
     }
     

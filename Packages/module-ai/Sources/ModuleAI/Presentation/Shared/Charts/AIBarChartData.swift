@@ -11,48 +11,69 @@ import BaseUI
 struct AIBarChartData: Hashable {
     /// 横坐标
     let xAxis: String
+    
     /// 颜色
     var colors: [UIColor]
+    
     /// 标题
     var labels: [String]
+    
     /// 值
     var values: [Double]
+    
     /// 唯一标识
     private let identifier = UUID()
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(identifier)
     }
+}
 
-    /// 图表颜色
+extension AIBarChartData {
+    
+    /// AI 数据分析风格图表色板
     static let colorOptions: [UIColor] = [
-        UIColor(alphaHex: 0xFFFF9903),
-        UIColor(alphaHex: 0xFFF6501D),
-        UIColor(alphaHex: 0xFF840AFD),
-        UIColor(alphaHex: 0xFFA0DD6A),
-        UIColor(alphaHex: 0xFF01A6ED),
-        UIColor(alphaHex: 0xFF1FB9B7),
-        UIColor(alphaHex: 0xFF2B578D),
-        UIColor(alphaHex: 0xAAFFC009),
-        UIColor(alphaHex: 0xAAF6501D),
-        UIColor(alphaHex: 0xAA840AFD),
-        UIColor(alphaHex: 0xAAA0DD6A),
-        UIColor(alphaHex: 0xAA01A6ED),
-        UIColor(alphaHex: 0xAA1FB9B7),
-        UIColor(alphaHex: 0xAA2B578D),
-        UIColor(alphaHex: 0x66FFC009),
-        UIColor(alphaHex: 0x66F6501D),
-        UIColor(alphaHex: 0x66840AFD),
-        UIColor(alphaHex: 0x66A0DD6A),
-        UIColor(alphaHex: 0x6601A6ED),
-        UIColor(alphaHex: 0x661FB9B7),
-        UIColor(alphaHex: 0x662B578D),
-        UIColor(alphaHex: 0x99FFC009),
-        UIColor(alphaHex: 0x99F6501D),
-        UIColor(alphaHex: 0x99840AFD),
-        UIColor(alphaHex: 0x99A0DD6A),
-        UIColor(alphaHex: 0x9901A6ED),
-        UIColor(alphaHex: 0x991FB9B7),
-        UIColor(alphaHex: 0x992B578D)
+        
+        // MARK: - Primary Blue
+        
+        UIColor(alphaHex: 0xFF2F7BFF),
+        UIColor(alphaHex: 0xCC2F7BFF),
+        UIColor(alphaHex: 0x992F7BFF),
+        
+        // MARK: - Cyan
+        
+        UIColor(alphaHex: 0xFF18B8FF),
+        UIColor(alphaHex: 0xCC18B8FF),
+        UIColor(alphaHex: 0x9918B8FF),
+        
+        // MARK: - Mint
+        
+        UIColor(alphaHex: 0xFF33E0C4),
+        UIColor(alphaHex: 0xCC33E0C4),
+        UIColor(alphaHex: 0x9933E0C4),
+        
+        // MARK: - Green
+        
+        UIColor(alphaHex: 0xFF3DDC97),
+        UIColor(alphaHex: 0xCC3DDC97),
+        UIColor(alphaHex: 0x993DDC97),
+        
+        // MARK: - Purple
+        
+        UIColor(alphaHex: 0xFF8B7CFF),
+        UIColor(alphaHex: 0xCC8B7CFF),
+        UIColor(alphaHex: 0x998B7CFF),
+        
+        // MARK: - Orange
+        
+        UIColor(alphaHex: 0xFFFFB547),
+        UIColor(alphaHex: 0xCCFFB547),
+        UIColor(alphaHex: 0x99FFB547),
+        
+        // MARK: - Coral
+        
+        UIColor(alphaHex: 0xFFFF6B6B),
+        UIColor(alphaHex: 0xCCFF6B6B),
+        UIColor(alphaHex: 0x99FF6B6B)
     ]
 }

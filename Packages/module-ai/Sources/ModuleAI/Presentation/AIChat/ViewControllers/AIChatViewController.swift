@@ -108,12 +108,7 @@ class AIChatViewController: BaseViewController {
 
 extension AIChatViewController {
     private func setupViewBackground() {
-        if traitCollection.userInterfaceStyle == .dark {
-            view.layer.contents = nil
-            setupBackground()
-        } else {
-            view.layer.contents = UIImage.imageNamed(for: "background_vc")?.cgImage
-        }
+        view.layer.contents = UIImage.imageNamed(for: "background_vc")?.cgImage
     }
     
     private func setupCollectionView() {

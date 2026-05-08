@@ -118,24 +118,28 @@ class AIChatUserCell: UICollectionViewCell {
     
     private func setupBackground() {
         if traitCollection.userInterfaceStyle == .dark {
+            
             borderLayer.isHidden = true
+            
             backgroundLayer.colors = [
-                UIColor(appHex: 0x1C1C1E).cgColor,
-                UIColor(appHex: 0x25252C).cgColor,
-                UIColor(appHex: 0x3C3039).cgColor,
-                UIColor(appHex: 0x4B3645).cgColor
+                UIColor(appHex: 0x101A30).cgColor,
+                UIColor(appHex: 0x152544).cgColor,
+                UIColor(appHex: 0x1A3461).cgColor,
+                UIColor(appHex: 0x214A87).cgColor
             ]
+            
         } else {
+            
             borderLayer.isHidden = false
+            
             backgroundLayer.colors = [
-                UIColor(red: 1, green: 0.96, blue: 0.99, alpha: 1).cgColor,
-                UIColor(red: 1, green: 0.94, blue: 0.98, alpha: 1).cgColor,
-                UIColor(red: 0.99, green: 0.93, blue: 0.97, alpha: 1).cgColor,
-                UIColor(red: 1, green: 0.87, blue: 0.96, alpha: 1).cgColor
+                UIColor(red: 0.96, green: 0.98, blue: 1.00, alpha: 1).cgColor,
+                UIColor(red: 0.93, green: 0.97, blue: 1.00, alpha: 1).cgColor,
+                UIColor(red: 0.89, green: 0.95, blue: 1.00, alpha: 1).cgColor,
+                UIColor(red: 0.82, green: 0.91, blue: 1.00, alpha: 1).cgColor
             ]
         }
     }
-
     
     func configure(with text: String) {
         messageLabel.text = text

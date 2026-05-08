@@ -12,17 +12,19 @@ import BaseUI
 /// Dark Mode
 public extension UIColor {
     
-    static let aiAccent = UIColor(appHex: 0xAD131D)
+    /// AI 品牌色
+    static let aiAccent = UIColor(appHex: 0x2F7BFF)
     
+    /// 主文字颜色
     static let aiLabel = UIColor(
-        light: UIColor(appHex: 0x452C3E),
-        dark: UIColor(appHex: 0xBDA7B7)
+        light: UIColor(appHex: 0x111827),
+        dark: UIColor(appHex: 0xF9FAFB)
     )
     
-    /// 分割线颜色 EDEFF4 100%
+    /// 分割线颜色
     static let aiSeparator = UIColor(
-        light: UIColor(appHex: 0xEDEFF4),
-        dark: UIColor.clear
+        light: UIColor(appHex: 0xE5EAF3),
+        dark: UIColor(appHex: 0x2B364C)
     )
 }
 

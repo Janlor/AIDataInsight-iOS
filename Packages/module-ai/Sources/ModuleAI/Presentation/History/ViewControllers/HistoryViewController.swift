@@ -130,12 +130,7 @@ private extension HistoryViewController {
     }
     
     private func setupViewBackground() {
-        if traitCollection.userInterfaceStyle == .dark {
-            view.layer.contents = nil
-            setupBackground()
-        } else {
-            view.layer.contents = UIImage.imageNamed(for: "background_list")?.cgImage
-        }
+        setupBackground()
     }
     
     /// 添加刷新
