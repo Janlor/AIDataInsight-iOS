@@ -42,6 +42,7 @@ final class AIChatViewModel: BaseViewModel {
     private let loadHistoryDetailUseCase: LoadHistoryDetailUseCase
     private let sendFunctionMessageUseCase: SendFunctionMessageUseCase
     private let loadChartDataUseCase: LoadChartDataUseCase
+    private let streamAIResponseUseCase: StreamAIResponseUseCase
     private var streamTask: Task<Void, Never>?
     
     init(repository: AIChatRepository = DefaultAIChatRepository()) {
@@ -50,6 +51,7 @@ final class AIChatViewModel: BaseViewModel {
         self.loadHistoryDetailUseCase = LoadHistoryDetailUseCase(repository: repository)
         self.sendFunctionMessageUseCase = SendFunctionMessageUseCase(repository: repository)
         self.loadChartDataUseCase = LoadChartDataUseCase(repository: repository)
+        self.streamAIResponseUseCase = StreamAIResponseUseCase(repository: repository)
         super.init()
     }
     
@@ -70,7 +72,7 @@ extension AIChatViewModel {
             guard let self else { return }
             
             do {
-                for try await chunk in repository.streamMessage(text) {
+                for try await chunk in streamAIResponseUseCase.execute(text: text) {
                     onStreamText?(chunk)
                 }
                 guard Task.isCancelled == false else { return }
