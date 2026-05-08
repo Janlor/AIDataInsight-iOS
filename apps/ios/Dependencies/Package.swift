@@ -2,21 +2,21 @@
 import PackageDescription
 
 let package = Package(
-    name: "AppDependencies",
+    name: "Dependencies",
     platforms: [.iOS(.v15)],
     products: [
         .library(
-            name: "AppDependencies",
-            targets: ["AppDependencies"]),
+            name: "Dependencies",
+            targets: ["Dependencies"]),
     ],
     dependencies: [
-        .package(path: "../../../Packages/library-basics"),
-        .package(path: "../../../Packages/library-common"),
-        .package(path: "../../../Packages/module-ai")
+        .package(path: "../Packages/library-basics"),
+        .package(path: "../Packages/library-common"),
+        .package(path: "../Packages/module-ai")
     ],
     targets: [
         .target(
-            name: "AppDependencies",
+            name: "Dependencies",
             dependencies: [
                 .product(name: "LibraryBasics", package: "library-basics"),
                 .product(name: "LibraryCommon", package: "library-common"),

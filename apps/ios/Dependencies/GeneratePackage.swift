@@ -3,7 +3,7 @@
 import Foundation
 
 // MARK: - 配置项
-let packagesRoot = "../../../Packages"            // 扫描路径
+let packagesRoot = "../Packages"            // 扫描路径
 let outputFile = "Package.swift"            // 输出文件
 let businessModulesBranches = [             // 业务模块用分支锁定
     "library-basics": "v2.3.1",
@@ -174,19 +174,19 @@ let packageContent = """
 import PackageDescription
 
 let package = Package(
-    name: "AppDependencies",
+    name: "Dependencies",
     platforms: [.iOS(.\(iosVersion))],
     products: [
         .library(
-            name: "AppDependencies",
-            targets: ["AppDependencies"]),
+            name: "Dependencies",
+            targets: ["Dependencies"]),
     ],
     dependencies: [
         \(dependencyLines.joined(separator: ",\n        "))
     ],
     targets: [
         .target(
-            name: "AppDependencies",
+            name: "Dependencies",
             dependencies: [
                 \(targetDependencies.joined(separator: ",\n                "))
             ]

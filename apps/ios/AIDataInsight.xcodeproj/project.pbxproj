@@ -9,12 +9,12 @@
 /* Begin PBXBuildFile section */
 		2C1798D234D6A720BEDBB539 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 		7A2054442EE01B8900A83F32 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7A6757022E790E2800086CCA /* LaunchScreen.storyboard */; };
+		7A2A48F02FADE78300831A02 /* Dependencies in Frameworks */ = {isa = PBXBuildFile; productRef = 7A2A48EF2FADE78300831A02 /* Dependencies */; };
 		7A3E4D8A2BF3545500F4B44B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3E4D892BF3545500F4B44B /* AppDelegate.swift */; };
 		7A3E4D8E2BF3545500F4B44B /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3E4D8D2BF3545500F4B44B /* ViewController.swift */; };
 		7A3E4D932BF3545800F4B44B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7A3E4D922BF3545800F4B44B /* Assets.xcassets */; };
 		7A6757082E790E3000086CCA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7A6757072E790E3000086CCA /* Main.storyboard */; };
 		7A99259F2E702278006CF937 /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 7A99259E2E702278006CF937 /* InfoPlist.xcstrings */; };
-		7AB678F82F9790120083ECE1 /* AppDependencies in Frameworks */ = {isa = PBXBuildFile; productRef = 7AB678F72F9790120083ECE1 /* AppDependencies */; };
 		7ACDFF082E6E88B5004CAAE9 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ACDFF062E6E88B4004CAAE9 /* SceneDelegate.swift */; };
 /* End PBXBuildFile section */
 
@@ -56,8 +56,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7A2A48F02FADE78300831A02 /* Dependencies in Frameworks */,
 				2C1798D234D6A720BEDBB539 /* (null) in Frameworks */,
-				7AB678F82F9790120083ECE1 /* AppDependencies in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -179,7 +179,7 @@
 			);
 			mainGroup = 7A3E4D7D2BF3545500F4B44B;
 			packageReferences = (
-				7AB678F62F9790120083ECE1 /* XCLocalSwiftPackageReference "AppDependencies" */,
+				7A2A48EE2FADE78300831A02 /* XCLocalSwiftPackageReference "Dependencies" */,
 			);
 			productRefGroup = 7A3E4D872BF3545500F4B44B /* Products */;
 			projectDirPath = "";
@@ -818,16 +818,16 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		7AB678F62F9790120083ECE1 /* XCLocalSwiftPackageReference "AppDependencies" */ = {
+		7A2A48EE2FADE78300831A02 /* XCLocalSwiftPackageReference "Dependencies" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = AppDependencies;
+			relativePath = Dependencies;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		7AB678F72F9790120083ECE1 /* AppDependencies */ = {
+		7A2A48EF2FADE78300831A02 /* Dependencies */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = AppDependencies;
+			productName = Dependencies;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
