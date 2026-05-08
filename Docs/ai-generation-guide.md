@@ -1,0 +1,314 @@
+# AIDataInsight AI 生成协议
+
+## 文档目的
+
+这份文档固定 AI 生成 iOS / Android / Web / Desktop 代码时必须遵守的协议。
+
+它的目标不是让 AI “看着某一端页面照抄”，而是让 AI 只从跨平台契约、目标端模块映射和 golden fixtures 出发，稳定地产生各端实现。
+
+当你让 AI 生成或修改任意端代码时，优先把这份文档作为提示词的一部分。
+
+---
+
+## 一、核心原则
+
+### 1. 契约优先
+
+跨端源事实只来自：
+
+- `docs/cross-platform/contracts/domain/*.schema.json`
+- `docs/cross-platform/contracts/api/openapi.yaml`
+- `docs/cross-platform/contracts/usecases/*.usecases.yaml`
+- `docs/cross-platform/contracts/ui-state/*.yaml`
+- `docs/cross-platform/contracts/routes/route-intents.yaml`
+- `docs/cross-platform/contracts/design/tokens.json`
+- `docs/cross-platform/contracts/fixtures/**/*`
+
+任何端的页面、Cell、Compose UI、React 组件、Controller、ViewModel 都不能作为跨端源事实。
+
+### 2. iOS 是参考实现，不是复制来源
+
+iOS 当前可以作为参考实现，用来理解：
+
+- 当前业务是否已经跑通
+- repository / usecase / presentation 的职责边界
+- 某些历史兼容细节
+
+但 AI 不能从这些 iOS 对象反推出其它端模型：
+
+- `AIChat`
+- `AIBarChartData`
+- `HistorySectionViewData`
+- UIKit Cell
+- `UIViewController`
+- iOS Router 调用
+
+如果契约和 iOS 代码不一致，先停下来说明差异；不能擅自以 iOS 页面为准。
+
+### 3. 生成的是端侧实现，不是新契约
+
+AI 生成目标端代码时，不能随手创造新的领域字段、新的 API 路径、新的 use case 分支。
+
+如果确实缺字段或规则，必须先更新 `docs/cross-platform/contracts/`，再生成目标端代码。
+
+---
+
+## 二、固定读取顺序
+
+每次让 AI 生成某个功能时，必须按下面顺序读取上下文。
+
+1. 读取 `docs/cross-platform/contracts/README.md`
+2. 读取 `docs/cross-platform/contracts/domain/` 中相关 schema
+3. 读取 `docs/cross-platform/contracts/api/openapi.yaml`
+4. 读取 `docs/cross-platform/contracts/usecases/` 中相关 usecase 契约
+5. 读取 `docs/cross-platform/contracts/ui-state/` 中相关 state 契约
+6. 读取 `docs/cross-platform/contracts/routes/route-intents.yaml`
+7. 读取 `docs/cross-platform/contracts/fixtures/` 中相关 golden fixtures
+8. 读取目标端模块映射文档
+9. 读取目标端现有代码结构
+10. 再开始设计或改代码
+
+目标端模块映射文档：
+
+- Android：`docs/architecture/android-module-mapping-checklist.md`
+- Android / Web 脚手架：`docs/architecture/android-web-scaffold-design.md`
+- 总体蓝图：`docs/architecture/cross-platform-blueprint.md`
+
+---
+
+## 三、固定生成顺序
+
+生成一个 feature 时，按下面顺序产出。
+
+### 1. Contract Models
+
+优先运行：
+
+```sh
+scripts/generate-cross-platform-contracts.sh
+```
+
+生成产物：
+
+- Android：`app-android/core/model/src/main/java/com/aidatainsight/android/core/model/contract/ContractModels.kt`
+- Web：`app-web/src/contracts/generated/models.ts`
+
+AI 不应该手写这些生成模型。
+
+### 2. Repository Interface
+
+按 usecase 契约生成仓储协议。
+
+要求：
+
+- 方法名对齐契约语义
+- 输入输出使用 contract/application models
+- 不返回 UI model
+- 不直接暴露平台控件对象
+
+示例职责：
+
+- `AIChatRepository`
+- `HistoryRepository`
+- `SessionRepository`
+- `SettingsRepository`
+
+### 3. Data / DTO / Mapper
+
+按 `openapi.yaml` 和 fixtures 生成数据层。
+
+要求：
+
+- API path / method / parameter 以 OpenAPI 为准
+- 响应外壳保留 `code` 和 `msg`
+- `401` / `402` 必须按契约处理
+- DTO 可以是端侧实现细节，但 DTO -> domain mapper 必须可测
+
+### 4. UseCase
+
+按 `contracts/usecases/*.usecases.yaml` 生成 use case。
+
+要求：
+
+- UseCase 只返回 application output
+- 不返回 UIKit / Compose / React / Desktop UI model
+- 不处理具体页面跳转
+- 不读取平台控件状态
+
+### 5. UI State Mapper
+
+把 application output 映射成本端 UI state。
+
+要求：
+
+- Android 映射到 Compose 需要的 state / model
+- Web 映射到 React state / hook result
+- iOS 映射到 UIKit view data
+- Desktop 映射到本端 native UI model
+
+### 6. UI Implementation
+
+最后才实现 UI。
+
+要求：
+
+- UI 只消费本端 UI state
+- UI 不直接解析 DTO
+- UI 不直接拼 API 请求参数
+- UI 不重新实现 use case 分支
+
+---
+
+## 四、动态函数参数生成协议
+
+AI Chat 的主链路必须固定为：
+
+```text
+FunctionName -> FunctionArguments kind -> /chart/{FunctionName.rawValue} -> ChartPayload
+```
+
+源事实：
+
+- `docs/cross-platform/contracts/usecases/ai-chat.usecases.yaml`
+- `docs/cross-platform/contracts/domain/ai-chat.schema.json`
+- `docs/cross-platform/contracts/fixtures/function-response/*.json`
+
+生成要求：
+
+- `FunctionName` 不允许私自重命名
+- `FunctionName -> FunctionArguments` 映射必须来自 `dynamicFunctionContract`
+- 图表请求路径必须是 `/chart/{functionName}`
+- 图表请求参数必须是 `historyId + arguments fields`
+- 图表输出必须先变成 `ChartPayload`
+- 页面图表模型只能由 `ChartPayload` 映射得到
+
+禁止：
+
+- 把 `arguments` 长期建模成裸字典
+- 每端维护一份不同的 `name -> arguments` switch
+- 某一端把 `/chart/{name}` 改成多个硬编码 endpoint
+- 把后端 chart JSON 直接展示到页面
+
+---
+
+## 五、平台生成规则
+
+### Android
+
+优先生成顺序：
+
+1. `core:model/contract`
+2. `core:network`
+3. `feature/*/domain`
+4. `feature/*/data`
+5. `feature/*/application/usecase`
+6. `feature/*/presentation`
+7. `feature/*/ui`
+
+规则：
+
+- 使用 Kotlin / Coroutines / Flow
+- Compose 只在 UI 层出现
+- UseCase 不返回 `HistorySectionUiModel` 这类 UI model
+- Repository 不依赖 Compose
+- 生成模型来自 `ContractModels.kt`
+
+### Web
+
+优先生成顺序：
+
+1. `src/contracts/generated`
+2. `src/domain`
+3. `src/data`
+4. `src/features/*/application`
+5. `src/features/*/state`
+6. `src/features/*/components`
+7. Next.js route / page
+
+规则：
+
+- 使用 TypeScript
+- API 类型来自 `models.ts` 和 OpenAPI
+- React 组件只消费 UI state
+- hooks / actions 不重新定义领域模型
+- 缺模型先改契约，不在组件里临时补字段
+
+### iOS
+
+规则：
+
+- iOS 可以继续使用 UIKit
+- UseCase 只返回 application output
+- UIKit view data 必须在 Presentation 层映射
+- 不把 `UIViewController` / `IndexPath` / `NSAttributedString` 放进 Application 层
+
+### Desktop
+
+规则：
+
+- 先选定技术栈，再按同一份契约生成
+- 不直接复用 Web UI 状态，除非契约层明确允许
+- Desktop 路由也应该从 `route-intents.yaml` 映射
+
+---
+
+## 六、固定验证协议
+
+每次生成或修改跨端相关代码后，至少运行：
+
+```sh
+scripts/validate-cross-platform-contracts.sh
+scripts/generate-cross-platform-contracts.sh
+```
+
+如果修改 Android contract model 或依赖它的代码，运行：
+
+```sh
+cd app-android
+./gradlew :core:model:compileDebugKotlin
+```
+
+如果修改 iOS `module-ai`，在有完整 Xcode / iOS SDK 的环境运行对应测试；如果当前环境只有 CommandLineTools，要在回复里说明无法完成 UIKit 依赖测试。
+
+如果修改 Web，运行项目中的 TypeScript / lint / test 命令；如果 Web 工程还没有建立，也要说明当前只能校验生成文件和契约。
+
+---
+
+## 七、AI 输出要求
+
+AI 最终回复必须说明：
+
+- 读取了哪些契约文件
+- 生成或修改了哪些端
+- 哪些文件是生成产物
+- 哪些文件是手写实现
+- 跑了哪些验证
+- 哪些验证因为环境限制没有跑
+
+如果遇到契约缺失，AI 必须先说明缺口，并建议更新哪个 contract 文件，不能绕过契约直接在端侧补私有字段。
+
+---
+
+## 八、提示词模板
+
+可以直接复制下面这段给 AI：
+
+```text
+请严格按 `docs/ai-generation-guide.md` 生成代码。
+
+目标端：
+- Android / Web / iOS / Desktop
+
+目标功能：
+- 在这里描述功能
+
+要求：
+1. 先读取 `docs/cross-platform/contracts/README.md`。
+2. 再读取相关 domain schema、OpenAPI、usecase、ui-state、fixtures。
+3. 不要从 iOS UIKit 页面或 ViewData 反推领域模型。
+4. 如果契约缺字段或缺规则，先指出并更新 contract。
+5. 生成端侧代码时，按 Contract Models -> Repository -> Data -> UseCase -> UI State Mapper -> UI 的顺序。
+6. 修改后运行 contract validation 和目标端可用的测试/编译命令。
+7. 最终说明生成产物、手写实现、验证结果和未验证风险。
+```
+

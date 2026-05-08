@@ -48,6 +48,8 @@ ruby scripts/validate-cross-platform-contracts.rb
 
 Android 和 Web 必须消费由契约生成的模型，不能复制 iOS UIKit 展示模型，也不能从 iOS 页面行为反推业务事实。
 
+完整的 AI 生成流程见 `docs/ai-generation-guide.md`。
+
 在仓库根目录运行：
 
 ```sh
