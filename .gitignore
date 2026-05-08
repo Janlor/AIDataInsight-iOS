@@ -65,7 +65,7 @@ fastlane/test_output
 .DS_Store
 
 # Android / Gradle
-apps/android/.gradle/
-apps/android/**/build/
-apps/android/local.properties
-apps/android/.idea/
+app-android/.gradle/
+app-android/**/build/
+app-android/local.properties
+app-android/.idea/
