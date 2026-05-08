@@ -59,4 +59,44 @@ struct SendFunctionMessageUseCaseTests {
         #expect(name == .querySalesGroupByMonth)
         #expect(historyId == 2)
     }
+
+    @Test
+    func execute_returnsFailureWhenHistoryIdIsMissing() async throws {
+        let useCase = SendFunctionMessageUseCase(
+            repository: MockAIChatRepository(
+                functionModel: FunctionModel(
+                    historyId: nil,
+                    hasTool: true,
+                    name: .querySalesGroupByMonth,
+                    msg: "bad response",
+                    arguments: .performanceType(PerformanceTypeQueryModel(indexType: "sales"))
+                )
+            )
+        )
+
+        let result = try await useCase.execute(text: "test", historyId: nil)
+
+        guard case let .failure(failure) = result else {
+            Issue.record("Expected failure result")
+            return
+        }
+        #expect(failure.message == "bad response")
+    }
+
+    @Test
+    func execute_throwsWhenRepositoryThrows() async {
+        let useCase = SendFunctionMessageUseCase(
+            repository: MockAIChatRepository(
+                sendFunctionMessageError: TestError.failed
+            )
+        )
+
+        await #expect(throws: TestError.self) {
+            _ = try await useCase.execute(text: "test", historyId: nil)
+        }
+    }
+}
+
+private enum TestError: Error {
+    case failed
 }

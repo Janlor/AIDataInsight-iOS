@@ -2,6 +2,7 @@ import Foundation
 @testable import ModuleAI
 
 struct MockHistoryRepository: HistoryRepository {
+    var pageError: Error?
     var pageModel: RecordPageModel = RecordPageModel(
         currentPage: 1,
         pageSize: 50,
@@ -14,6 +15,9 @@ struct MockHistoryRepository: HistoryRepository {
     var deleteAllHistoryHandler: (() throws -> Void)?
 
     func loadHistoryPage(pageNo: Int, pageSize: Int) async throws -> RecordPageModel {
+        if let pageError {
+            throw pageError
+        }
         pageModel
     }
 

@@ -70,4 +70,33 @@ struct LoadChartDataUseCaseTests {
         }
         #expect(failure.message != nil)
     }
+
+    @Test
+    func execute_throwsWhenRepositoryThrows() async {
+        let useCase = LoadChartDataUseCase(
+            repository: MockAIChatRepository(
+                loadChartDataError: TestError.failed
+            )
+        )
+
+        await #expect(throws: TestError.self) {
+            _ = try await useCase.execute(
+                name: .querySalesGroupByMonth,
+                historyId: 1,
+                arguments: .basic(
+                    BasicQueryModel(
+                        orgId: 1,
+                        customerName: nil,
+                        orderType: nil,
+                        operator: nil,
+                        value: 1
+                    )
+                )
+            )
+        }
+    }
+}
+
+private enum TestError: Error {
+    case failed
 }
