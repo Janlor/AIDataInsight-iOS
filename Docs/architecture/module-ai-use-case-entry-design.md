@@ -1,16 +1,13 @@
-# ModuleAI Use Case 层切入设计
+# ModuleAI Use Case 层切入与当前落地状态
 
 ## 文档目的
 
-这份文档只回答一个问题：
+这份文档同时回答两件事：
 
-当前 `module-ai` 如果要继续向跨平台可镜像结构推进，`use case` 层应该从哪里切入、怎么切、先切哪些。
+- `module-ai` 的 use case 层为什么这样切
+- 当前这轮改造已经真实落到哪一步
 
-目标不是一次性把 `module-ai` 改造成“教科书式 Clean Architecture”，而是：
-
-- 在不打断现有 `ViewModel + Repository` 结构的前提下
-- 把最容易稳定下来的业务流程先提成 application 层
-- 为 Android / Web 提供更明确的可复制母版
+它不再只是“切入设计”，也作为当前 `module-ai` application 层的阶段性记录。
 
 ## 当前真实状态
 
@@ -21,37 +18,13 @@
 - `AIChatViewModel`
 - `HistoryViewModel`
 - 一批 mapper / builder / intent resolver
+- 一批已经落地并接入 `ViewModel` 的 use case
 
-这说明：
+这说明 `module-ai` 当前已经不是“只有 repository 的 MVVM”，而是已经形成了第一轮 application 编排层。
 
-- 数据访问边界已经有了
-- 表现层状态对象也已经有了
-- 当前缺的是“业务流程编排层”
+## 当前目录
 
-也就是说，`use case` 现在的价值不是“把网络访问从 0 抽出来”，而是：
-
-- 让 `ViewModel` 进一步瘦身
-- 让跨平台复制时不必直接照搬 iOS ViewModel
-- 让业务流程拥有比 repository 更稳定的命名和职责
-
-## 设计原则
-
-当前阶段建议 `use case` 只做三件事：
-
-1. 编排多个 repository / helper / builder
-2. 输出更稳定的业务结果对象
-3. 作为 ViewModel 的直接依赖入口
-
-当前阶段不建议 `use case` 做这些事：
-
-- 直接持有 UIKit 类型
-- 直接回调 controller
-- 直接做路由
-- 重复封装“只是把 repository 原样透传一次”的空壳 use case
-
-## 目录建议
-
-建议先在 `module-ai` 内部增加：
+当前 `module-ai` 已经形成：
 
 ```text
 ModuleAI/
@@ -59,202 +32,126 @@ ModuleAI/
     UseCases/
       AIChat/
       History/
-    Models/
+  Domain/
+    AIChat/
+    History/
+  Presentation/
+    App/
+    AIChat/
+    History/
+    Shared/
+  Repositories/
+    AIChat/
+    History/
+    Shared/
 ```
 
 说明：
 
-- `Application` 比 `UseCase` 单层目录更稳
-- 后续如果要加 orchestrator / facade / app-level result model，也有地方放
+- `Application` 用于承接业务流程编排
+- `Presentation/Shared` 用于承接图表组件和公共 UI 支撑代码
+- 原 `Views` 目录已经并回 `Presentation`
+- 这套结构已经比较接近 Android / Web 的 feature + layer 镜像母版
 
-## 第一批最值得落的 use case
+## 已完成的 use case
 
-### 1. `LoadHistoryPageUseCase`
+### AIChat
 
-当前来源：
+- `LoadTemplateUseCase`
+- `LoadHistoryDetailUseCase`
+- `SendFunctionMessageUseCase`
+- `LoadChartDataUseCase`
+- `StreamAIResponseUseCase`
 
+### History
+
+- `LoadHistoryPageUseCase`
+- `DeleteHistoryUseCase`
+- `DeleteAllHistoryUseCase`
+
+## 已完成的接入
+
+当前已经接到 `ViewModel` 的有：
+
+- `AIChatViewModel.loadTemplate`
+- `AIChatViewModel.getHistoryDetail`
+- `AIChatViewModel.sendFunctionMessage`
+- `AIChatViewModel.getChartData`
+- `AIChatViewModel.sendStreamMessage`
 - `HistoryViewModel.getDataList`
-
-建议职责：
-
-- 调用 `HistoryRepository.loadHistoryPage`
-- 调用 `HistoryListViewDataBuilder.groupRecords`
-- 合并分页分组结果
-- 生成 `HistorySectionViewData`
-
-建议返回：
-
-- `HistoryPageResult`
-
-例如包含：
-
-- `pageModel`
-- `recordGroups`
-- `sections`
-- `isFirstPage`
-
-为什么它最值得先做：
-
-- 当前 `HistoryViewModel` 的分页、分组、合并逻辑已经比较稳定
-- 这是非常典型的“application 编排层”逻辑
-- Android / Web 后面都会需要同样的“分页 + 分组 + 视图列表结果”
-
-### 2. `DeleteHistoryUseCase`
-
-当前来源：
-
 - `HistoryViewModel.deleteHistory`
 - `HistoryViewModel.deleteAllHistory`
 
-建议职责：
+## 为什么这些逻辑值得做成 use case
 
-- 删除单条历史
-- 删除全部历史
-- 返回删除后的 `recordGroups / sections` 新状态，或者返回更明确的 mutation result
+这批逻辑都有同一个特征：
 
-建议返回：
+- 不只是单纯调一次 repository
+- 又不应该继续留在 `ViewModel` 里
 
-- `DeleteHistoryResult`
+例如：
 
-例如包含：
+- `LoadHistoryPageUseCase`
+  - 分页请求
+  - 分组
+  - 合并分页结果
+  - 生成 section view data
+- `DeleteHistoryUseCase`
+  - 删除远端
+  - 计算本地删除后的新列表状态
+- `SendFunctionMessageUseCase`
+  - 发送函数消息
+  - 解析 `FunctionModel`
+  - 判断是 intent、chart 请求还是失败
+- `LoadChartDataUseCase`
+  - 请求图表数据
+  - 调用 builder
+  - 统一输出图表结果
 
-- `deletedHistoryId`
-- `recordGroups`
-- `sections`
+这些都属于 application 层的“业务流程编排”，不是纯数据访问，也不是纯 UI 状态。
 
-为什么值得做：
+## 当前设计原则
 
-- 这块现在仍然是“ViewModel 改本地状态 + repository 删远端”的混合逻辑
-- 抽出来后，列表 mutation 规则会更容易跨平台复用
+当前阶段，use case 应该只做这些事：
 
-### 3. `LoadHistoryDetailUseCase`
+1. 编排 repository / helper / builder
+2. 输出更稳定的业务结果
+3. 作为 `ViewModel` 的直接依赖入口
 
-当前来源：
+当前阶段仍然不建议 use case 做这些事：
 
-- `AIChatViewModel.getHistoryDetail`
+- 直接持有 UIKit 类型
+- 直接回调 controller
+- 直接做路由
+- 重复封装只是透传 repository 的空壳
 
-建议职责：
+## 当前价值
 
-- 调用 `AIChatRepository.loadHistoryDetail`
-- 调用现有 mapper，把 `RecordModel` 转成 `AIChat` 列表
+这轮 use case 化已经带来几个很具体的结果：
 
-建议返回：
+- `ViewModel -> UseCase -> Repository` 依赖方向已经建立
+- `History` 已形成完整样板
+- `AIChat` 的主链路也已经具备可复制母版
+- Android / Web 后续不需要直接照抄 iOS `ViewModel`
 
-- `[AIChat]`
+## 当前还没完全做完的点
 
-为什么值得做：
+现在不再是“要不要加 use case”的问题，而是：
 
-- 这是最标准的“repository -> mapper -> presentation-ready domain output” 流程
-- 非常适合作为 `AIChat` 方向的第一刀
+- `ViewModel` 里剩余少量 repository 直连点是否继续收口
+- use case 的 result model 是否要再中性化
+- `Presentation/Shared` 里哪些 helper 未来还要继续下沉
+- Android / Web 要按哪套稳定契约来镜像
 
-### 4. `LoadTemplateUseCase`
+## 对 ViewModel 的当前要求
 
-当前来源：
-
-- `AIChatViewModel.loadTemplate`
-
-建议职责：
-
-- 调用 `AIChatRepository.loadTemplate`
-- 只返回页面真正需要的模板文案数组或包装结果
-
-为什么值得做：
-
-- 简单
-- 可以作为第一批 use case 的最小样板
-- 用于确立 `ViewModel -> UseCase -> Repository` 的依赖方向
-
-## 第二批再做的 use case
-
-### 1. `SendFunctionMessageUseCase`
-
-当前来源：
-
-- `AIChatViewModel.sendFunctionMessage`
-
-建议职责：
-
-- 发送问题
-- 解析 `FunctionModel`
-- 判断成功/失败/无函数结果
-- 返回统一的 `FunctionResult`
-
-为什么放第二批：
-
-- 它牵涉 `FunctionModel`、`IntentResolver`、页面结果分类
-- 复杂度明显高于 history 流程
-- 但一旦稳定，会是 Android / Web 最有价值的母版之一
-
-### 2. `LoadChartDataUseCase`
-
-当前来源：
-
-- `AIChatViewModel.getChartData`
-
-建议职责：
-
-- 请求图表数据
-- 调用 chart builder / mapper
-- 统一输出 chart result
-
-为什么放第二批：
-
-- 和具体图表展示耦合更深
-- 适合在 `FunctionMessage` 流程稳定后再接
-
-### 3. `StreamAIResponseUseCase`
-
-当前来源：
-
-- `AIChatViewModel.sendStreamMessage`
-
-建议职责：
-
-- 持有 `AsyncThrowingStream`
-- 管理 stream 生命周期
-- 输出标准化的流式事件
-
-为什么放第二批：
-
-- 流式逻辑已稳定，但它更偏 transport/application 交界
-- 当前先保留在 `ViewModel + Repository` 之间并不算错
-
-## 暂时不要做成 use case 的部分
-
-下面这些当前不值得优先抽：
-
-- 纯 repository 透传且没有编排价值的接口
-- 只做 view data 展示格式转换的细小 helper
-- `cancelStream()` 这类非常靠近 UI 生命周期的操作
-
-## 建议的第一个落地顺序
-
-建议按这个顺序做：
-
-1. `LoadTemplateUseCase`
-2. `LoadHistoryDetailUseCase`
-3. `LoadHistoryPageUseCase`
-4. `DeleteHistoryUseCase`
-5. `SendFunctionMessageUseCase`
-6. `LoadChartDataUseCase`
-7. `StreamAIResponseUseCase`
-
-这个顺序的好处是：
-
-- 先拿简单流程建立 use case 样板
-- 再处理 history 列表编排
-- 最后处理 AIChat 中最复杂的函数分析和流式交互
-
-## 对 ViewModel 的预期变化
-
-use case 切入后，`ViewModel` 应逐步变成：
+当前 `ViewModel` 的合理状态是：
 
 - 持有 use case
-- 负责页面状态
-- 负责用户交互入口
-- 不再自己编排 repository + builder + mapper 细节
+- 负责页面状态和交互入口
+- 不再自己编排主要业务流程
 
-但当前不要求：
+但当前仍不要求：
 
 - 完全不碰 repository
 - 一次性去掉所有 async 逻辑
@@ -262,6 +159,4 @@ use case 切入后，`ViewModel` 应逐步变成：
 
 ## 一句话结论
 
-当前 `module-ai` 的 use case 层最适合从 `History` 的分页/分组/删除编排，以及 `AIChat` 的模板/历史详情加载切入。
-
-先把这些“真正属于 application 层”的稳定流程提出来，收益最高、风险最低，也最利于 Android / Web 镜像。
+`module-ai` 的 use case 层已经完成第一轮落地。后续重点应该从“补更多 use case”切到“稳定 application 层契约和多端镜像规则”。

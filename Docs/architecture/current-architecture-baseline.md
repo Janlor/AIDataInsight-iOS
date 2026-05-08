@@ -19,7 +19,7 @@
 真实状态如下：
 
 - 主工程 `AIDataInsight` 仍然是 iOS 壳层
-- `module-ai` 已完成第一轮 `Domain / Repositories / Presentation / Views` 化
+- `module-ai` 已完成第二轮 `Application / Domain / Repositories / Presentation` 化
 - `library-common` 的 `Login / Setting / Privacy` 已完成第一轮 `Domain / Repository / Presentation` 化
 - `library-basics` 的 `Networking` 和 `AccountProtocol` 已完成第一轮边界收窄
 
@@ -44,16 +44,16 @@
 
 ## module-ai 当前基线
 
-`module-ai` 现在已经完成了第一轮结构调整。
+`module-ai` 现在已经完成了第二轮结构调整。
 
 ### 已落地的结构
 
 当前内部按以下方向组织：
 
+- `Application`
 - `Domain`
 - `Repositories`
 - `Presentation`
-- `Views`
 
 ### 已完成的关键改造
 
@@ -67,7 +67,7 @@
 
 这使得 `module-ai` 和 `library-common` 后续都可以逐步摆脱 callback 风格。
 
-#### 2. `History` 已完成第一轮拆分
+#### 2. `History` 已完成第一轮 use case 化
 
 当前 `History` 已形成：
 
@@ -75,27 +75,58 @@
 - `DefaultHistoryRepository`
 - `HistoryViewModel`
 - `HistoryListViewData`
+- `LoadHistoryPageUseCase`
+- `DeleteHistoryUseCase`
+- `DeleteAllHistoryUseCase`
 
 其意义是：
 
+- `ViewModel` 不再自己承担分页合并和删除编排
 - `ViewModel` 不再直接依赖 `CommonRequester`
 - 领域数据和 UIKit 展示数据已经分开
 
-#### 3. `AIChat` 已完成第一轮拆分
+#### 3. `AIChat` 已完成第一轮 use case 化
 
 当前 `AIChat` 已形成：
 
 - `AIChatRepository` 协议
 - `DefaultAIChatRepository`
 - `AIChatViewModel`
+- `LoadTemplateUseCase`
+- `LoadHistoryDetailUseCase`
+- `SendFunctionMessageUseCase`
+- `LoadChartDataUseCase`
+- `StreamAIResponseUseCase`
 - `AIChatIntentResolver`
 - `AIChatChartBuilder`
 - `AIChatHistoryMapper`
 
 其意义是：
 
+- 模板、历史详情、函数请求、图表请求、流式响应都已有 application 入口
 - 网络请求、SSE、意图判断、图表转换不再全部堆在一个 `ViewModel`
 - 控制器开始通过 async 方式驱动
+
+#### 4. `Presentation` 已按 feature + shared 收口
+
+当前已经形成：
+
+- `Presentation/App`
+- `Presentation/AIChat`
+- `Presentation/History`
+- `Presentation/Shared`
+
+并且原 `Views` 目录已经并回 `Presentation`。
+
+#### 5. `Repositories / Domain` 已按 feature 收口
+
+当前已经形成：
+
+- `Repositories/AIChat`
+- `Repositories/History`
+- `Repositories/Shared`
+- `Domain/AIChat`
+- `Domain/History`
 
 #### 4. `Domain/Models` 已完成一轮清理
 
@@ -364,11 +395,13 @@
 
 和平台运行时能力继续分开。
 
-### 2. `module-ai` 还没有 use case 层
+### 2. `module-ai` 的 use case 层已成型，但还没完全收口
 
-现在有 repository 和 viewmodel，但还没有明确的 use case 层。
+当前问题已经从“有没有 use case”变成：
 
-如果后续要进一步为 Android/Web 提供稳定生成基线，这层可以补。
+- `ViewModel` 里仍有少量 application 编排残留
+- `Presentation/Shared` 里仍有部分代码偏近业务 helper
+- 一些 result model 仍偏 iOS 本地表达，不够完全中性
 
 ### 3. 测试仍然偏少
 
@@ -385,7 +418,7 @@
 
 1. 给当前网络层和上传/下载补收尾测试
 2. 审查 `Environment`，区分配置数据和 iOS 运行时适配
-3. 视需要给 `module-ai` 增加 use case 层
+3. 继续稳定 `module-ai` 的 application 层契约，而不是退回到 `ViewModel + Repository` 直连
 4. 再决定是否开始 Android/Web 初始仓库搭建
 
 ## 一句话结论

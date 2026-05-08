@@ -17,7 +17,7 @@
 - `Networking` 已不再依赖 `Moya / Alamofire`
 - 请求描述层已经中性化为 `RequestDescriptor`
 - `CommonRequester` 已具备 async bridge
-- `module-ai` 已完成第一轮 `Repository / Presentation / Views` 化
+- `module-ai` 已完成第二轮 `Application / Domain / Presentation / Repositories` 化
 - `library-common` 的核心业务模块已完成第一轮分层
 
 所以这份蓝图当前更适合作为“下一阶段映射文档”，而不是“从零开始的目标草图”。
@@ -58,7 +58,7 @@
 
 - `AIDataInsight` 壳工程
 - `library-basics/AppLaunch`
-- `module-ai/AppDelegate`
+- `module-ai/Presentation/App`
 
 ### 2. Platform Layer
 
@@ -76,7 +76,7 @@
 - `library-basics/Router`
 - `library-basics/Account`
 - `library-basics/BaseUI`
-- `module-ai/Router`
+- `module-ai/Presentation/App/ModuleAIRouter`
 
 ### 3. Application Layer
 
@@ -89,8 +89,8 @@
 
 当前对应：
 
-- `module-ai/AIChat/ViewModels`
-- `module-ai/History/ViewModels`
+- `module-ai/Presentation/AIChat/ViewModels`
+- `module-ai/Presentation/History/ViewModels`
 - `library-common/CommonViewModel`
 
 ### 4. Domain + Data Layer
@@ -106,9 +106,9 @@
 
 当前对应：
 
-- `module-ai/Api`
-- `module-ai/AIChat/Models`
-- `module-ai/History/HistoryModel`
+- `module-ai/Application/UseCases`
+- `module-ai/Repositories`
+- `module-ai/Domain`
 - `library-basics/Networking`
 
 ## 三个包未来应该怎么演进
@@ -254,6 +254,17 @@
 - `DeleteHistoryUseCase`
 - `StreamAIResponseUseCase`
 
+当前 iOS 已真实落地的对应项包括：
+
+- `LoadTemplateUseCase`
+- `LoadHistoryDetailUseCase`
+- `LoadHistoryPageUseCase`
+- `DeleteHistoryUseCase`
+- `DeleteAllHistoryUseCase`
+- `SendFunctionMessageUseCase`
+- `LoadChartDataUseCase`
+- `StreamAIResponseUseCase`
+
 ### 5. 路由意图
 
 例如：
@@ -318,8 +329,8 @@ enum AppRouteIntent {
 完成标准：
 
 - `CommonRequester` 有 async bridge
-- `HistoryViewModel` 改造完成
-- `AIChatViewModel` 去掉直接请求逻辑
+- `HistoryViewModel` 已完成第一轮 use case 化
+- `AIChatViewModel` 已完成主链路 use case 化
 - 历史与聊天核心模型完成“领域/显示”拆分
 
 当前判断：

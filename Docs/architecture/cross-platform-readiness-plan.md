@@ -38,7 +38,7 @@
 - `Networking` 已完成 `URLSession + NWPathMonitor + RequestDescriptor` 化
 - `Moya / Alamofire` 已移除
 - `CommonRequester` 已具备 async bridge
-- `module-ai` 已形成第一轮 `Repository / Presentation / Views` 结构
+- `module-ai` 已形成第二轮 `Application / Domain / Repositories / Presentation` 结构
 - `library-common` 的核心业务模块已完成第一轮分层
 
 这意味着：
@@ -115,7 +115,7 @@
 - 路由：`ModuleAIRouter`
 - 模块入口：`AppDelegate`
 - 图表 UI：`Chart/*`
-- 页面视图：`Views/*`
+- 页面视图：已并回 `Presentation/*`
 - 模型：`AIChat.swift`、`FunctionModel.swift`、`HistoryDetailModel.swift`、`HistoryModel.swift`
 
 实际依赖也很明确：
@@ -363,20 +363,17 @@ extension CommonRequester {
 - 页面可以渐进迁移
 - Android/Web 可以开始以 async 风格建模
 
-### 第 4 步：把 `AIChatViewModel` 改成 async 驱动
+### 第 4 步：继续收敛 `AIChatViewModel`
 
-当前 `AIChatViewModel` 的职责过多，建议拆成：
+当前这一步已经完成第一轮，真实已落地的包括：
 
-- `AIChatViewModel`
-  - 只负责页面状态
 - `LoadTemplateUseCase`
 - `SendFunctionMessageUseCase`
 - `LoadChartDataUseCase`
 - `LoadHistoryDetailUseCase`
-- `SendLikeFeedbackUseCase`
-- `StreamAIMessageUseCase`
+- `StreamAIResponseUseCase`
 
-第一阶段也可以不引入完整 use case 类型，先让 `ViewModel` 依赖 repository。
+当前剩余重点不再是“先改 async”，而是继续减少 `ViewModel` 中残留的 application 编排。
 
 最低改造目标：
 
@@ -385,20 +382,19 @@ extension CommonRequester {
 - 删除手动 `DispatchQueue.main.async` 分发
 - 在 UI 层使用 `Task {}` 和 `@MainActor` 消费结果
 
-### 第 5 步：把 `HistoryViewModel` 改成 async 驱动
+### 第 5 步：继续收敛 `HistoryViewModel`
 
-[HistoryViewModel.swift](/Users/janlor/workspace/GitHub/AIDataInsight-iOS/Packages/module-ai/Sources/ModuleAI/History/ViewModels/HistoryViewModel.swift:22) 当前已有较清晰的分页和分组逻辑，适合作为第二个迁移点。
+[HistoryViewModel.swift](/Users/janlor/workspace/GitHub/AIDataInsight-iOS/Packages/module-ai/Sources/ModuleAI/Presentation/History/ViewModels/HistoryViewModel.swift:22) 这一步也已经完成第一轮，真实已落地：
 
-建议顺序：
+- `LoadHistoryPageUseCase`
+- `DeleteHistoryUseCase`
+- `DeleteAllHistoryUseCase`
 
-1. `page` 接口改 async
-2. `delete` / `deleteAll` 改 async
-3. 日期分组逻辑从 `ViewModel` 或 `RecordModel` 中抽成纯函数
-4. `onDataLoaded` / `onDataLoadFailed` 最终收敛为状态更新
+当前剩余重点是进一步稳定列表状态更新契约，而不是再从 0 改 async。
 
 ### 第 6 步：把“领域数据”和“显示数据”分开
 
-当前最需要拆的典型文件是 [HistoryModel.swift](/Users/janlor/workspace/GitHub/AIDataInsight-iOS/Packages/module-ai/Sources/ModuleAI/History/HistoryModel.swift:1)。
+当前最需要继续观察的典型文件是 [HistoryModel.swift](/Users/janlor/workspace/GitHub/AIDataInsight-iOS/Packages/module-ai/Sources/ModuleAI/Domain/History/HistoryModel.swift:1)。
 
 建议改成两类模型：
 

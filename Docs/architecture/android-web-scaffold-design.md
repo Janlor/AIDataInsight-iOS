@@ -17,7 +17,7 @@
 
 这份设计文档建立在你当前 iOS 仓库已经完成的第一阶段重构之上：
 
-- `module-ai` 已有 `Domain / Repositories / Presentation / Views`
+- `module-ai` 已有 `Application / Domain / Repositories / Presentation`
 - `library-common` 的 `Login / Setting / Privacy` 已完成第一轮分层
 - `library-basics` 的 `Networking / Account` 已开始解耦
 - 当前代码已经有最小测试保护
@@ -158,6 +158,7 @@ apps/android/
 
 `feature/ai-chat/`
 
+- use cases
 - ai chat repository
 - intent resolver
 - chart builder
@@ -166,6 +167,7 @@ apps/android/
 
 `feature/history/`
 
+- use cases
 - history repository
 - history list builder
 - history viewmodel
