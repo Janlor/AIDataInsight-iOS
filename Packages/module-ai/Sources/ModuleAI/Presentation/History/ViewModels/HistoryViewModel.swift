@@ -28,6 +28,7 @@ final class HistoryViewModel: BaseViewModel {
     private let repository: HistoryRepository
     private let loadHistoryPageUseCase: LoadHistoryPageUseCase
     private let deleteHistoryUseCase: DeleteHistoryUseCase
+    private let deleteAllHistoryUseCase: DeleteAllHistoryUseCase
     
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -42,6 +43,7 @@ final class HistoryViewModel: BaseViewModel {
             dateFormatter: Self.makeDateFormatter()
         )
         self.deleteHistoryUseCase = DeleteHistoryUseCase(repository: repository)
+        self.deleteAllHistoryUseCase = DeleteAllHistoryUseCase(repository: repository)
         super.init()
     }
 }
@@ -95,10 +97,10 @@ extension HistoryViewModel {
     }
     
     func deleteAllHistory() async throws {
-        try await repository.deleteAllHistory()
-        recordGroups = []
-        sections = []
-        pageModel = nil
+        let result = try await deleteAllHistoryUseCase.execute()
+        recordGroups = result.recordGroups
+        sections = result.sections
+        pageModel = result.pageModel
     }
 }
 

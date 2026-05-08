@@ -11,7 +11,7 @@ struct MockHistoryRepository: HistoryRepository {
         records: []
     )
     var deleteHistoryHandler: ((Int) throws -> Void)?
-    var didDeleteAllHistory = false
+    var deleteAllHistoryHandler: (() throws -> Void)?
 
     func loadHistoryPage(pageNo: Int, pageSize: Int) async throws -> RecordPageModel {
         pageModel
@@ -21,5 +21,7 @@ struct MockHistoryRepository: HistoryRepository {
         try deleteHistoryHandler?(historyId)
     }
 
-    func deleteAllHistory() async throws {}
+    func deleteAllHistory() async throws {
+        try deleteAllHistoryHandler?()
+    }
 }
