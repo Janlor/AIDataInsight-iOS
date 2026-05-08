@@ -2,7 +2,7 @@
 
 ## 文档目的
 
-这份文档是给你后续实际搭 `AIDataInsight-Android` 用的逐项映射清单。
+这份文档是给你后续实际搭 `apps/android` 用的逐项映射清单。
 
 它不讨论理念，只做一件事：
 
@@ -36,15 +36,16 @@
 
 iOS 对象：
 
-- `Packages/library-basics/Sources/Networking/NetworkDependencies.swift`
+- `Packages/library-basics/Sources/Networking/Session/NetworkDependencies.swift`
 
 Android 落点：
 
-- `core/network/NetworkDependencies.kt`
+- `apps/android/core/network/NetworkDependencies.kt`
 - 或拆成：
-  - `core/network/credential/NetworkCredentialProvider.kt`
-  - `core/network/session/TokenRefreshService.kt`
-  - `core/network/session/SessionInvalidationHandler.kt`
+  - `apps/android/core/network/auth/NetworkCredentialProvider.kt`
+  - `apps/android/core/network/auth/TokenRefreshService.kt`
+  - `apps/android/core/network/auth/TokenRefreshCoordinator.kt`
+  - `apps/android/core/network/auth/SessionInvalidationHandler.kt`
 
 迁移级别：
 
@@ -59,6 +60,7 @@ Android 落点：
 
 - [ ] `NetworkCredentialProvider`
 - [ ] `TokenRefreshService`
+- [ ] `TokenRefreshCoordinator`
 - [ ] `SessionInvalidationHandler`
 - [ ] `NetworkDependencies` 或等价装配方式
 
@@ -70,7 +72,7 @@ iOS 对象：
 
 Android 落点：
 
-- `core/account/session/AccountSessionStore.kt`
+- `apps/android/core/account/session/AccountSessionStore.kt`
 
 迁移级别：
 
@@ -98,14 +100,14 @@ Android 落点：
 iOS 对象：
 
 - `AccountUserStore`
-- `UserInfoMO`
-- `MenuModel`
-- `UserOrgModel`
+- `UserInfo`
+- `MenuProtocol`
+- `UserOrgProtocal`
 
 Android 落点：
 
-- `core/account/user/AccountUserStore.kt`
-- `core/model/account/*`
+- `apps/android/core/account/user/AccountUserStore.kt`
+- `apps/android/core/model/account/*`
 
 迁移级别：
 
@@ -130,13 +132,13 @@ Android 落点：
 iOS 对象：
 
 - `AccountRemoteService`
-- `AccountApi`
-- `AccountRouter` 中的 `getUserInfo/getMenuTree`
+- `Packages/library-basics/Sources/Account/Api/AccountApi.swift`
+- `Packages/library-basics/Sources/Account/Services/DefaultAccountRemoteService.swift`
 
 Android 落点：
 
-- `core/account/remote/AccountRemoteService.kt`
-- `core/account/remote/DefaultAccountRemoteService.kt`
+- `apps/android/core/account/user/AccountRemoteService.kt`
+- `apps/android/core/account/user/DefaultAccountRemoteService.kt`
 
 迁移级别：
 
@@ -162,7 +164,7 @@ iOS 对象：
 
 Android 落点：
 
-- `core/account/navigation/AccountRouteService.kt`
+- `apps/android/core/account/navigation/AccountRouteService.kt`
 - 或 feature 内部 route action
 
 迁移级别：
@@ -189,13 +191,13 @@ iOS 对象：
 
 - `LoginRepository`
 - `DefaultLoginRepository`
-- `OAuthApi`
-- `OAuthModel`
+- `Packages/library-common/Sources/Login/Repositories/APIs/OAuthApi.swift`
+- `Packages/library-common/Sources/Login/Domain/Models/OAuthModel.swift`
 
 Android 落点：
 
-- `feature/login/domain/LoginRepository.kt`
-- `feature/login/data/DefaultLoginRepository.kt`
+- `apps/android/feature/login/domain/LoginRepository.kt`
+- `apps/android/feature/login/data/DefaultLoginRepository.kt`
 
 迁移级别：
 
@@ -221,7 +223,7 @@ iOS 对象：
 
 Android 落点：
 
-- `feature/login/presentation/LoginViewModel.kt`
+- `apps/android/feature/login/presentation/LoginViewModel.kt`
 
 迁移级别：
 
@@ -242,13 +244,13 @@ Android 落点：
 
 iOS 对象：
 
-- `SettingSnapshot`
-- `SettingAccountInfo`
-- `SettingCapability`
+- `Packages/library-common/Sources/Setting/Domain/Models/SettingSnapshot.swift`
+- `Packages/library-common/Sources/Setting/Domain/Models/SettingAccountInfo.swift`
+- `Packages/library-common/Sources/Setting/Domain/Models/SettingCapability.swift`
 
 Android 落点：
 
-- `feature/setting/domain/model/SettingSnapshot.kt`
+- `apps/android/core/model/setting/SettingSnapshot.kt`
 
 迁移级别：
 
@@ -274,8 +276,8 @@ iOS 对象：
 
 Android 落点：
 
-- `feature/setting/domain/SettingRepository.kt`
-- `feature/setting/data/DefaultSettingRepository.kt`
+- `apps/android/feature/setting/domain/SettingRepository.kt`
+- `apps/android/feature/setting/data/DefaultSettingRepository.kt`
 
 迁移级别：
 
@@ -304,8 +306,8 @@ iOS 对象：
 
 Android 落点：
 
-- `feature/setting/presentation/SettingViewModel.kt`
-- `feature/setting/presentation/SettingUiState.kt`
+- `apps/android/feature/setting/presentation/SettingViewModel.kt`
+- `apps/android/feature/setting/presentation/SettingUiState.kt`
 
 迁移级别：
 
@@ -332,8 +334,8 @@ iOS 对象：
 
 Android 落点：
 
-- `feature/privacy/domain/PrivacyRepository.kt`
-- `feature/privacy/data/DefaultPrivacyRepository.kt`
+- `apps/android/feature/privacy/domain/PrivacyRepository.kt`
+- `apps/android/feature/privacy/data/DefaultPrivacyRepository.kt`
 
 迁移级别：
 
@@ -360,8 +362,8 @@ iOS 对象：
 
 Android 落点：
 
-- `feature/privacy/presentation/PrivacyPolicyViewModel.kt`
-- `feature/privacy/presentation/PrivacyDialogState.kt`
+- `apps/android/feature/privacy/presentation/PrivacyPolicyViewModel.kt`
+- `apps/android/feature/privacy/presentation/PrivacyDialogState.kt`
 
 迁移级别：
 
@@ -392,8 +394,8 @@ iOS 对象：
 
 Android 落点：
 
-- `feature/history/domain/HistoryRepository.kt`
-- `feature/history/data/DefaultHistoryRepository.kt`
+- `apps/android/feature/history/domain/HistoryRepository.kt`
+- `apps/android/feature/history/data/DefaultHistoryRepository.kt`
 
 迁移级别：
 
@@ -405,18 +407,45 @@ Android 落点：
 - [ ] 删除单条
 - [ ] 删除全部
 
-### 14. `HistoryListViewDataBuilder`
+### 14. `LoadHistoryPageUseCase`
 
 iOS 对象：
 
-- `HistoryListViewDataBuilder`
-- `HistoryRecordGroup`
-- `HistorySectionViewData`
+- `Packages/module-ai/Sources/ModuleAI/Application/UseCases/History/LoadHistoryPageUseCase.swift`
+- `Packages/module-ai/Sources/ModuleAI/Application/UseCases/History/DeleteHistoryUseCase.swift`
+- `Packages/module-ai/Sources/ModuleAI/Application/UseCases/History/DeleteAllHistoryUseCase.swift`
 
 Android 落点：
 
-- `feature/history/presentation/HistoryListBuilder.kt`
-- `feature/history/presentation/HistorySectionUiModel.kt`
+- `apps/android/feature/history/application/usecase/LoadHistoryPageUseCase.kt`
+- `apps/android/feature/history/application/usecase/DeleteHistoryUseCase.kt`
+- `apps/android/feature/history/application/usecase/DeleteAllHistoryUseCase.kt`
+
+迁移级别：
+
+- `必须镜像`
+
+迁移要求：
+
+- Android 也保留 application/usecase 这一层
+- ViewModel 只编排，不直接堆叠分页和删除规则
+
+检查项：
+
+- [ ] page load use case
+- [ ] delete one use case
+- [ ] delete all use case
+
+### 15. `HistoryListViewDataBuilder`
+
+iOS 对象：
+
+- `Packages/module-ai/Sources/ModuleAI/Presentation/History/ViewData/HistoryListViewData.swift`
+
+Android 落点：
+
+- `apps/android/feature/history/presentation/HistoryListBuilder.kt`
+- `apps/android/feature/history/presentation/HistorySectionUiModel.kt`
 
 迁移级别：
 
@@ -433,7 +462,7 @@ Android 落点：
 - [ ] `mergeGroups`
 - [ ] `makeSections`
 
-### 15. `HistoryViewModel`
+### 16. `HistoryViewModel`
 
 iOS 对象：
 
@@ -441,7 +470,7 @@ iOS 对象：
 
 Android 落点：
 
-- `feature/history/presentation/HistoryViewModel.kt`
+- `apps/android/feature/history/presentation/HistoryViewModel.kt`
 
 迁移级别：
 
@@ -454,7 +483,7 @@ Android 落点：
 - [ ] deleteOne
 - [ ] deleteAll
 
-### 16. `AIChatRepository`
+### 17. `AIChatRepository`
 
 iOS 对象：
 
@@ -463,8 +492,8 @@ iOS 对象：
 
 Android 落点：
 
-- `feature/ai-chat/domain/AIChatRepository.kt`
-- `feature/ai-chat/data/DefaultAIChatRepository.kt`
+- `apps/android/feature/ai-chat/domain/AIChatRepository.kt`
+- `apps/android/feature/ai-chat/data/DefaultAIChatRepository.kt`
 
 迁移级别：
 
@@ -478,7 +507,40 @@ Android 落点：
 - [ ] send like feedback
 - [ ] stream message
 
-### 17. `AIChatIntentResolver`
+### 18. `Load AIChat UseCases`
+
+iOS 对象：
+
+- `Packages/module-ai/Sources/ModuleAI/Application/UseCases/AIChat/LoadTemplateUseCase.swift`
+- `Packages/module-ai/Sources/ModuleAI/Application/UseCases/AIChat/LoadHistoryDetailUseCase.swift`
+- `Packages/module-ai/Sources/ModuleAI/Application/UseCases/AIChat/LoadChartDataUseCase.swift`
+- `Packages/module-ai/Sources/ModuleAI/Application/UseCases/AIChat/SendFunctionMessageUseCase.swift`
+- `Packages/module-ai/Sources/ModuleAI/Application/UseCases/AIChat/SendLikeFeedbackUseCase.swift`
+- `Packages/module-ai/Sources/ModuleAI/Application/UseCases/AIChat/StreamAIResponseUseCase.swift`
+
+Android 落点：
+
+- `apps/android/feature/ai-chat/application/usecase/*`
+
+迁移级别：
+
+- `必须镜像`
+
+迁移要求：
+
+- Android 也保留 application/usecase 层
+- 把模板、历史详情、图表数据、消息发送、流式响应拆开
+
+检查项：
+
+- [ ] load template use case
+- [ ] load history detail use case
+- [ ] load chart data use case
+- [ ] send function message use case
+- [ ] send like feedback use case
+- [ ] stream AI response use case
+
+### 19. `AIChatIntentResolver`
 
 iOS 对象：
 
@@ -486,7 +548,7 @@ iOS 对象：
 
 Android 落点：
 
-- `feature/ai-chat/presentation/AIChatIntentResolver.kt`
+- `apps/android/feature/ai-chat/presentation/AIChatIntentResolver.kt`
 
 迁移级别：
 
@@ -503,7 +565,7 @@ Android 落点：
 - [ ] index intent
 - [ ] default nil branch
 
-### 18. `AIChatChartBuilder`
+### 20. `AIChatChartBuilder`
 
 iOS 对象：
 
@@ -511,7 +573,7 @@ iOS 对象：
 
 Android 落点：
 
-- `feature/ai-chat/presentation/AIChatChartBuilder.kt`
+- `apps/android/feature/ai-chat/presentation/AIChatChartBuilder.kt`
 
 迁移级别：
 
@@ -527,7 +589,7 @@ Android 落点：
 - [ ] chart ui model 构建
 - [ ] 单位字符串映射
 
-### 19. `AIChatHistoryMapper`
+### 21. `AIChatHistoryMapper`
 
 iOS 对象：
 
@@ -535,7 +597,7 @@ iOS 对象：
 
 Android 落点：
 
-- `feature/ai-chat/presentation/AIChatHistoryMapper.kt`
+- `apps/android/feature/ai-chat/presentation/AIChatHistoryMapper.kt`
 
 迁移级别：
 
@@ -547,7 +609,7 @@ Android 落点：
 - [ ] 历史详情顺序处理
 - [ ] 图表类型详情映射
 
-### 20. `FunctionResponseDTO`
+### 22. `FunctionResponseDTO`
 
 iOS 对象：
 
@@ -558,8 +620,8 @@ iOS 对象：
 
 Android 落点：
 
-- `feature/ai-chat/data/dto/FunctionResponseDto.kt`
-- `feature/ai-chat/domain/model/FunctionModel.kt`
+- `apps/android/feature/ai-chat/data/dto/FunctionResponseDto.kt`
+- `apps/android/feature/ai-chat/domain/model/FunctionModel.kt`
 
 迁移级别：
 
@@ -581,7 +643,7 @@ Android 落点：
 
 ## 四、平台适配层
 
-### 21. iOS `Router`
+### 23. iOS `Router`
 
 iOS 对象：
 
@@ -590,7 +652,7 @@ iOS 对象：
 
 Android 落点：
 
-- `app/navigation/AppNavHost.kt`
+- `apps/android/app/navigation/AppNavHost.kt`
 - 各 feature route
 
 迁移级别：
@@ -610,7 +672,7 @@ Android 落点：
 - [ ] 历史路由
 - [ ] AI 聊天路由
 
-### 22. iOS `BaseUI`
+### 24. iOS `BaseUI`
 
 iOS 对象：
 
@@ -618,7 +680,7 @@ iOS 对象：
 
 Android 落点：
 
-- `core/ui/`
+- `apps/android/core/ui/`
 
 迁移级别：
 
@@ -668,6 +730,7 @@ Android 落点：
 ### 第四阶段
 
 - [ ] `HistoryRepository`
+- [ ] `LoadHistoryPageUseCase`
 - [ ] `HistoryListBuilder`
 - [ ] `HistoryViewModel`
 - [ ] 历史页
@@ -675,6 +738,7 @@ Android 落点：
 ### 第五阶段
 
 - [ ] `FunctionResponseDto`
+- [ ] `AIChat application usecases`
 - [ ] `AIChatIntentResolver`
 - [ ] `AIChatHistoryMapper`
 - [ ] `AIChatRepository`
@@ -709,4 +773,4 @@ domain 保持纯净，ui state 单独放。
 
 ## 一句话结论
 
-这份文档的作用不是告诉你“Android 应该怎么写得更原生”，而是帮助你把当前 iOS 已经整理出来的结构，准确地逐项映射到 Android。*** End Patch
+这份文档的作用不是告诉你“Android 应该怎么写得更原生”，而是帮助你把当前 iOS 已经整理出来的结构，准确地逐项映射到 `apps/android`。

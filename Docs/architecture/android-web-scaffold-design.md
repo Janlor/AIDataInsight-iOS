@@ -22,6 +22,25 @@
 - `library-basics` 的 `Networking / Account` 已开始解耦
 - 当前代码已经有最小测试保护
 
+更具体地说，当前 iOS 基线是：
+
+- `Packages/library-basics`
+  - `AppLaunch`
+  - `Networking/Session`
+  - `AccountProtocol`
+  - `Account/Services`
+- `Packages/library-common`
+  - `Login/Domain + Repositories + Presentation`
+  - `Privacy/Domain + Repositories + Presentation`
+  - `Setting/Domain + Repositories + Presentation`
+- `Packages/module-ai`
+  - `Application/UseCases`
+  - `Domain`
+  - `Repositories`
+  - `Presentation/App`
+  - `Presentation/AIChat`
+  - `Presentation/History`
+
 因此，Android / Web 不应该从“页面长什么样”开始学，而应该从“模块和职责怎么对应”开始学。
 
 ## 总体策略
@@ -84,7 +103,7 @@
 
 ## Android 项目脚手架
 
-建议单独建仓，或者在 monorepo 中新建：
+当前仓库已经采用 monorepo 形态，Android 建议继续落在：
 
 ```text
 apps/android/
@@ -94,6 +113,7 @@ apps/android/
     model/
     network/
     account/
+    ui/
     testing/
   feature/
     login/
@@ -158,16 +178,17 @@ apps/android/
 
 `feature/ai-chat/`
 
-- use cases
+- application/usecase
 - ai chat repository
 - intent resolver
 - chart builder
+- history mapper
 - chat viewmodel
 - screen
 
 `feature/history/`
 
-- use cases
+- application/usecase
 - history repository
 - history list builder
 - history viewmodel
@@ -273,9 +294,9 @@ apps/web/
 
 对应 Android：
 
-- `core/network/http`
-- `core/network/auth`
-- `core/network/session`
+- `apps/android/core/network/http`
+- `apps/android/core/network/auth`
+- `apps/android/core/network/session`
 
 对应 Web：
 
@@ -286,17 +307,17 @@ apps/web/
 映射原则：
 
 - `NetworkCredentialProvider` -> token provider
-- `TokenRefreshService` -> refresh coordinator
+- `TokenRefreshService` + `TokenRefreshCoordinator` -> refresh coordinator
 - `SessionInvalidationHandler` -> logout/reset handler
 
 #### iOS: `AccountProtocol`
 
 对应 Android：
 
-- `core/account/session`
-- `core/account/user`
-- `core/account/remote`
-- `core/account/navigation-adapter`
+- `apps/android/core/account/session`
+- `apps/android/core/account/user`
+- `apps/android/core/account/remote`
+- `apps/android/core/account/navigation-adapter`
 
 对应 Web：
 
@@ -375,6 +396,24 @@ apps/web/
 这些规则三端都一致。
 
 ### 3. `module-ai`
+
+#### iOS: `Application`
+
+对应 Android：
+
+- `apps/android/feature/ai-chat/application/usecase`
+- `apps/android/feature/history/application/usecase`
+
+对应 Web：
+
+- `src/features/ai-chat/application`
+- `src/features/history/application`
+
+映射原则：
+
+- 保留 use case 这一层
+- 把分页、删除、历史回放、发消息、图表数据装配从 ViewModel 中拆开
+- 三端共享业务步骤，不共享平台调用细节
 
 #### iOS: `Domain`
 
@@ -499,6 +538,7 @@ apps/web/
 建议三端尽量统一这些命名：
 
 - `Repository`
+- `UseCase`
 - `Snapshot`
 - `ViewData`
 - `IntentResolver`
@@ -539,29 +579,12 @@ apps/web/
 
 ## 第一阶段仓库建议
 
-如果你暂时不想动现有仓库结构，可以先只写文档和目录草案。
+当前仓库已经有 `apps/android`，因此 Android 不需要再新建独立仓库。
 
-如果你准备正式开始多端学习，我建议最终演进成：
+更实际的做法是：
 
-```text
-AIDataInsight/
-  apps/
-    ios/
-    android/
-    web/
-  packages/
-    api-spec/
-    docs/
-```
-
-但现阶段不必强行搬仓。
-
-你可以先保持现在的 iOS 仓库不动，然后：
-
-- 新建 `AIDataInsight-Android`
-- 新建 `AIDataInsight-Web`
-
-先各自按本文档搭脚手架。
+- 继续在现有仓库维护 iOS + Android
+- Web 是否独立建仓，可以等 Android 结构稳定后再决定
 
 ## Android 第一阶段脚手架建议
 
@@ -570,6 +593,7 @@ AIDataInsight/
 - app 入口
 - session store
 - network client
+- token refresh coordinator
 - login feature
 - setting feature
 - history feature
@@ -628,6 +652,7 @@ AIDataInsight/
 
 下一步不是继续深挖 iOS，而是按照当前已经整理出的：
 
+- `Application`
 - `Domain`
 - `Repository`
 - `Presentation`

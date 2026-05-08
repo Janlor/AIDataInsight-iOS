@@ -1,10 +1,10 @@
-# AIDataInsight-Android 目录初始化方案
+# apps/android 目录初始化方案
 
 ## 文档目的
 
 这份文档只解决一件事：
 
-如果你现在开始新建 `AIDataInsight-Android`，第一版目录和模块应该怎么搭。
+如果你现在开始完善 monorepo 里的 `apps/android`，第一版目录和模块应该怎么搭。
 
 它面向的是“先把结构搭对”，不是“先把页面写出来”。
 
@@ -40,10 +40,10 @@
 
 ## 第一版仓库结构
 
-建议新建仓库后直接搭成这样：
+建议在当前仓库里把 `apps/android` 稳定成这样：
 
 ```text
-AIDataInsight-Android/
+apps/android/
   app/
   core/
     common/
@@ -58,7 +58,6 @@ AIDataInsight-Android/
     privacy/
     history/
     ai-chat/
-  gradle/
   build.gradle.kts
   settings.gradle.kts
 ```
@@ -127,6 +126,7 @@ AIDataInsight-Android/
 - `NetworkDependencies`
 - `NetworkCredentialProvider`
 - `TokenRefreshService`
+- `TokenRefreshCoordinator`
 - `SessionInvalidationHandler`
 
 ### `core/account/`
@@ -226,18 +226,23 @@ feature/setting/
 
 建议最先落：
 
+- `application/usecase/`
 - `HistoryRepository`
 - `HistoryViewModel`
 - `HistorySectionUiModel`
 - `HistoryListBuilder`
 - `HistoryScreen`
 
-这块要严格镜像你 iOS 当前的 `HistoryListViewDataBuilder` 思路。
+这块要严格镜像你 iOS 当前的：
+
+- `Application/UseCases/History/*`
+- `HistoryListViewDataBuilder`
 
 ### `feature/ai-chat/`
 
 建议最先落：
 
+- `application/usecase/`
 - `AIChatRepository`
 - `AIChatViewModel`
 - `AIChatIntentResolver`
@@ -255,7 +260,7 @@ feature/setting/
 
 ## Gradle 模块建议
 
-如果你愿意一开始就做模块化，推荐：
+当前 `apps/android` 已经在走模块化，推荐直接补齐到：
 
 ```text
 :app
@@ -284,7 +289,7 @@ feature/setting/
 :feature:ai-chat
 ```
 
-建议你个人学习第一阶段用第二种，更轻。
+如果只是临时验证思路，可以退回单模块；但按当前仓库现状，继续沿用模块化更合适。
 
 ## 推荐初始化顺序
 
@@ -323,6 +328,7 @@ feature/setting/
 完成：
 
 - `HistoryRepository`
+- `feature/history/application/usecase`
 - `HistoryViewModel`
 - `HistoryListBuilder`
 - `HistoryScreen`
@@ -332,6 +338,7 @@ feature/setting/
 再进入：
 
 - `AIChatRepository`
+- `feature/ai-chat/application/usecase`
 - `AIChatIntentResolver`
 - `AIChatChartBuilder`
 - `AIChatScreen`
@@ -341,6 +348,7 @@ feature/setting/
 Android 这边请尽量保留这些名字：
 
 - `Repository`
+- `UseCase`
 - `Snapshot`
 - `ViewModel`
 - `IntentResolver`
@@ -352,6 +360,33 @@ Android 这边请尽量保留这些名字：
 
 - 你当前 iOS 已经形成这套语言
 - 后面让 AI 帮你从 iOS 翻译到 Android 时，成功率会高很多
+
+## 当前 iOS 基线
+
+这份文档基于当前仓库里的实际 iOS 包结构：
+
+- `Packages/library-basics`
+  - `AppLaunch`
+  - `Networking/Session`
+  - `AccountProtocol`
+  - `Account/Services`
+- `Packages/library-common`
+  - `Login/Domain + Repositories + Presentation`
+  - `Privacy/Domain + Repositories + Presentation`
+  - `Setting/Domain + Repositories + Presentation`
+- `Packages/module-ai`
+  - `Application/UseCases`
+  - `Domain`
+  - `Repositories`
+  - `Presentation/App`
+  - `Presentation/AIChat`
+  - `Presentation/History`
+
+其中最需要 Android 同步保持的变化是：
+
+- `module-ai` 已有明确的 `Application/UseCases`
+- `HistoryListViewDataBuilder` 已经是独立 builder
+- `AIChatHistoryMapper` 已经是独立 helper
 
 ## 第一版不做什么
 
@@ -408,4 +443,4 @@ Android 第一阶段最小可运行版本应该满足：
 
 ## 一句话结论
 
-`AIDataInsight-Android` 第一阶段应该先学会“按 iOS 现有分层镜像搭结构”，而不是先学会“写多少 Compose 页面”。
+`apps/android` 第一阶段应该先学会“按 iOS 现有分层镜像搭结构”，而不是先学会“写多少 Compose 页面”。
