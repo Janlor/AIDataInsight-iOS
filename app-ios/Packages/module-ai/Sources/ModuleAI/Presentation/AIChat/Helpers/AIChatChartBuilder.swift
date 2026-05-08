@@ -6,52 +6,21 @@
 //
 
 import Foundation
+import UIKit
 
 enum AIChatChartBuilder {
-    static func build(from model: HistoryDetailModel) -> ([AIBarChartData]?, String?) {
-        if let list = model.chartCommonVoList, !list.isEmpty {
-            let datas = list.map { item in
-                let title = item.name ?? ""
-                let value = item.value ?? 0
-                let color = AIBarChartData.colorOptions.first ?? .systemBlue
-                
-                return AIBarChartData(
-                    xAxis: title,
-                    colors: [color],
-                    labels: [title],
-                    values: [value]
-                )
-            }
-            return (datas, nil)
-        }
-        
-        if let list = model.accountAgeGroupVoList, !list.isEmpty {
-            if let first = list.first,
-               first.chartType == "2",
-               let msg = first.msg {
-                return (nil, msg)
+    static func build(from payload: ChartPayload) -> [AIBarChartData] {
+        payload.series.map { series in
+            let colors = series.values.indices.map {
+                AIBarChartData.colorOptions[$0 % AIBarChartData.colorOptions.count]
             }
             
-            let datas = list.map { item in
-                let name = item.name ?? ""
-                let values = item.valueList ?? []
-                let labels = item.labelList ?? []
-                
-                let colors = values.indices.map {
-                    AIBarChartData.colorOptions[$0 % AIBarChartData.colorOptions.count]
-                }
-                
-                return AIBarChartData(
-                    xAxis: name,
-                    colors: colors,
-                    labels: labels,
-                    values: values
-                )
-            }
-            
-            return (datas, nil)
+            return AIBarChartData(
+                xAxis: series.xAxis,
+                colors: colors.isEmpty ? [.systemBlue] : colors,
+                labels: series.labels,
+                values: series.values
+            )
         }
-        
-        return (nil, nil)
     }
 }

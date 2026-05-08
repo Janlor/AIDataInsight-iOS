@@ -33,7 +33,6 @@ struct LoadHistoryPageUseCaseTests {
 
         #expect(state.pageModel?.currentPage == 1)
         #expect(state.recordGroups.count == 1)
-        #expect(state.sections.count == 1)
         #expect(state.recordGroups[0].records.map(\.id) == [1])
     }
 
@@ -70,7 +69,6 @@ struct LoadHistoryPageUseCaseTests {
         )
 
         #expect(state.recordGroups.count == 1)
-        #expect(state.sections.count == 1)
         #expect(state.recordGroups[0].records.map(\.id) == [1, 2])
     }
 }

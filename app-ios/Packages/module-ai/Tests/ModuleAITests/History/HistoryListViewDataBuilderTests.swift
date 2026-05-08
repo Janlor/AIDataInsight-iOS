@@ -20,7 +20,7 @@ struct HistoryListViewDataBuilderTests {
             updateTime: formatter.string(from: calendar.date(byAdding: .month, value: -2, to: now) ?? now)
         )
 
-        let groups = HistoryListViewDataBuilder.groupRecords([today, thisMonth, other], dateFormatter: formatter)
+        let groups = HistoryApplicationMapper.groupRecords([today, thisMonth, other], dateFormatter: formatter)
 
         #expect(groups.count == 3)
         #expect(groups[0].records.map(\.id) == [1])
@@ -50,7 +50,7 @@ struct HistoryListViewDataBuilderTests {
             )
         ]
 
-        HistoryListViewDataBuilder.mergeGroups(existing: &existing, new: newGroups)
+        HistoryApplicationMapper.mergeGroups(existing: &existing, new: newGroups)
 
         #expect(existing.count == 2)
         #expect(existing[0].records.map(\.id) == [1, 2])

@@ -9,17 +9,6 @@ import Foundation
 import UIKit
 import BaseUI
 
-enum HistorySectionKind {
-    case today
-    case thisMonth
-    case other
-}
-
-struct HistoryRecordGroup {
-    let kind: HistorySectionKind
-    var records: [RecordModel]
-}
-
 struct HistoryListItemViewData {
     let id: Int?
     let titleText: NSAttributedString
@@ -31,51 +20,6 @@ struct HistorySectionViewData {
 }
 
 enum HistoryListViewDataBuilder {
-    static func groupRecords(
-        _ records: [RecordModel]?,
-        dateFormatter: DateFormatter
-    ) -> [HistoryRecordGroup] {
-        guard let records else { return [] }
-        
-        var groups: [HistoryRecordGroup] = []
-        var currentRecords: [RecordModel] = []
-        var currentKind: HistorySectionKind?
-        
-        for record in records {
-            guard let date = dateFormatter.date(from: record.updateTime ?? "") else { continue }
-            let kind = sectionKind(for: date, calendar: .current)
-            
-            if kind != currentKind {
-                if let currentKind, !currentRecords.isEmpty {
-                    groups.append(HistoryRecordGroup(kind: currentKind, records: currentRecords))
-                }
-                currentKind = kind
-                currentRecords = [record]
-            } else {
-                currentRecords.append(record)
-            }
-        }
-        
-        if let currentKind, !currentRecords.isEmpty {
-            groups.append(HistoryRecordGroup(kind: currentKind, records: currentRecords))
-        }
-        
-        return groups
-    }
-    
-    static func mergeGroups(
-        existing: inout [HistoryRecordGroup],
-        new: [HistoryRecordGroup]
-    ) {
-        for newGroup in new {
-            if let existingIndex = existing.lastIndex(where: { $0.kind == newGroup.kind }) {
-                existing[existingIndex].records.append(contentsOf: newGroup.records)
-            } else {
-                existing.append(newGroup)
-            }
-        }
-    }
-    
     static func makeSections(from groups: [HistoryRecordGroup]) -> [HistorySectionViewData] {
         groups.map { group in
             HistorySectionViewData(
@@ -101,16 +45,6 @@ enum HistoryListViewDataBuilder {
             id: record.id,
             titleText: AIChatRichText.attributedString(from: [titleText, dateText])
         )
-    }
-    
-    private static func sectionKind(for date: Date, calendar: Calendar) -> HistorySectionKind {
-        if calendar.isDateInToday(date) {
-            return .today
-        } else if calendar.isDate(date, equalTo: Date(), toGranularity: .month) {
-            return .thisMonth
-        } else {
-            return .other
-        }
     }
     
     private static func localizedTitle(for kind: HistorySectionKind) -> String {

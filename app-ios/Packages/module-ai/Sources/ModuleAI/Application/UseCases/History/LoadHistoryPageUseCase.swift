@@ -22,7 +22,7 @@ struct LoadHistoryPageUseCase {
         existingGroups: [HistoryRecordGroup]
     ) async throws -> HistoryStateSnapshot {
         let pageModel = try await repository.loadHistoryPage(pageNo: pageNo, pageSize: pageSize)
-        let groupedNewRecords = HistoryListViewDataBuilder.groupRecords(
+        let groupedNewRecords = HistoryApplicationMapper.groupRecords(
             pageModel.records,
             dateFormatter: dateFormatter
         )
@@ -32,14 +32,13 @@ struct LoadHistoryPageUseCase {
             mergedGroups = groupedNewRecords
         } else {
             var merged = existingGroups
-            HistoryListViewDataBuilder.mergeGroups(existing: &merged, new: groupedNewRecords)
+            HistoryApplicationMapper.mergeGroups(existing: &merged, new: groupedNewRecords)
             mergedGroups = merged
         }
 
         return HistoryStateSnapshot(
             pageModel: pageModel,
-            recordGroups: mergedGroups,
-            sections: HistoryListViewDataBuilder.makeSections(from: mergedGroups)
+            recordGroups: mergedGroups
         )
     }
 }

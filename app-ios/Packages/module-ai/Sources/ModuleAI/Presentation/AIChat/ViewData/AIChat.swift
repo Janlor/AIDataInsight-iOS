@@ -15,11 +15,6 @@ enum AIChatType: Hashable {
     case chart
 }
 
-enum AIChatIntentType: Hashable {
-    case time
-    case index
-}
-
 struct AIChat: Hashable {
     let id: UUID
     var text: String

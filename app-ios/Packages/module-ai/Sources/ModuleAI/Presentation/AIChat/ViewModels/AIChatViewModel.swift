@@ -94,7 +94,7 @@ extension AIChatViewModel {
         do {
             self.historyId = historyId
             let output = try await loadHistoryDetailUseCase.execute(historyId: historyId)
-            onHistoryLoaded?(output.chats)
+            onHistoryLoaded?(AIChatHistoryMapper.makeChats(from: output.messages))
         } catch {
             onHistoryLoaded?([])
         }
@@ -153,7 +153,13 @@ extension AIChatViewModel {
             )
             switch result {
             case .success(let output):
-                onChartResult?(.success(funcType: output.funcType, historyDetailId: nil, datas: output.datas))
+                onChartResult?(
+                    .success(
+                        funcType: output.payload.functionName,
+                        historyDetailId: nil,
+                        datas: AIChatChartBuilder.build(from: output.payload)
+                    )
+                )
             case .failure(let failure):
                 onChartResult?(.error(failure.message))
             }

@@ -24,17 +24,14 @@ struct LoadChartDataUseCase {
             historyId: historyId,
             arguments: arguments
         )
-        let result = AIChatChartBuilder.build(from: model)
-
-        guard let datas = result.0 else {
-            return .failure(.message(result.1 ?? "数据分析还在测试阶段，很快就能上线，敬请期待！"))
+        let payload = AIChatApplicationMapper.makeChartPayload(from: model)
+        guard let payload, payload.series.isEmpty == false else {
+            return .failure(.message(
+                payload?.emptyMessage
+                ?? "数据分析还在测试阶段，很快就能上线，敬请期待！"
+            ))
         }
 
-        return .success(
-            LoadChartDataOutput(
-                funcType: model.funcType,
-                datas: datas
-            )
-        )
+        return .success(LoadChartDataOutput(payload: payload))
     }
 }

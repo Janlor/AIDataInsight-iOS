@@ -18,8 +18,7 @@ struct DeleteAllHistoryUseCase {
         try await repository.deleteAllHistory()
         return HistoryStateSnapshot(
             pageModel: nil,
-            recordGroups: [],
-            sections: []
+            recordGroups: []
         )
     }
 }

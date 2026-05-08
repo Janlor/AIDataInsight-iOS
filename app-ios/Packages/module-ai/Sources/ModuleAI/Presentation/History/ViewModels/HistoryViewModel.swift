@@ -79,19 +79,23 @@ extension HistoryViewModel {
 extension HistoryViewModel {
     
     func deleteHistory(at indexPath: IndexPath) async throws -> Int {
+        guard let historyId = recordGroups[indexPath.section].records[indexPath.row].id else {
+            throw CommonRequesterError.requestFailed
+        }
+        
         let output = try await deleteHistoryUseCase.execute(
             recordGroups: recordGroups,
-            indexPath: indexPath
+            historyId: historyId
         )
         recordGroups = output.state.recordGroups
-        sections = output.state.sections
+        sections = HistoryListViewDataBuilder.makeSections(from: recordGroups)
         return output.historyId
     }
     
     func deleteAllHistory() async throws {
         let state = try await deleteAllHistoryUseCase.execute()
         recordGroups = state.recordGroups
-        sections = state.sections
+        sections = HistoryListViewDataBuilder.makeSections(from: recordGroups)
         pageModel = state.pageModel
     }
 }
@@ -107,7 +111,7 @@ private extension HistoryViewModel {
             )
             pageModel = state.pageModel
             recordGroups = state.recordGroups
-            sections = state.sections
+            sections = HistoryListViewDataBuilder.makeSections(from: recordGroups)
             onDataLoaded?(sections)
         } catch {
             onDataLoadFailed?(error.localizedDescription)

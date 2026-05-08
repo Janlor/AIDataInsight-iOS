@@ -1,5 +1,4 @@
 import Foundation
-import UIKit
 import Testing
 @testable import ModuleAI
 
@@ -19,13 +18,12 @@ struct DeleteHistoryUseCaseTests {
 
         let output = try await useCase.execute(
             recordGroups: groups,
-            indexPath: IndexPath(row: 0, section: 0)
+            historyId: 1
         )
 
         #expect(output.historyId == 1)
         #expect(output.state.recordGroups.count == 1)
         #expect(output.state.recordGroups[0].records.map(\.id) == [2])
-        #expect(output.state.sections.count == 1)
     }
 
     @Test
@@ -40,11 +38,10 @@ struct DeleteHistoryUseCaseTests {
 
         let output = try await useCase.execute(
             recordGroups: groups,
-            indexPath: IndexPath(row: 0, section: 0)
+            historyId: 1
         )
 
         #expect(output.state.recordGroups.isEmpty)
-        #expect(output.state.sections.isEmpty)
     }
 }
 

@@ -17,7 +17,7 @@ struct LoadHistoryDetailUseCase {
     func execute(historyId: Int) async throws -> LoadHistoryDetailOutput {
         let record = try await repository.loadHistoryDetail(historyId)
         return LoadHistoryDetailOutput(
-            chats: AIChatHistoryMapper.makeChats(from: record.detailList ?? [])
+            messages: AIChatApplicationMapper.makeMessages(from: record.detailList ?? [])
         )
     }
 }

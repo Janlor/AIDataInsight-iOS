@@ -9,7 +9,6 @@ struct DeleteAllHistoryUseCaseTests {
         let state = try await useCase.execute()
 
         #expect(state.recordGroups.isEmpty)
-        #expect(state.sections.isEmpty)
         #expect(state.pageModel == nil)
     }
 }

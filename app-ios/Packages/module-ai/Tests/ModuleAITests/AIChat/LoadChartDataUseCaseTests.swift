@@ -34,8 +34,9 @@ struct LoadChartDataUseCaseTests {
             Issue.record("Expected success result")
             return
         }
-        #expect(output.funcType == .querySalesGroupByMonth)
-        #expect(output.datas.count == 1)
+        #expect(output.payload.functionName == .querySalesGroupByMonth)
+        #expect(output.payload.series.count == 1)
+        #expect(output.payload.series.first?.xAxis == "一月")
     }
 
     @Test
