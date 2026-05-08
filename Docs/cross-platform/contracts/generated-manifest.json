@@ -1,0 +1,90 @@
+{
+  "generator": "scripts/generate-cross-platform-contracts.rb",
+  "sourceHash": "1e95e67a6d85984bc41a7b90f8ff29e4207f3ca7235768bb9c43d278f49b9dc2",
+  "outputs": [
+    "app-android/core/model/src/main/java/com/aidatainsight/android/core/model/contract/ContractModels.kt",
+    "app-web/src/contracts/generated/models.ts"
+  ],
+  "sources": [
+    {
+      "path": "docs/cross-platform/contracts/api/openapi.yaml",
+      "sha256": "2b5e229e4f7afa9bdb224719e191a304ef10f122b469ec2fea4af2a8adf428b1"
+    },
+    {
+      "path": "docs/cross-platform/contracts/design/tokens.json",
+      "sha256": "948c60814beea3f9ef53ca408e40e8cd69c9abcf23df86538c799b2f3f53d580"
+    },
+    {
+      "path": "docs/cross-platform/contracts/domain/account.schema.json",
+      "sha256": "4cd33e9b24747b3293a4a60ff41af9d09cafff275f49f84b31b3acc49ba11f84"
+    },
+    {
+      "path": "docs/cross-platform/contracts/domain/ai-chat.schema.json",
+      "sha256": "44c517b8ac6b1df7bca5c5303b1c36c29b991c1d227d3c541f02c7bc2f0c4a67"
+    },
+    {
+      "path": "docs/cross-platform/contracts/domain/history.schema.json",
+      "sha256": "e0ca13f040b2da165442e871f3d8f4cefd8a2677c057f0d97fafa5270b282ba6"
+    },
+    {
+      "path": "docs/cross-platform/contracts/domain/setting.schema.json",
+      "sha256": "0dbef5576ad09e911a86e4df2ff0bbc4da7aaadeace209014c071820fe8b37d2"
+    },
+    {
+      "path": "docs/cross-platform/contracts/fixtures/api/response-401.json",
+      "sha256": "3641527ba791ac8851ee21a781ee790d53bd280b9bed3b14c5a7b49e81be2e5f"
+    },
+    {
+      "path": "docs/cross-platform/contracts/fixtures/api/response-402.json",
+      "sha256": "affae9d3de149174c3e5e8ffaaed07b9b68cf0d55bf8bce73314b96bbc2c5450"
+    },
+    {
+      "path": "docs/cross-platform/contracts/fixtures/function-response/chart-query-sales-group-by-month.json",
+      "sha256": "81c5664afc14cd24cb202cdb16060d9bf8f64491dfcd5fd31a818245fdb3fd77"
+    },
+    {
+      "path": "docs/cross-platform/contracts/fixtures/function-response/chart-query-stock-group-by-warehouse.json",
+      "sha256": "ada80d62c5bcf0961a5f791f31be59966af8f3c4f5312ce9a416dd559ecd842b"
+    },
+    {
+      "path": "docs/cross-platform/contracts/fixtures/function-response/query-performance-type.json",
+      "sha256": "a71a1da3969a482c36ab9eff269c7f79cd87702900e597cb08b2e7df421afa4e"
+    },
+    {
+      "path": "docs/cross-platform/contracts/fixtures/function-response/query-sales-group-by-month-missing-start-date.json",
+      "sha256": "e6884535b1d470e0c5213f73b1e2eb2e671c9c0e720556fc7141486f7a9982ed"
+    },
+    {
+      "path": "docs/cross-platform/contracts/fixtures/function-response/query-sales-group-by-month.json",
+      "sha256": "4f6e1476aad2c34d1287550bc4af5bd6dd95c40410826f6ad67c1bcec402c6a2"
+    },
+    {
+      "path": "docs/cross-platform/contracts/fixtures/history/history-detail-with-ai-text.json",
+      "sha256": "e848e91148ebb8738d7f6acb808379a88278a57a0fffc1a81f2a07c04a3bb340"
+    },
+    {
+      "path": "docs/cross-platform/contracts/fixtures/history/history-detail-with-chart.json",
+      "sha256": "ddc6c179840e26c65bcdbe9fa228672fdbc2d85a3b1e0429c7bd223d94f9507c"
+    },
+    {
+      "path": "docs/cross-platform/contracts/routes/route-intents.yaml",
+      "sha256": "c8be1e1e0eafed72d0c2c259ca62ef844b74260df6727ed262eb7f0e5dc0a6b4"
+    },
+    {
+      "path": "docs/cross-platform/contracts/ui-state/ai-chat-state.yaml",
+      "sha256": "77f8ab1fee74156ef96c54d3dc84f362446057b9e06bd613f612be37969c4dab"
+    },
+    {
+      "path": "docs/cross-platform/contracts/ui-state/history-state.yaml",
+      "sha256": "f8f69917aaf7feadd07d0d081b20a44f535daac84b6f342c53e1619df5875628"
+    },
+    {
+      "path": "docs/cross-platform/contracts/usecases/ai-chat.usecases.yaml",
+      "sha256": "9a862f56b1cc84451bcf75d3dfaee89db898f2f322b1f87b98fb86b7b268173b"
+    },
+    {
+      "path": "docs/cross-platform/contracts/usecases/history.usecases.yaml",
+      "sha256": "35f3ef65733837509ffc92da47cd7e817e41f7f65ae14fd032e537943daffd4f"
+    }
+  ]
+}
