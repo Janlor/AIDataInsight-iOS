@@ -1,0 +1,47 @@
+{
+  "description": "Stock chart response should map to ton unit.",
+  "request": {
+    "path": "/chart/queryStockGroupByWarehouse",
+    "parameters": {
+      "historyId": 456,
+      "orgId": 1,
+      "warehouseName": "仓库A",
+      "goodsType": null,
+      "orderType": null,
+      "operator": null,
+      "value": null
+    }
+  },
+  "response": {
+    "msg": null,
+    "code": 200,
+    "trace": "fixture-trace-chart-stock-warehouse",
+    "tid": "fixture-tid-chart-stock-warehouse",
+    "data": {
+      "funcType": "queryStockGroupByWarehouse",
+      "chartCommonVoList": [
+        {
+          "bizId": "warehouse-a",
+          "name": "仓库A",
+          "value": 12.0
+        }
+      ],
+      "accountAgeGroupVoList": null
+    }
+  },
+  "expected": {
+    "chartPayload": {
+      "functionName": "queryStockGroupByWarehouse",
+      "unit": "ton",
+      "series": [
+        {
+          "xAxis": "仓库A",
+          "labels": ["仓库A"],
+          "values": [12.0]
+        }
+      ],
+      "emptyMessage": null
+    }
+  }
+}
+

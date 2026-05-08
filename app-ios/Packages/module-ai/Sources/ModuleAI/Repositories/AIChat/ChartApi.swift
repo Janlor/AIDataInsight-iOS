@@ -6,12 +6,11 @@
 //
 
 import Foundation
-import BaseKit
 import Networking
 
 enum ChartApi: RequestDescriptor {
     /// 17个数据接口
-    case chart(String, Int, DictionaryConvertible)
+    case chart(FunctionName, Int, FunctionArguments)
     
 //    /// 查询各公司的应收情况（按公司维度）
 //    case queryArGroupByOrg(BasicQueryModel)
@@ -55,7 +54,7 @@ enum ChartApi: RequestDescriptor {
     var path: String {
         switch self {
         case .chart(let name, _, _):
-            return "/chart/\(name)"
+            return "/chart/\(name.rawValue)"
 //        case .queryArGroupByOrg(_):
 //            return "/chart/queryArGroupByOrg"
 //        case .queryArGroupByCustomer(_):
@@ -99,8 +98,8 @@ enum ChartApi: RequestDescriptor {
     
     var parameters: [String : Any] {
         switch self {
-        case .chart(_, let historyId, let queryModel):
-            var params = queryModel.toDictionary()
+        case .chart(_, let historyId, let arguments):
+            var params = arguments.toDictionary()
             params["historyId"] = historyId
             return params
 //        case .queryArGroupByOrg(let queryModel):

@@ -1,5 +1,41 @@
 version: 0.1.0
 feature: ai-chat
+dynamicFunctionContract:
+  rule: "FunctionName -> FunctionArguments kind -> /chart/{FunctionName.rawValue} -> ChartPayload"
+  argumentKindByFunctionName:
+    basic:
+      - queryArGroupByOrg
+      - queryArGroupByCustomer
+      - queryAccountGroupByAge
+    timeRange:
+      - querySalesGroupByOrgAndGoodsType
+      - querySalesGroupByMonth
+      - querySalesGroupByCustomer
+      - queryPurchaseGroupByOrg
+      - queryPurchaseGroupByMonth
+      - queryPurchaseGroupByCustomer
+    warehouse:
+      - queryStockGroupByOrg
+      - queryStockGroupByWarehouse
+      - queryInventoryGroupByOrg
+      - queryInventoryGroupByWarehouse
+      - queryProcurementGroupByOrg
+      - queryProcurementGroupByCustomer
+    accountAge:
+      - queryAccountAgeGroupByOrg
+      - queryAccountAgeGroupByCustomer
+    performanceType:
+      - queryPerformanceType
+  chartRequest:
+    pathTemplate: "/chart/{functionName}"
+    requiredParameters:
+      - historyId
+    additionalParameters: "all fields from the resolved FunctionArguments value"
+  chartPayloadMapping:
+    chartCommonVoList: "one ChartSeries per item; xAxis=item.name; labels=[item.name]; values=[item.value or 0]"
+    accountAgeGroupVoList: "one ChartSeries per item; xAxis=item.name; labels=item.labelList; values=item.valueList"
+    accountAgeMessageOnly: "when first.chartType is \"2\" and first.msg exists, return failure/emptyMessage instead of a chart"
+    unit: "queryStockGroupByOrg and queryStockGroupByWarehouse use ton; all other functions use currency"
 repository:
   name: AIChatRepository
   methods:

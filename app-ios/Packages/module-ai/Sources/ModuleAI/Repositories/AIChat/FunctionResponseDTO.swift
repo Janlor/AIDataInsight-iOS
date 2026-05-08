@@ -26,7 +26,7 @@ struct FunctionResponseDTO: Codable, NetworkRequestable {
         hasTool = try container.decodeIfPresent(Bool.self, forKey: .hasTool)
         name = try container.decodeIfPresent(FunctionName.self, forKey: .name)
         msg = try container.decodeIfPresent(String.self, forKey: .msg)
-        arguments = try Self.decodeArguments(from: container, name: name)
+        arguments = try container.decodeFunctionArguments(name: name, forKey: .arguments)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -62,31 +62,5 @@ extension FunctionResponseDTO {
             msg: msg,
             arguments: arguments
         )
-    }
-}
-
-private extension FunctionResponseDTO {
-    static func decodeArguments(
-        from container: KeyedDecodingContainer<CodingKeys>,
-        name: FunctionName?
-    ) throws -> FunctionArguments? {
-        guard let name else { return nil }
-        
-        switch name {
-        case .queryArGroupByOrg, .queryArGroupByCustomer, .queryAccountGroupByAge:
-            return .basic(try container.decode(BasicQueryModel.self, forKey: .arguments))
-        case .querySalesGroupByOrgAndGoodsType, .querySalesGroupByMonth, .querySalesGroupByCustomer,
-             .queryPurchaseGroupByOrg, .queryPurchaseGroupByMonth, .queryPurchaseGroupByCustomer:
-            return .timeRange(try container.decode(TimeRangeQueryModel.self, forKey: .arguments))
-        case .queryStockGroupByOrg, .queryStockGroupByWarehouse, .queryInventoryGroupByOrg,
-             .queryInventoryGroupByWarehouse, .queryProcurementGroupByOrg, .queryProcurementGroupByCustomer:
-            return .warehouse(try container.decode(WarehouseQueryModel.self, forKey: .arguments))
-        case .queryAccountAgeGroupByOrg, .queryAccountAgeGroupByCustomer:
-            return .accountAge(try container.decode(AccountAgeQueryModel.self, forKey: .arguments))
-        case .queryPerformanceType:
-            return .performanceType(try container.decode(PerformanceTypeQueryModel.self, forKey: .arguments))
-        default:
-            return nil
-        }
     }
 }

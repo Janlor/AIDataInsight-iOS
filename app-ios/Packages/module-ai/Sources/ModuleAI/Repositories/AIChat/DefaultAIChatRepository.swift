@@ -34,7 +34,7 @@ struct DefaultAIChatRepository: AIChatRepository {
     }
     
     func loadChartData(name: FunctionName, historyId: Int, arguments: FunctionArguments) async throws -> HistoryDetailModel {
-        try await CommonRequester.requestNet(ChartApi.chart(name.rawValue, historyId, arguments))
+        try await CommonRequester.requestNet(ChartApi.chart(name, historyId, arguments))
     }
     
     func sendLikeFeedback(historyDetailId: Int, like: String) async throws {

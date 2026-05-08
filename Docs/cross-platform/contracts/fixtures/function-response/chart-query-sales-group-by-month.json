@@ -1,0 +1,49 @@
+{
+  "description": "Chart response that should map to a currency ChartPayload with one single-value series.",
+  "request": {
+    "path": "/chart/querySalesGroupByMonth",
+    "parameters": {
+      "historyId": 123,
+      "startDate": "2026-01-01",
+      "endDate": "2026-01-31",
+      "orgId": 1,
+      "customerName": null,
+      "goodsType": null,
+      "orderType": null,
+      "operator": null,
+      "value": null
+    }
+  },
+  "response": {
+    "msg": null,
+    "code": 200,
+    "trace": "fixture-trace-chart-sales-month",
+    "tid": "fixture-tid-chart-sales-month",
+    "data": {
+      "funcType": "querySalesGroupByMonth",
+      "chartCommonVoList": [
+        {
+          "bizId": "2026-01",
+          "name": "2026-01",
+          "value": 128800.5
+        }
+      ],
+      "accountAgeGroupVoList": null
+    }
+  },
+  "expected": {
+    "chartPayload": {
+      "functionName": "querySalesGroupByMonth",
+      "unit": "currency",
+      "series": [
+        {
+          "xAxis": "2026-01",
+          "labels": ["2026-01"],
+          "values": [128800.5]
+        }
+      ],
+      "emptyMessage": null
+    }
+  }
+}
+

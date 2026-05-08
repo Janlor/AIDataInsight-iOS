@@ -38,6 +38,42 @@ struct LoadChartDataUseCaseTests {
         #expect(output.payload.series.count == 1)
         #expect(output.payload.series.first?.xAxis == "一月")
     }
+    
+    @Test
+    func execute_mapsStockFunctionsToTonUnit() async throws {
+        let useCase = LoadChartDataUseCase(
+            repository: MockAIChatRepository(
+                historyDetailModel: HistoryDetailModel(
+                    funcType: .queryStockGroupByWarehouse,
+                    chartCommonVoList: [
+                        ChartCommonVo(bizId: "1", name: "仓库A", value: 12)
+                    ],
+                    accountAgeGroupVoList: nil
+                )
+            )
+        )
+
+        let result = try await useCase.execute(
+            name: .queryStockGroupByWarehouse,
+            historyId: 1,
+            arguments: .warehouse(
+                WarehouseQueryModel(
+                    orgId: 1,
+                    warehouseName: "仓库A",
+                    goodsType: nil,
+                    orderType: nil,
+                    operator: nil,
+                    value: nil
+                )
+            )
+        )
+
+        guard case let .success(output) = result else {
+            Issue.record("Expected success result")
+            return
+        }
+        #expect(output.payload.unit == .ton)
+    }
 
     @Test
     func execute_returnsFailureWhenChartBuilderHasNoData() async throws {
