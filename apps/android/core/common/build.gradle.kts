@@ -16,3 +16,7 @@ android {
 
     kotlinOptions { jvmTarget = "17" }
 }
+
+dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+}
