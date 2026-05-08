@@ -17,15 +17,15 @@ struct DeleteHistoryUseCaseTests {
             )
         ]
 
-        let result = try await useCase.execute(
+        let output = try await useCase.execute(
             recordGroups: groups,
             indexPath: IndexPath(row: 0, section: 0)
         )
 
-        #expect(result.historyId == 1)
-        #expect(result.recordGroups.count == 1)
-        #expect(result.recordGroups[0].records.map(\.id) == [2])
-        #expect(result.sections.count == 1)
+        #expect(output.historyId == 1)
+        #expect(output.state.recordGroups.count == 1)
+        #expect(output.state.recordGroups[0].records.map(\.id) == [2])
+        #expect(output.state.sections.count == 1)
     }
 
     @Test
@@ -38,13 +38,13 @@ struct DeleteHistoryUseCaseTests {
             )
         ]
 
-        let result = try await useCase.execute(
+        let output = try await useCase.execute(
             recordGroups: groups,
             indexPath: IndexPath(row: 0, section: 0)
         )
 
-        #expect(result.recordGroups.isEmpty)
-        #expect(result.sections.isEmpty)
+        #expect(output.state.recordGroups.isEmpty)
+        #expect(output.state.sections.isEmpty)
     }
 }
 

@@ -14,8 +14,8 @@ struct LoadTemplateUseCase {
         self.repository = repository
     }
 
-    func execute() async throws -> [String] {
+    func execute() async throws -> LoadTemplateOutput {
         let template = try await repository.loadTemplate()
-        return template.questions
+        return LoadTemplateOutput(questions: template.questions)
     }
 }

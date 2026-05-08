@@ -7,12 +7,6 @@
 
 import Foundation
 
-struct LoadHistoryPageUseCaseResult {
-    let pageModel: RecordPageModel
-    let recordGroups: [HistoryRecordGroup]
-    let sections: [HistorySectionViewData]
-}
-
 struct LoadHistoryPageUseCase {
     private let repository: HistoryRepository
     private let dateFormatter: DateFormatter
@@ -26,7 +20,7 @@ struct LoadHistoryPageUseCase {
         pageNo: Int,
         pageSize: Int,
         existingGroups: [HistoryRecordGroup]
-    ) async throws -> LoadHistoryPageUseCaseResult {
+    ) async throws -> HistoryStateSnapshot {
         let pageModel = try await repository.loadHistoryPage(pageNo: pageNo, pageSize: pageSize)
         let groupedNewRecords = HistoryListViewDataBuilder.groupRecords(
             pageModel.records,
@@ -42,7 +36,7 @@ struct LoadHistoryPageUseCase {
             mergedGroups = merged
         }
 
-        return LoadHistoryPageUseCaseResult(
+        return HistoryStateSnapshot(
             pageModel: pageModel,
             recordGroups: mergedGroups,
             sections: HistoryListViewDataBuilder.makeSections(from: mergedGroups)

@@ -87,20 +87,20 @@ extension HistoryViewModel {
 extension HistoryViewModel {
     
     func deleteHistory(at indexPath: IndexPath) async throws -> Int {
-        let result = try await deleteHistoryUseCase.execute(
+        let output = try await deleteHistoryUseCase.execute(
             recordGroups: recordGroups,
             indexPath: indexPath
         )
-        recordGroups = result.recordGroups
-        sections = result.sections
-        return result.historyId
+        recordGroups = output.state.recordGroups
+        sections = output.state.sections
+        return output.historyId
     }
     
     func deleteAllHistory() async throws {
-        let result = try await deleteAllHistoryUseCase.execute()
-        recordGroups = result.recordGroups
-        sections = result.sections
-        pageModel = result.pageModel
+        let state = try await deleteAllHistoryUseCase.execute()
+        recordGroups = state.recordGroups
+        sections = state.sections
+        pageModel = state.pageModel
     }
 }
 
@@ -108,14 +108,14 @@ private extension HistoryViewModel {
     
     func getDataList(pageNo: Int, pageSize: Int) async {
         do {
-            let result = try await loadHistoryPageUseCase.execute(
+            let state = try await loadHistoryPageUseCase.execute(
                 pageNo: pageNo,
                 pageSize: pageSize,
                 existingGroups: recordGroups
             )
-            pageModel = result.pageModel
-            recordGroups = result.recordGroups
-            sections = result.sections
+            pageModel = state.pageModel
+            recordGroups = state.recordGroups
+            sections = state.sections
             onDataLoaded?(sections)
         } catch {
             onDataLoadFailed?(error.localizedDescription)

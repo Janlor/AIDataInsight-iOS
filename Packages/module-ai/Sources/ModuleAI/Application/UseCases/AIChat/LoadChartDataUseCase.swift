@@ -7,11 +7,6 @@
 
 import Foundation
 
-enum LoadChartDataUseCaseResult {
-    case success(funcType: FunctionName?, datas: [AIBarChartData])
-    case failure(String?)
-}
-
 struct LoadChartDataUseCase {
     private let repository: AIChatRepository
 
@@ -23,7 +18,7 @@ struct LoadChartDataUseCase {
         name: FunctionName,
         historyId: Int,
         arguments: FunctionArguments
-    ) async throws -> LoadChartDataUseCaseResult {
+    ) async throws -> UseCaseResult<LoadChartDataOutput> {
         let model = try await repository.loadChartData(
             name: name,
             historyId: historyId,
@@ -32,9 +27,14 @@ struct LoadChartDataUseCase {
         let result = AIChatChartBuilder.build(from: model)
 
         guard let datas = result.0 else {
-            return .failure(result.1 ?? "数据分析还在测试阶段，很快就能上线，敬请期待！")
+            return .failure(.message(result.1 ?? "数据分析还在测试阶段，很快就能上线，敬请期待！"))
         }
 
-        return .success(funcType: model.funcType, datas: datas)
+        return .success(
+            LoadChartDataOutput(
+                funcType: model.funcType,
+                datas: datas
+            )
+        )
     }
 }

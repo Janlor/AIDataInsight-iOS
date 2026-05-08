@@ -14,7 +14,7 @@ struct StreamAIResponseUseCase {
         self.repository = repository
     }
 
-    func execute(text: String) -> AsyncThrowingStream<String, Error> {
-        repository.streamMessage(text)
+    func execute(text: String) -> StreamAIResponseOutput {
+        StreamAIResponseOutput(stream: repository.streamMessage(text))
     }
 }

@@ -31,10 +31,10 @@ struct LoadHistoryDetailUseCaseTests {
             repository: MockAIChatRepository(record: record)
         )
 
-        let chats = try await useCase.execute(historyId: 1)
+        let output = try await useCase.execute(historyId: 1)
 
-        #expect(chats.count == 1)
-        #expect(chats.first?.text == "hello")
-        #expect(chats.first?.type == .user)
+        #expect(output.chats.count == 1)
+        #expect(output.chats.first?.text == "hello")
+        #expect(output.chats.first?.type == .user)
     }
 }

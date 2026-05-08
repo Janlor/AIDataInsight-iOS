@@ -30,12 +30,12 @@ struct LoadChartDataUseCaseTests {
             )
         )
 
-        guard case let .success(funcType, datas) = result else {
+        guard case let .success(output) = result else {
             Issue.record("Expected success result")
             return
         }
-        #expect(funcType == .querySalesGroupByMonth)
-        #expect(datas.count == 1)
+        #expect(output.funcType == .querySalesGroupByMonth)
+        #expect(output.datas.count == 1)
     }
 
     @Test
@@ -64,10 +64,10 @@ struct LoadChartDataUseCaseTests {
             )
         )
 
-        guard case let .failure(message) = result else {
+        guard case let .failure(failure) = result else {
             Issue.record("Expected failure result")
             return
         }
-        #expect(message != nil)
+        #expect(failure.message != nil)
     }
 }

@@ -16,7 +16,7 @@ struct StreamAIResponseUseCaseTests {
         )
 
         var chunks: [String] = []
-        for try await chunk in useCase.execute(text: "hello") {
+        for try await chunk in useCase.execute(text: "hello").stream {
             chunks.append(chunk)
         }
 

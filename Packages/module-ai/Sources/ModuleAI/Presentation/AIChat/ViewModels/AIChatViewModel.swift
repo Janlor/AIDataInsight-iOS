@@ -72,7 +72,7 @@ extension AIChatViewModel {
             guard let self else { return }
             
             do {
-                for try await chunk in streamAIResponseUseCase.execute(text: text) {
+                for try await chunk in streamAIResponseUseCase.execute(text: text).stream {
                     onStreamText?(chunk)
                 }
                 guard Task.isCancelled == false else { return }
@@ -93,8 +93,8 @@ extension AIChatViewModel {
     func getHistoryDetail(_ historyId: Int) async {
         do {
             self.historyId = historyId
-            let chats = try await loadHistoryDetailUseCase.execute(historyId: historyId)
-            onHistoryLoaded?(chats)
+            let output = try await loadHistoryDetailUseCase.execute(historyId: historyId)
+            onHistoryLoaded?(output.chats)
         } catch {
             onHistoryLoaded?([])
         }
@@ -102,8 +102,8 @@ extension AIChatViewModel {
     
     func loadTemplate() async {
         do {
-            let questions = try await loadTemplateUseCase.execute()
-            onTemplateLoaded?(questions)
+            let output = try await loadTemplateUseCase.execute()
+            onTemplateLoaded?(output.questions)
         } catch {
             onTemplateLoaded?(nil)
         }
@@ -125,13 +125,16 @@ extension AIChatViewModel {
         do {
             let result = try await sendFunctionMessageUseCase.execute(text: text, historyId: historyId)
             switch result {
-            case .intent(let text, let type):
-                onFunctionResult?(.intent(text: text, type: type))
-            case .chartRequest(let name, let historyId, let arguments):
-                self.historyId = historyId
-                await getChartData(name: name, historyId: historyId, arguments: arguments)
-            case .failure(let message):
-                onFunctionResult?(.error(message))
+            case .success(let output):
+                switch output {
+                case .intent(let text, let type):
+                    onFunctionResult?(.intent(text: text, type: type))
+                case .chartRequest(let name, let historyId, let arguments):
+                    self.historyId = historyId
+                    await getChartData(name: name, historyId: historyId, arguments: arguments)
+                }
+            case .failure(let failure):
+                onFunctionResult?(.error(failure.message))
             }
         } catch {
             onFunctionResult?(.timeout)
@@ -149,10 +152,10 @@ extension AIChatViewModel {
                 arguments: arguments
             )
             switch result {
-            case .success(let funcType, let datas):
-                onChartResult?(.success(funcType: funcType, historyDetailId: nil, datas: datas))
-            case .failure(let message):
-                onChartResult?(.error(message))
+            case .success(let output):
+                onChartResult?(.success(funcType: output.funcType, historyDetailId: nil, datas: output.datas))
+            case .failure(let failure):
+                onChartResult?(.error(failure.message))
             }
         } catch {
             onChartResult?(.timeout)

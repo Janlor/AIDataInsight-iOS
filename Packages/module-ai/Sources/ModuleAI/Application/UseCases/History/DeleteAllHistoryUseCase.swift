@@ -7,12 +7,6 @@
 
 import Foundation
 
-struct DeleteAllHistoryUseCaseResult {
-    let recordGroups: [HistoryRecordGroup]
-    let sections: [HistorySectionViewData]
-    let pageModel: RecordPageModel?
-}
-
 struct DeleteAllHistoryUseCase {
     private let repository: HistoryRepository
 
@@ -20,12 +14,12 @@ struct DeleteAllHistoryUseCase {
         self.repository = repository
     }
 
-    func execute() async throws -> DeleteAllHistoryUseCaseResult {
+    func execute() async throws -> HistoryStateSnapshot {
         try await repository.deleteAllHistory()
-        return DeleteAllHistoryUseCaseResult(
+        return HistoryStateSnapshot(
+            pageModel: nil,
             recordGroups: [],
-            sections: [],
-            pageModel: nil
+            sections: []
         )
     }
 }

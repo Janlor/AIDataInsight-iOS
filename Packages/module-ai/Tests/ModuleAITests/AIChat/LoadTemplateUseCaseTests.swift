@@ -11,8 +11,8 @@ struct LoadTemplateUseCaseTests {
             )
         )
 
-        let questions = try await useCase.execute()
+        let output = try await useCase.execute()
 
-        #expect(questions == ["q1", "q2"])
+        #expect(output.questions == ["q1", "q2"])
     }
 }

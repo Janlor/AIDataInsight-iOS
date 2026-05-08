@@ -6,10 +6,10 @@ struct DeleteAllHistoryUseCaseTests {
     func execute_returnsClearedState() async throws {
         let useCase = DeleteAllHistoryUseCase(repository: MockHistoryRepository())
 
-        let result = try await useCase.execute()
+        let state = try await useCase.execute()
 
-        #expect(result.recordGroups.isEmpty)
-        #expect(result.sections.isEmpty)
-        #expect(result.pageModel == nil)
+        #expect(state.recordGroups.isEmpty)
+        #expect(state.sections.isEmpty)
+        #expect(state.pageModel == nil)
     }
 }

@@ -18,7 +18,8 @@ struct SendFunctionMessageUseCaseTests {
 
         let result = try await useCase.execute(text: "按指标分析", historyId: nil)
 
-        guard case let .intent(text, type) = result else {
+        guard case let .success(output) = result,
+              case let .intent(text, type) = output else {
             Issue.record("Expected intent result")
             return
         }
@@ -50,7 +51,8 @@ struct SendFunctionMessageUseCaseTests {
 
         let result = try await useCase.execute(text: "销售额", historyId: nil)
 
-        guard case let .chartRequest(name, historyId, _) = result else {
+        guard case let .success(output) = result,
+              case let .chartRequest(name, historyId, _) = output else {
             Issue.record("Expected chart request result")
             return
         }

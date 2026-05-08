@@ -20,7 +20,7 @@ struct LoadHistoryPageUseCaseTests {
             dateFormatter: makeDateFormatter()
         )
 
-        let result = try await useCase.execute(
+        let state = try await useCase.execute(
             pageNo: 1,
             pageSize: 50,
             existingGroups: [
@@ -31,10 +31,10 @@ struct LoadHistoryPageUseCaseTests {
             ]
         )
 
-        #expect(result.pageModel.currentPage == 1)
-        #expect(result.recordGroups.count == 1)
-        #expect(result.sections.count == 1)
-        #expect(result.recordGroups[0].records.map(\.id) == [1])
+        #expect(state.pageModel?.currentPage == 1)
+        #expect(state.recordGroups.count == 1)
+        #expect(state.sections.count == 1)
+        #expect(state.recordGroups[0].records.map(\.id) == [1])
     }
 
     @Test
@@ -53,7 +53,7 @@ struct LoadHistoryPageUseCaseTests {
             dateFormatter: makeDateFormatter()
         )
 
-        let result = try await useCase.execute(
+        let state = try await useCase.execute(
             pageNo: 2,
             pageSize: 50,
             existingGroups: [
@@ -64,9 +64,9 @@ struct LoadHistoryPageUseCaseTests {
             ]
         )
 
-        #expect(result.recordGroups.count == 1)
-        #expect(result.sections.count == 1)
-        #expect(result.recordGroups[0].records.map(\.id) == [1, 2])
+        #expect(state.recordGroups.count == 1)
+        #expect(state.sections.count == 1)
+        #expect(state.recordGroups[0].records.map(\.id) == [1, 2])
     }
 }
 

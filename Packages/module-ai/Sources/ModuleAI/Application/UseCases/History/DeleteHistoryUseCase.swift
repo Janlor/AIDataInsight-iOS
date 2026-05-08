@@ -9,12 +9,6 @@ import Foundation
 import UIKit
 import CommonViewModel
 
-struct DeleteHistoryUseCaseResult {
-    let historyId: Int
-    let recordGroups: [HistoryRecordGroup]
-    let sections: [HistorySectionViewData]
-}
-
 struct DeleteHistoryUseCase {
     private let repository: HistoryRepository
 
@@ -25,7 +19,7 @@ struct DeleteHistoryUseCase {
     func execute(
         recordGroups: [HistoryRecordGroup],
         indexPath: IndexPath
-    ) async throws -> DeleteHistoryUseCaseResult {
+    ) async throws -> DeleteHistoryOutput {
         let history = recordGroups[indexPath.section].records[indexPath.row]
         guard let historyId = history.id else {
             throw CommonRequesterError.requestFailed
@@ -39,10 +33,13 @@ struct DeleteHistoryUseCase {
             updatedGroups.remove(at: indexPath.section)
         }
 
-        return DeleteHistoryUseCaseResult(
+        return DeleteHistoryOutput(
             historyId: historyId,
-            recordGroups: updatedGroups,
-            sections: HistoryListViewDataBuilder.makeSections(from: updatedGroups)
+            state: HistoryStateSnapshot(
+                pageModel: nil,
+                recordGroups: updatedGroups,
+                sections: HistoryListViewDataBuilder.makeSections(from: updatedGroups)
+            )
         )
     }
 }
