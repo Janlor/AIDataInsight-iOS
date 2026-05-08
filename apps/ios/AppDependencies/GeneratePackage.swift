@@ -3,7 +3,7 @@
 import Foundation
 
 // MARK: - 配置项
-let packagesRoot = "../Packages"            // 扫描路径
+let packagesRoot = "../../../Packages"            // 扫描路径
 let outputFile = "Package.swift"            // 输出文件
 let businessModulesBranches = [             // 业务模块用分支锁定
     "library-basics": "v2.3.1",
@@ -16,7 +16,7 @@ let businessModuleProductNames = [
     "module-ai": "ModuleAI"
 ]
 let defaultBranch = "main"                  // 如果没找到 tag，默认锁 main
-let iosVersion = "v13"
+let iosVersion = "v15"
 
 // MARK: - CLI 参数解析
 enum DependencyMode {
@@ -185,8 +185,6 @@ let package = Package(
         \(dependencyLines.joined(separator: ",\n        "))
     ],
     targets: [
-        // 预留 binaryTarget 示例
-        // .binaryTarget(name: "MyBinaryLib", url: "http://server/MyBinary.xcframework.zip", checksum: "..."),
         .target(
             name: "AppDependencies",
             dependencies: [
