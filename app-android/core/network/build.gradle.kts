@@ -25,4 +25,7 @@ dependencies {
     implementation("io.ktor:ktor-client-okhttp:2.3.12")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
+
+    testImplementation(kotlin("test"))
+    testImplementation("io.ktor:ktor-client-mock:2.3.12")
 }
