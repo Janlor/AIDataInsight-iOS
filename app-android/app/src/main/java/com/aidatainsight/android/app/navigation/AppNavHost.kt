@@ -52,7 +52,7 @@ fun AppNavHost() {
             PrivacyScreen()
         }
         composable(AppDestination.History.route) {
-            HistoryScreen()
+            HistoryScreen(respectSafeDrawingArea = true)
         }
         composable(AppDestination.AIChat.route) {
             AIChatScreen()

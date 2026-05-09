@@ -5,6 +5,7 @@ import com.aidatainsight.android.core.network.auth.SessionInvalidationHandler
 import com.aidatainsight.android.core.network.auth.TokenRefreshCoordinator
 import com.aidatainsight.android.core.network.auth.TokenRefreshService
 import com.aidatainsight.android.core.network.model.OAuthModel
+import com.aidatainsight.android.core.network.service.KtorAIChatRemoteService
 import com.aidatainsight.android.core.network.service.KtorAuthRemoteService
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -81,6 +82,31 @@ class AIDataInsightApiClientTest {
         assertEquals(2, requestCount)
         assertEquals(listOf("refresh-token"), refreshService.receivedTokens)
         assertFalse(invalidationHandler.invalidated)
+    }
+
+    @Test
+    fun loadChatTemplate_decodesStringPayloadFromMockApi() = runBlocking {
+        val engine = MockEngine {
+            respond(
+                content = """
+                    {
+                      "code": 200,
+                      "msg": "OK",
+                      "data": "{\n  \"questions\": [\"今年第三季度销售额大于2亿的公司有哪些？\", \"查看仓库中煤炭库存大于5万吨的公司。\"]\n}"
+                    }
+                """.trimIndent(),
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+        val service = KtorAIChatRemoteService(apiClient(engine))
+
+        val template = service.loadChatTemplate()
+
+        assertEquals(
+            listOf("今年第三季度销售额大于2亿的公司有哪些？", "查看仓库中煤炭库存大于5万吨的公司。"),
+            template?.questions,
+        )
     }
 
     private fun apiClient(

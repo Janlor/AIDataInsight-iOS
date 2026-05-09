@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -52,10 +53,7 @@ fun AIHomeScreen(
 ) {
     AIChatBackground(modifier = Modifier.fillMaxSize()) {
         BoxWithConstraints(
-            modifier = Modifier
-                .fillMaxSize()
-                .safeDrawingPadding()
-                .imePadding(),
+            modifier = Modifier.fillMaxSize(),
         ) {
             val isRegular = maxWidth >= 600.dp
             if (isRegular) {
@@ -91,6 +89,7 @@ private fun CompactAIHome(
     }
 
     ModalNavigationDrawer(
+        modifier = Modifier.fillMaxSize(),
         drawerState = drawerState,
         gesturesEnabled = true,
         drawerContent = {
@@ -99,6 +98,7 @@ private fun CompactAIHome(
                     .fillMaxHeight()
                     .widthIn(max = 360.dp),
                 drawerContainerColor = AIDataInsightThemeTokens.colors.groupedBackground.primary,
+                windowInsets = WindowInsets(0.dp),
             ) {
                 HistoryPanel(
                     onOpenSettings = onOpenSettings,
@@ -112,6 +112,10 @@ private fun CompactAIHome(
         },
     ) {
         AIHomeChatSurface(
+            modifier = Modifier
+                .fillMaxSize()
+                .safeDrawingPadding()
+                .imePadding(),
             onOpenHistory = { scope.launch { drawerState.open() } },
             onStartNewConversation = chatViewModel::startNewConversation,
             chatViewModel = chatViewModel,
@@ -134,7 +138,10 @@ private fun RegularAIHome(
     }
 
     Row(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .safeDrawingPadding()
+            .imePadding(),
         horizontalArrangement = Arrangement.Center,
     ) {
         if (isHistoryOpen) {
@@ -231,7 +238,7 @@ private fun HistoryPanel(
 ) {
     HistoryScreen(
         drawBackground = true,
-        respectSafeDrawingArea = false,
+        respectSafeDrawingArea = true,
         onOpenHistory = onOpenHistory,
         onOpenSettings = onOpenSettings,
         viewModel = historyViewModel,
