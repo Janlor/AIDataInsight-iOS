@@ -230,6 +230,23 @@ Packages/library-basics/Sources/Networking
 
 当 iOS 实现中发现新的跨端事实时，应先更新契约，再同步其它端。
 
+## iOS 文档
+
+iOS 专属架构文档已经放在 `app-ios/docs`：
+
+- [架构设计说明书](docs/架构设计说明书.md)
+- [Networking 架构定稿](docs/networking-architecture-final.md)
+- [组件依赖关系图索引](docs/组件依赖关系图.mmd.md)
+- [组件依赖关系图 PDF](docs/组件依赖关系图.pdf)
+- [高层依赖图源文件](docs/组件依赖关系图-高层.mmd)
+- [详细依赖图源文件](docs/组件依赖关系图-详细.mmd)
+
+组件依赖图的 `.mmd` 是唯一应人工编辑的源文件，`.svg` 和 `.pdf` 由根目录脚本导出。在仓库根目录运行：
+
+```bash
+./scripts/export-mermaid-diagrams.sh
+```
+
 ## 技术栈
 
 - Swift 5.6

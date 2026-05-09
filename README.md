@@ -142,7 +142,7 @@ Domain + Data Layer
 
 ```text
 AIDataInsight
-├── app-ios/                 # iOS App 和 Swift Package 模块
+├── app-ios/                 # iOS App、Swift Package 模块和 iOS 专属文档
 ├── app-android/             # Android Gradle 多模块工程
 ├── app-web/                 # Web contract generated models，后续扩展为 Web 工程
 ├── docs/
@@ -152,39 +152,15 @@ AIDataInsight
 └── scripts/                 # 契约校验、生成和图文档导出脚本
 ```
 
-## iOS 当前状态
+## 端侧入口
 
-iOS 端是当前最完整的参考实现。
+各端 README 负责说明本端工程结构、运行方式和实现细节：
 
-技术栈：
+- iOS 端说明：[app-ios/README.md](app-ios/README.md)
+- Android 端说明：[app-android/README.md](app-android/README.md)
+- Web 端说明：[app-web/README.md](app-web/README.md)
 
-- Swift
-- UIKit
-- Swift Package Manager
-- async/await
-- AsyncThrowingStream
-- URLSession / NWPathMonitor
-- 自定义 Networking 分层
-- DGCharts
-
-当前重点模块：
-
-```text
-app-ios/Packages/module-ai
-├── Domain
-├── Application
-├── Repositories
-└── Presentation
-```
-
-已完成的关键改造：
-
-- `module-ai` 已完成 `Domain / Application / Repositories / Presentation` 分层
-- UseCase 已收敛为跨端 application output
-- AI Chat 动态函数参数链路已固化
-- History / AI Chat 主链路已有测试保护
-- Networking 已从 Moya / Alamofire 切换为自研 `RequestDescriptor + NetworkExecutor`
-- token refresh、session invalidation、响应外壳处理已统一
+iOS 端是当前最完整的参考实现。iOS 专属架构设计、Networking 定稿和组件依赖关系图已经移到 [app-ios/docs](app-ios/docs)，根 README 不再重复展开这些端侧细节。
 
 ## Android 当前状态
 
@@ -306,6 +282,8 @@ AI 生成端侧代码时必须遵守固定协议：
 
 ## 重要文档
 
+- iOS 端说明：[app-ios/README.md](app-ios/README.md)
+- iOS 专属文档：[app-ios/docs](app-ios/docs)
 - 多端适配建议：[docs/architecture/platform-adaptation-strategy.md](docs/architecture/platform-adaptation-strategy.md)
 - AI 生成协议：[docs/ai-generation-guide.md](docs/ai-generation-guide.md)
 - 当前架构基线：[docs/architecture/current-architecture-baseline.md](docs/architecture/current-architecture-baseline.md)
@@ -313,32 +291,6 @@ AI 生成端侧代码时必须遵守固定协议：
 - 领域模型说明：[docs/cross-platform/domain-models.md](docs/cross-platform/domain-models.md)
 - API 契约说明：[docs/cross-platform/api-contract.md](docs/cross-platform/api-contract.md)
 - 设计 token：[docs/cross-platform/design-tokens.md](docs/cross-platform/design-tokens.md)
-- Networking 定稿文档：[docs/architecture/networking-architecture-final.md](docs/architecture/networking-architecture-final.md)
-- 架构设计说明书：[docs/架构设计说明书.md](docs/架构设计说明书.md)
-- Mermaid 索引说明：[docs/组件依赖关系图.mmd.md](docs/组件依赖关系图.mmd.md)
-- 高层依赖图源文件：[docs/组件依赖关系图-高层.mmd](docs/组件依赖关系图-高层.mmd)
-- 详细依赖图源文件：[docs/组件依赖关系图-详细.mmd](docs/组件依赖关系图-详细.mmd)
-- 组件依赖关系图：`docs/组件依赖关系图.pdf`
-
-## 图文档维护
-
-建议把下面几类文件一起提交，保持“源图 + 导出产物”一致：
-
-- `.mmd`：Mermaid 源文件，作为唯一可维护文本来源
-- `.svg`：便于网页查看和矢量对比
-- `.pdf`：便于文档分发和评审
-
-推荐更新步骤：
-
-```bash
-./scripts/export-mermaid-diagrams.sh
-```
-
-当组件依赖发生变化时：
-
-1. 先修改 `.mmd` 源文件
-2. 再执行导出脚本生成 `.svg` 和 `.pdf`
-3. 最后将源文件和导出产物一并提交
 
 ## Demo
 
@@ -351,4 +303,3 @@ AI 生成端侧代码时必须遵守固定协议：
 - Android / Web 正在从契约生成和脚手架逐步推进
 - 部分接口和流式数据仍可能使用 mock
 - 鸿蒙、macOS、Windows 暂不作为当前阶段强目标
-

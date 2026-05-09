@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-DOCS_DIR="$ROOT_DIR/Docs"
+DOCS_DIR="$ROOT_DIR/app-ios/docs"
 
 HIGH_MMD="$DOCS_DIR/组件依赖关系图-高层.mmd"
 DETAIL_MMD="$DOCS_DIR/组件依赖关系图-详细.mmd"
