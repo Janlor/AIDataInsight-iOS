@@ -47,6 +47,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:account"))
     implementation(project(":core:ui"))
     implementation(project(":feature:login"))
     implementation(project(":feature:setting"))
