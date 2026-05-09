@@ -1,10 +1,10 @@
 package com.aidatainsight.android.feature.aichat.application.usecase
 
+import com.aidatainsight.android.feature.aichat.domain.AIChatRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 
-class StreamAIResponseUseCase {
-    operator fun invoke(prompt: String): Flow<String> = flow {
-        emit("Streaming scaffold for: $prompt")
-    }
+class StreamAIResponseUseCase(
+    private val repository: AIChatRepository,
+) {
+    operator fun invoke(text: String): Flow<String> = repository.streamMessage(text)
 }

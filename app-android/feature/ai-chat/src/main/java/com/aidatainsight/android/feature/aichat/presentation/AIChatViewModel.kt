@@ -24,8 +24,8 @@ class AIChatViewModel(
 
     fun refresh() {
         viewModelScope.launch {
-            val messages = loadTemplateUseCase()
-            _uiState.value = AIChatUiState(messages = AIChatHistoryMapper.makeMessages(messages))
+            val output = loadTemplateUseCase()
+            _uiState.value = AIChatUiState(messages = output.questions)
         }
     }
 }

@@ -51,6 +51,7 @@ object AccountRuntime {
         val accountNetworkRemoteService = KtorAccountRemoteService(apiClient)
 
         val graph = AccountGraph(
+            apiClient = apiClient,
             sessionStore = sessionStore,
             userStore = userStore,
             authService = AccountAuthService(authRemoteService, sessionStore),
@@ -62,4 +63,3 @@ object AccountRuntime {
 
     private const val DEFAULT_BASE_URL = "https://example.invalid"
 }
-
