@@ -153,6 +153,38 @@ def kotlin_models
     )
 
     @Serializable
+    enum class AIHomeDestination {
+        Chat,
+        History,
+        Settings,
+    }
+
+    @Serializable
+    enum class AIHomePanel {
+        None,
+        History,
+    }
+
+    @Serializable
+    data class AIHomeSession(
+        val isAuthenticated: Boolean,
+        val entryDestination: AIHomeDestination,
+        val selectedHistoryId: Int? = null,
+        val activePanel: AIHomePanel,
+    )
+
+    @Serializable
+    enum class AIHomeCommand {
+        OpenAIHome,
+        OpenHistoryPanel,
+        CloseHistoryPanel,
+        SelectHistoryConversation,
+        StartNewConversation,
+        OpenSettings,
+        LogoutToLogin,
+    }
+
+    @Serializable
     data class SettingAccountInfo(
         val nickname: String? = null,
         val username: String? = null,
@@ -452,6 +484,24 @@ def typescript_models
       username?: string | null;
       nickname?: string | null;
       phone?: string | null;
+    }
+
+    export type AIHomeDestination = 'chat' | 'history' | 'settings';
+    export type AIHomePanel = 'none' | 'history';
+    export type AIHomeCommand =
+      | 'openAIHome'
+      | 'openHistoryPanel'
+      | 'closeHistoryPanel'
+      | 'selectHistoryConversation'
+      | 'startNewConversation'
+      | 'openSettings'
+      | 'logoutToLogin';
+
+    export interface AIHomeSession {
+      isAuthenticated: boolean;
+      entryDestination: AIHomeDestination;
+      selectedHistoryId?: number | null;
+      activePanel: AIHomePanel;
     }
 
     export interface HistoryDetail {

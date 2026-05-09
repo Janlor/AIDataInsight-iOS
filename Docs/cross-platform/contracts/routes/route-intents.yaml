@@ -2,6 +2,15 @@ version: 0.1.0
 routeIntents:
   - name: openAIHome
     parameters: {}
+  - name: openAIHomeHistoryPanel
+    parameters: {}
+  - name: closeAIHomeHistoryPanel
+    parameters: {}
+  - name: openAIHomeConversation
+    parameters:
+      historyId: integer
+  - name: startAIHomeNewConversation
+    parameters: {}
   - name: openHistory
     parameters:
       historyId: integer?
@@ -20,4 +29,4 @@ rules:
   - Route intents describe business navigation meaning, not UIKit, Compose, React, or Desktop APIs.
   - Platform routers must translate these intents into local navigation calls.
   - Use cases must not depend on platform route implementations.
-
+  - AIHome panel intents are shell-level content switching commands; they must not be implemented as destructive app root switches.

@@ -1,0 +1,61 @@
+{
+  "description": "Selecting a history conversation closes the panel and commands chat to load that conversation in place.",
+  "event": {
+    "name": "selectHistoryConversation",
+    "historyId": 12345
+  },
+  "state": {
+    "isAuthenticated": true,
+    "mainDestination": "chat",
+    "activePanel": "none",
+    "selectedHistoryId": 12345,
+    "title": "AI数据分析助手",
+    "historyPanelTitle": "历史会话",
+    "canOpenHistory": true,
+    "canStartNewConversation": true,
+    "canOpenSettings": true,
+    "shouldRefreshHistoryWhenPanelOpens": false,
+    "chatState": {
+      "historyId": 12345,
+      "messages": [],
+      "templateQuestions": [],
+      "inputText": "",
+      "isLoadingTemplate": false,
+      "isSending": false,
+      "isStreaming": false,
+      "errorMessage": null,
+      "canSend": false,
+      "canClear": true,
+      "scrollToBottom": false
+    },
+    "historyState": {
+      "groups": [
+        {
+          "title": "今天",
+          "records": [
+            {
+              "id": 12345,
+              "createTime": "2026-05-09 10:00:00",
+              "updateTime": "2026-05-09 10:05:00",
+              "detailList": []
+            }
+          ]
+        }
+      ],
+      "currentPage": 1,
+      "pageSize": 20,
+      "total": 1,
+      "hasMore": false,
+      "isLoading": false,
+      "isRefreshing": false,
+      "isDeleting": false,
+      "errorMessage": null
+    }
+  },
+  "expected": {
+    "visibleSurfaces": ["chat"],
+    "chatCommand": "loadConversation",
+    "loadHistoryId": 12345,
+    "pushesNewChatRoute": false
+  }
+}

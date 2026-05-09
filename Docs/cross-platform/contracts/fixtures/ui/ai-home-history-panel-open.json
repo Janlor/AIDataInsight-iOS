@@ -1,0 +1,47 @@
+{
+  "description": "Opening the history panel keeps chat alive and requests one history refresh.",
+  "event": {
+    "name": "openHistoryPanel"
+  },
+  "state": {
+    "isAuthenticated": true,
+    "mainDestination": "chat",
+    "activePanel": "history",
+    "selectedHistoryId": null,
+    "title": "AI数据分析助手",
+    "historyPanelTitle": "历史会话",
+    "canOpenHistory": true,
+    "canStartNewConversation": false,
+    "canOpenSettings": true,
+    "shouldRefreshHistoryWhenPanelOpens": true,
+    "chatState": {
+      "historyId": null,
+      "messages": [],
+      "templateQuestions": ["查询本月销售额", "查询库存情况"],
+      "inputText": "",
+      "isLoadingTemplate": false,
+      "isSending": false,
+      "isStreaming": false,
+      "errorMessage": null,
+      "canSend": false,
+      "canClear": false,
+      "scrollToBottom": false
+    },
+    "historyState": {
+      "groups": [],
+      "currentPage": 1,
+      "pageSize": 20,
+      "total": null,
+      "hasMore": false,
+      "isLoading": true,
+      "isRefreshing": true,
+      "isDeleting": false,
+      "errorMessage": null
+    }
+  },
+  "expected": {
+    "visibleSurfaces": ["chat", "history"],
+    "chatStatePreserved": true,
+    "historyRefreshRequested": true
+  }
+}

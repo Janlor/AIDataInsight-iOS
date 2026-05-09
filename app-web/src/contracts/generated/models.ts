@@ -31,6 +31,24 @@ export interface AccountUser {
   phone?: string | null;
 }
 
+export type AIHomeDestination = 'chat' | 'history' | 'settings';
+export type AIHomePanel = 'none' | 'history';
+export type AIHomeCommand =
+  | 'openAIHome'
+  | 'openHistoryPanel'
+  | 'closeHistoryPanel'
+  | 'selectHistoryConversation'
+  | 'startNewConversation'
+  | 'openSettings'
+  | 'logoutToLogin';
+
+export interface AIHomeSession {
+  isAuthenticated: boolean;
+  entryDestination: AIHomeDestination;
+  selectedHistoryId?: number | null;
+  activePanel: AIHomePanel;
+}
+
 export interface HistoryDetail {
   id?: number | null;
   historyId?: number | null;

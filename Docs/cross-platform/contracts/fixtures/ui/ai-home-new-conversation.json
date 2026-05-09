@@ -1,0 +1,47 @@
+{
+  "description": "Starting a new conversation clears selected history and commands chat to reload template questions.",
+  "event": {
+    "name": "startNewConversation"
+  },
+  "state": {
+    "isAuthenticated": true,
+    "mainDestination": "chat",
+    "activePanel": "none",
+    "selectedHistoryId": null,
+    "title": "AI数据分析助手",
+    "historyPanelTitle": "历史会话",
+    "canOpenHistory": true,
+    "canStartNewConversation": false,
+    "canOpenSettings": true,
+    "shouldRefreshHistoryWhenPanelOpens": false,
+    "chatState": {
+      "historyId": null,
+      "messages": [],
+      "templateQuestions": [],
+      "inputText": "",
+      "isLoadingTemplate": true,
+      "isSending": false,
+      "isStreaming": false,
+      "errorMessage": null,
+      "canSend": false,
+      "canClear": false,
+      "scrollToBottom": false
+    },
+    "historyState": {
+      "groups": [],
+      "currentPage": 1,
+      "pageSize": 20,
+      "total": null,
+      "hasMore": false,
+      "isLoading": false,
+      "isRefreshing": false,
+      "isDeleting": false,
+      "errorMessage": null
+    }
+  },
+  "expected": {
+    "chatCommand": "startNewConversation",
+    "selectedHistoryId": null,
+    "reloadTemplateQuestions": true
+  }
+}

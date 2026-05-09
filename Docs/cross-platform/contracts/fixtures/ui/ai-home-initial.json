@@ -1,0 +1,44 @@
+{
+  "description": "Authenticated AI module entry after app launch or login success opens chat as the main surface.",
+  "state": {
+    "isAuthenticated": true,
+    "mainDestination": "chat",
+    "activePanel": "none",
+    "selectedHistoryId": null,
+    "title": "AI数据分析助手",
+    "historyPanelTitle": "历史会话",
+    "canOpenHistory": true,
+    "canStartNewConversation": false,
+    "canOpenSettings": true,
+    "shouldRefreshHistoryWhenPanelOpens": false,
+    "chatState": {
+      "historyId": null,
+      "messages": [],
+      "templateQuestions": [],
+      "inputText": "",
+      "isLoadingTemplate": false,
+      "isSending": false,
+      "isStreaming": false,
+      "errorMessage": null,
+      "canSend": false,
+      "canClear": false,
+      "scrollToBottom": false
+    },
+    "historyState": {
+      "groups": [],
+      "currentPage": 1,
+      "pageSize": 20,
+      "total": null,
+      "hasMore": false,
+      "isLoading": false,
+      "isRefreshing": false,
+      "isDeleting": false,
+      "errorMessage": null
+    }
+  },
+  "expected": {
+    "routeIntent": "openAIHome",
+    "visibleSurfaces": ["chat"],
+    "chatCommand": "none"
+  }
+}

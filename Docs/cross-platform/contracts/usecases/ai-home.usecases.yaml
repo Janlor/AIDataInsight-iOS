@@ -1,0 +1,130 @@
+version: 0.1.0
+feature: ai-home
+sourceReferences:
+  ios:
+    - app-ios/Packages/library-common/Sources/AppMain/AppDelegate/AppDelegate.swift
+    - app-ios/Packages/module-ai/Sources/ModuleAI/Presentation/App/ContainerViewController.swift
+    - app-ios/Packages/module-ai/Sources/ModuleAI/Presentation/App/ModuleAIRouter.swift
+    - app-ios/Packages/module-ai/Sources/ModuleAI/Presentation/AIChat/ViewControllers/AIChatViewController.swift
+    - app-ios/Packages/module-ai/Sources/ModuleAI/Presentation/History/ViewControllers/HistoryViewController.swift
+
+domain:
+  entryDestination: chat
+  auxiliaryPanels:
+    - history
+  contentSurfaces:
+    - chat
+    - history
+    - settings
+
+repositoryDependencies:
+  - AccountSessionStore
+  - AIChatRepository
+  - HistoryRepository
+  - SettingsRepository
+
+usecases:
+  - name: ResolveAppEntryUseCase
+    input:
+      session: AccountSession
+      trigger: appLaunch | loginSucceeded | logoutSucceeded | sessionExpired
+    output:
+      routeIntent: openAIHome | openLogin
+      reason: string?
+    rules:
+      - If session.isLogin is true, output routeIntent openAIHome.
+      - If session.isLogin is false, output routeIntent openLogin.
+      - loginSucceeded must not push AI home on top of login; it replaces the root/main app surface.
+      - logoutSucceeded or sessionExpired must clear protected AI module UI and replace the root/main app surface with login.
+      - UseCase output is a route intent, not UIKit rootViewController, Compose NavController, or React router code.
+
+  - name: BuildAIHomeStateUseCase
+    input:
+      session: AccountSession
+      selectedHistoryId: integer?
+      activePanel: none | history
+    output:
+      state: AIHomeUiState
+    rules:
+      - Requires an authenticated session. If session.isLogin is false, caller must route to login before building protected AI home UI.
+      - Default selectedHistoryId is null.
+      - Default activePanel is none.
+      - Default main destination is chat.
+      - The chat surface owns the current conversation content; AIHome only stores the selectedHistoryId needed to load that conversation.
+      - The history panel is auxiliary UI. Opening it must not destroy chat state.
+
+  - name: ToggleHistoryPanelUseCase
+    input:
+      current: AIHomeUiState
+      target: open | closed
+    output:
+      state: AIHomeUiState
+    rules:
+      - Opening history sets activePanel to history and requests the history list to reload/refresh.
+      - Closing history sets activePanel to none.
+      - If the chat input was focused before opening history, the platform may restore input focus after the panel closes.
+      - The panel state is UI shell state; it must not be stored as account/session domain data.
+
+  - name: SelectHistoryConversationUseCase
+    input:
+      current: AIHomeUiState
+      historyId: integer
+    output:
+      state: AIHomeUiState
+      chatCommand: loadConversation
+    rules:
+      - Set selectedHistoryId to historyId.
+      - Close the history panel after selection.
+      - Emit chatCommand loadConversation so the chat feature loads history detail through LoadHistoryDetailUseCase.
+      - Selecting a conversation replaces the current chat conversation surface; it must not push a second chat surface inside the AI home shell.
+
+  - name: StartNewConversationUseCase
+    input:
+      current: AIHomeUiState
+    output:
+      state: AIHomeUiState
+      chatCommand: startNewConversation
+    rules:
+      - Set selectedHistoryId to null.
+      - Keep activePanel unchanged unless the platform command explicitly closes it.
+      - Emit chatCommand startNewConversation so the chat feature clears current messages and reloads template questions.
+      - New conversation action is disabled while chat is sending or streaming.
+
+  - name: HandleHistoryMutationUseCase
+    input:
+      current: AIHomeUiState
+      mutation: deletedOne | deletedAll
+      deletedHistoryId: integer?
+    output:
+      state: AIHomeUiState
+      chatCommand: none | startNewConversation
+    rules:
+      - deletedAll clears selectedHistoryId and emits startNewConversation.
+      - deletedOne emits startNewConversation only when deletedHistoryId equals current.selectedHistoryId.
+      - Deleting a non-selected history item must not reset the active chat.
+
+applicationOutputs:
+  AIHomeUiState:
+    fields:
+      isAuthenticated: boolean
+      mainDestination: chat
+      activePanel: none | history
+      selectedHistoryId: integer?
+      title: string
+      historyPanelTitle: string
+      canOpenHistory: boolean
+      canStartNewConversation: boolean
+      canOpenSettings: boolean
+      shouldRefreshHistoryWhenPanelOpens: boolean
+  AIHomeChatCommand:
+    values:
+      - none
+      - loadConversation
+      - startNewConversation
+
+rules:
+  - AIHome is the authenticated app shell for the AI business module.
+  - AIHome composes AIChat, History, and Settings entry points; it does not own their repository details.
+  - AIHome state may reference selectedHistoryId, but full chat messages still come from AIChat usecases.
+  - AIHome state may request history refresh, but grouped history records still come from History usecases.
+  - Route changes must use route intents, not platform routers directly.

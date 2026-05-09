@@ -437,6 +437,42 @@
   - 本次不是把 Android 实现上升为唯一标准，而是把 Android 适配过程中验证出来的跨端布局语义沉淀为契约。
   - Web 生成登录页时必须先读取 `ui-state/login-state.yaml` 和 `ui-layout/login-layout.yaml`，再选择 React / CSS 实现方式。
 
+## 2026-05-09 - AI Home Shell Contract
+
+- Source:
+  - primary platform: `iOS`
+  - reference file: `app-ios/Packages/module-ai/Sources/ModuleAI/Presentation/App/ContainerViewController.swift`
+  - app entry file: `app-ios/Packages/library-common/Sources/AppMain/AppDelegate/AppDelegate.swift`
+  - module router file: `app-ios/Packages/module-ai/Sources/ModuleAI/Presentation/App/ModuleAIRouter.swift`
+- Change type:
+  - `Domain Change`
+  - `UseCase Contract Change`
+  - `UI State Contract Change`
+  - `UI Layout Contract Change`
+- Affected source of truth:
+  - `docs/cross-platform/contracts/domain/ai-home.schema.json`
+  - `docs/cross-platform/contracts/usecases/ai-home.usecases.yaml`
+  - `docs/cross-platform/contracts/ui-state/ai-home-state.yaml`
+  - `docs/cross-platform/contracts/ui-layout/ai-home-layout.yaml`
+  - `docs/cross-platform/contracts/fixtures/ui/ai-home-*.json`
+  - `docs/cross-platform/contracts/routes/route-intents.yaml`
+  - `docs/ai-generation-guide.md`
+- Impact:
+  - 登录成功后进入 AI Home，并替换登录作为主 app surface。
+  - AI Home 默认主内容是 AI Chat。
+  - History 是辅助面板/侧栏，打开时刷新历史列表，选择历史后关闭面板并让 Chat 在原位加载该会话。
+  - 新会话动作清空 selectedHistoryId，并让 Chat 回到模板欢迎状态。
+  - 删除当前历史或清空全部历史会让 Chat 回到新会话；删除非当前历史不影响 Chat。
+  - Settings 是 AI Home 内的设置入口，由平台路由适配实现。
+- Synced:
+  - [x] iOS reference inspected
+  - [ ] Android
+  - [ ] Web
+  - [ ] 鸿蒙
+- Notes:
+  - `ContainerViewController` 的 UIKit child-controller、navigation controller、transform 动画不是跨端源事实。
+  - 跨端源事实是“已认证 AI 模块壳层 + 聊天主内容 + 历史辅助面板 + 设置入口 + 状态保持/切换规则”。
+
 ---
 
 ## 7. 给 AI 的执行规则

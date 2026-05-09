@@ -1,0 +1,147 @@
+version: 0.1.0
+feature: ai-home
+sourceState: docs/cross-platform/contracts/ui-state/ai-home-state.yaml
+purpose: >
+  定义登录成功后的 AI 业务主入口布局。它抽象自 iOS ModuleAI ContainerViewController，
+  但源事实是“主聊天 + 历史辅助面板 + 设置入口”的跨端壳层语义，不是 UIKit 子控制器机制。
+
+shell:
+  kind: authenticatedModuleShell
+  background:
+    kind: moduleBackground
+    iosReference: background_vc asset for chat and BaseViewController gradient for history-like grouped pages
+    androidRecommended: AIDataInsightGradientBackground for grouped/module pages; chat may use module-specific image/gradient background when assets exist
+    webRecommended: full viewport module background using design tokens and optional generated/asset background
+  safeAreaPolicy:
+    background: extendBehindSystemBars
+    content: respectSafeDrawingArea
+    keyboard: keepChatInputAboveKeyboard
+
+surfaces:
+  main:
+    id: chat
+    title: "AI数据分析助手"
+    owns:
+      - AIChat message list
+      - AIChat input composer
+      - template question welcome state
+      - streaming response state
+      - current selectedHistoryId
+  auxiliary:
+    - id: history
+      title: "历史会话"
+      behavior: panel
+      owns:
+        - grouped history list
+        - empty/error/loading state
+        - history deletion actions
+        - settings entry action
+  modalOrRoute:
+    - id: settings
+      title: "设置"
+      behavior: platformRoute
+
+navigationControls:
+  chat:
+    leading:
+      id: openHistoryPanel
+      iconSemantic: historyMenu
+      action: openHistoryPanel
+      enabledWhen: canOpenHistory
+    trailing:
+      id: startNewConversation
+      iconSemantic: newConversation
+      action: startNewConversation
+      enabledWhen: canStartNewConversation
+  history:
+    trailing:
+      id: openSettings
+      iconSemantic: settings
+      action: openSettings
+      enabledWhen: canOpenSettings
+
+panelBehavior:
+  history:
+    openTriggers:
+      - navigationControls.chat.leading
+      - horizontalDragFromLeadingEdge
+    closeTriggers:
+      - selectHistoryConversation
+      - horizontalDragTowardLeadingEdge
+      - tapOutsidePanelWhenPlatformUsesOverlay
+      - backGestureOrBackButton
+    refreshPolicy:
+      - Reload history whenever the panel transitions from closed to open.
+      - Do not reload history on every frame of an open animation.
+    selectionPolicy:
+      - Selecting a history item closes the panel.
+      - Selecting a history item commands chat to load that conversation.
+      - Selection must replace the current chat conversation in place, not push another chat route.
+    inputFocusPolicy:
+      - Opening the history panel should dismiss chat input/keyboard.
+      - If chat input was focused before opening, the platform may restore focus after the panel closes.
+    gesturePolicy:
+      dragDirection: horizontal
+      velocityThreshold: 500
+      settleThresholdFraction: 0.5
+      animationDurationRangeMs: [100, 250]
+
+layoutModes:
+  compact:
+    when: "width < 600"
+    behavior:
+      - Chat is the full-screen main surface.
+      - History opens as an overlay drawer or slide-over panel.
+      - Panel width should feel like a primary navigation drawer, not a tiny menu.
+      - Chat content shifts, dims, or remains under overlay according to platform norms, but selectedHistoryId and chatState must survive panel open/close.
+      - Chat input is anchored above the safe bottom area and above the software keyboard.
+      - Message list scrolls behind/above the input composer and remains reachable.
+  regular:
+    when: "width >= 600"
+    behavior:
+      - Chat remains the primary surface.
+      - History may be a slide-out panel, persistent side rail, or split-pane depending on target platform.
+      - If history is persistent, activePanel may still be history but open/close animation can be skipped.
+      - Main chat readable width should be constrained for long text readability.
+      - History list width should be constrained so it does not dominate the chat workspace.
+  landscapePhone:
+    when: "width > height and width < 900"
+    behavior:
+      - Preserve chat as primary content.
+      - Prefer compact vertical density: reduce top chrome height, keep input visible, allow history as overlay panel.
+      - Avoid merely scaling portrait UI; use available width for panel or readable chat area.
+
+responsiveMetrics:
+  compactHistoryPanelWidthFraction: 0.86
+  compactHistoryPanelMaxWidth: 360
+  regularHistoryPanelWidth: 320
+  regularChatReadableMaxWidth: 760
+  horizontalContentPadding:
+    compact: 16
+    regular: 24
+  chromeHeight:
+    compact: 56
+    regular: 64
+  chatInputBottomSpacing: 8
+
+contentRules:
+  chat:
+    - Initial AIHome loads AIChat with selectedHistoryId null, so AIChat loads template questions.
+    - When selectedHistoryId is not null, AIChat loads history detail for that id.
+    - New conversation clears messages, clears selectedHistoryId, disables the new conversation action until the user sends or loads a conversation, and reloads templates.
+    - Message list must stay scrollable when keyboard appears.
+    - Streaming state must not be lost when opening/closing the history panel.
+  history:
+    - History panel shows grouped records from HistoryUiState.
+    - Empty and error states are displayed inside the history surface, not as global app errors.
+    - Long press or secondary action may expose delete action.
+    - Deleting the active conversation resets chat to a new conversation.
+    - Settings action routes to routeIntent.openSettings.
+
+prohibited:
+  - Do not copy UIKit addChild/removeFromParent or UINavigationController structure into Android/Web as architecture.
+  - Do not make history a destructive navigation that recreates AIChat on every open/close.
+  - Do not load full history detail inside the history panel when the user only opens the panel.
+  - Do not make selectedHistoryId a global account/session field.
+  - Do not let chat input fall under home indicator, navigation bar, browser bottom bar, or software keyboard.
+  - Do not block history panel open/close while AIChat is streaming; preserve chat state instead.

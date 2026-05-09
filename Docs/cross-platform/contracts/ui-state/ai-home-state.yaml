@@ -1,0 +1,72 @@
+version: 0.1.0
+feature: ai-home
+state:
+  name: AIHomeUiState
+  fields:
+    isAuthenticated: boolean
+    mainDestination: chat
+    activePanel: none | history
+    selectedHistoryId: integer?
+    title: string
+    historyPanelTitle: string
+    canOpenHistory: boolean
+    canStartNewConversation: boolean
+    canOpenSettings: boolean
+    shouldRefreshHistoryWhenPanelOpens: boolean
+    chatState: AIChatUiState
+    historyState: HistoryUiState
+
+displayText:
+  title: "AI数据分析助手"
+  historyPanelTitle: "历史会话"
+  newConversation: "新会话"
+  openHistory: "历史"
+  openSettings: "设置"
+
+defaults:
+  isAuthenticated: true
+  mainDestination: chat
+  activePanel: none
+  selectedHistoryId: null
+  canOpenHistory: true
+  canStartNewConversation: false
+  canOpenSettings: true
+  shouldRefreshHistoryWhenPanelOpens: false
+
+events:
+  - appLaunch
+  - loginSucceeded
+  - logoutSucceeded
+  - sessionExpired
+  - openHistoryPanel
+  - closeHistoryPanel
+  - selectHistoryConversation(historyId)
+  - startNewConversation
+  - openSettings
+  - historyDeleted(historyId)
+  - historyDeletedAll
+
+rules:
+  - AIHome is only reachable when isAuthenticated is true.
+  - loginSucceeded resolves to routeIntent.openAIHome and replaces login as the main app surface.
+  - logoutSucceeded and sessionExpired resolve to routeIntent.openLogin and clear protected AIHome UI.
+  - mainDestination is chat in version 0.1.0.
+  - activePanel history means the history surface is visible as an auxiliary panel, not as the main destination.
+  - Opening history sets shouldRefreshHistoryWhenPanelOpens to true for one UI cycle.
+  - Selecting a history conversation sets selectedHistoryId, closes the history panel, and commands AIChat to load that conversation.
+  - Starting a new conversation clears selectedHistoryId and commands AIChat to clear current messages then load template questions.
+  - Deleting the selected history conversation or deleting all history resets chat to a new conversation.
+  - Deleting a history conversation that is not selected must not reset chat.
+
+composition:
+  chatState:
+    source: docs/cross-platform/contracts/ui-state/ai-chat-state.yaml
+    ownership: AIChat feature owns message list, streaming state, input state, chart payloads, and template questions.
+  historyState:
+    source: docs/cross-platform/contracts/ui-state/history-state.yaml
+    ownership: History feature owns grouped history records, loading, deletion, and empty/error state.
+
+platformNotes:
+  ios: UIKit currently maps this shell to ContainerViewController with AIChatViewController as main content and HistoryViewController as the slide-out panel.
+  android: Compose should generate a screen-level AIHome shell that composes AIChat and History feature UI without copying UIKit child-controller mechanics.
+  web: React should generate an authenticated AIHome route with responsive chat/history composition; desktop widths may show history as a side panel.

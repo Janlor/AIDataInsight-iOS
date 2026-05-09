@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aidatainsight.local/contracts/domain/ai-home.schema.json",
+  "title": "AIDataInsight AI Home Domain",
+  "type": "object",
+  "$defs": {
+    "AIHomeDestination": {
+      "type": "string",
+      "enum": ["chat", "history", "settings"],
+      "description": "Business destinations owned by the AI module shell. This is not a platform route class or UI widget type."
+    },
+    "AIHomePanel": {
+      "type": "string",
+      "enum": ["none", "history"],
+      "description": "Transient auxiliary panel displayed alongside or above the main AI content."
+    },
+    "AIHomeSession": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["isAuthenticated", "entryDestination", "selectedHistoryId", "activePanel"],
+      "properties": {
+        "isAuthenticated": {
+          "type": "boolean",
+          "description": "Derived from AccountSession; false must route to login instead of AI home."
+        },
+        "entryDestination": {
+          "$ref": "#/$defs/AIHomeDestination",
+          "description": "Default AI module destination after login. Current product uses chat."
+        },
+        "selectedHistoryId": {
+          "type": ["integer", "null"],
+          "description": "History conversation loaded in the chat surface. Null means a new conversation/template state."
+        },
+        "activePanel": {
+          "$ref": "#/$defs/AIHomePanel",
+          "description": "Currently open auxiliary panel. Current iOS ContainerViewController uses history as a slide-out panel."
+        }
+      }
+    },
+    "AIHomeCommand": {
+      "type": "string",
+      "enum": [
+        "openAIHome",
+        "openHistoryPanel",
+        "closeHistoryPanel",
+        "selectHistoryConversation",
+        "startNewConversation",
+        "openSettings",
+        "logoutToLogin"
+      ]
+    }
+  }
+}

@@ -167,6 +167,28 @@ AI 不应该手写这些生成模型。
 - 表单类页面应使用 readable content width，而不是在宽屏上贴边铺满
 - 图标类 toggle 的点击反馈不能出现与图标形状不匹配的默认方块高亮；反馈应限定在图标形状内，或使用无可见反馈/本端原生触感反馈
 
+#### AI Home / 主入口生成规则
+
+登录成功后的 AI 业务主入口必须读取：
+
+- `docs/cross-platform/contracts/domain/ai-home.schema.json`
+- `docs/cross-platform/contracts/usecases/ai-home.usecases.yaml`
+- `docs/cross-platform/contracts/ui-state/ai-home-state.yaml`
+- `docs/cross-platform/contracts/ui-layout/ai-home-layout.yaml`
+- `docs/cross-platform/contracts/fixtures/ui/ai-home-*.json`
+
+生成要求：
+
+- AI Home 是已认证 app shell；未登录时必须走 `routeIntent.openLogin`，不能渲染受保护的 AI 内容。
+- 登录成功必须替换主 app surface/root，而不是把 AI Home push 到登录页之上。
+- AI Home 默认主内容是 AI Chat，`selectedHistoryId = null` 时加载模板问题。
+- History 是辅助面板/侧栏，不是新的根页面；打开或关闭 History 不得销毁 AI Chat 状态。
+- 选择历史会话后，关闭 History 面板，并命令 AI Chat 在原位加载该 `historyId`，不能 push 第二个 Chat 页面。
+- 开始新会话必须清空 `selectedHistoryId`，命令 AI Chat 清空当前消息并重新加载模板问题。
+- 删除当前选中的历史会话或清空全部历史时，AI Chat 必须回到新会话状态；删除非当前会话不能重置聊天。
+- 设置入口使用 `routeIntent.openSettings`，由目标端选择 modal、sheet、page 或 navigation destination。
+- Android/Web 不得照抄 iOS `ContainerViewController.addChild`、`UINavigationController`、transform 手势实现；只能复用其表达的内容切换语义。
+
 ---
 
 ## 四、动态函数参数生成协议

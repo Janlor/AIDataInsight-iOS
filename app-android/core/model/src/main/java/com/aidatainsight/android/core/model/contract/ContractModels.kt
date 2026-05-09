@@ -37,6 +37,38 @@ data class AccountUser(
 )
 
 @Serializable
+enum class AIHomeDestination {
+    Chat,
+    History,
+    Settings,
+}
+
+@Serializable
+enum class AIHomePanel {
+    None,
+    History,
+}
+
+@Serializable
+data class AIHomeSession(
+    val isAuthenticated: Boolean,
+    val entryDestination: AIHomeDestination,
+    val selectedHistoryId: Int? = null,
+    val activePanel: AIHomePanel,
+)
+
+@Serializable
+enum class AIHomeCommand {
+    OpenAIHome,
+    OpenHistoryPanel,
+    CloseHistoryPanel,
+    SelectHistoryConversation,
+    StartNewConversation,
+    OpenSettings,
+    LogoutToLogin,
+}
+
+@Serializable
 data class SettingAccountInfo(
     val nickname: String? = null,
     val username: String? = null,
