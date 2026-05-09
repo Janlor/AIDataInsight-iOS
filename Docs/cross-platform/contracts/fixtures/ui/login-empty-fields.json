@@ -1,0 +1,11 @@
+{
+  "description": "Login button is disabled when username or password is empty.",
+  "state": {
+    "username": "",
+    "password": "",
+    "isPrivacyAccepted": true,
+    "isLoading": false,
+    "errorMessage": null,
+    "canLogin": false
+  }
+}

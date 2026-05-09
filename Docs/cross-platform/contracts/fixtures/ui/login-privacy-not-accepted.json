@@ -1,0 +1,11 @@
+{
+  "description": "Privacy agreement is validated when tapping login, while field completeness still controls button enablement.",
+  "state": {
+    "username": "demo",
+    "password": "demo@123",
+    "isPrivacyAccepted": false,
+    "isLoading": false,
+    "errorMessage": null,
+    "canLogin": true
+  }
+}

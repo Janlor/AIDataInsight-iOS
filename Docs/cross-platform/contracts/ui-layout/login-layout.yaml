@@ -1,0 +1,142 @@
+version: 0.1.0
+feature: login
+sourceState: docs/cross-platform/contracts/ui-state/login-state.yaml
+purpose: >
+  定义登录页跨端布局语义和响应式规则。目标端可以使用本端 UI 框架实现，
+  但不得把某一端的 View/Controller/Component 结构当作源事实。
+
+background:
+  kind: immersiveGradient
+  baseColorToken: groupedBackground.primary
+  edgeToEdge: true
+  safeAreaPolicy:
+    background: extendBehindSystemBars
+    content: respectSafeDrawingArea
+    keyboard: avoidImeOrSoftwareKeyboard
+  gradient:
+    direction:
+      start: { x: 0.2, y: 0.0 }
+      end: { x: 0.8, y: 1.0 }
+    stops:
+      - position: 0.0
+        color: "#2F7BFF"
+        alpha: 0.08
+      - position: 0.3
+        color: "#18B8FF"
+        alpha: 0.02
+      - position: 0.7
+        color: "#18B8FF"
+        alpha: 0.02
+      - position: 1.0
+        color: "#2F7BFF"
+        alpha: 0.06
+
+content:
+  parts:
+    - id: brand
+      elements:
+        - appIcon
+        - title
+        - slogan
+    - id: form
+      elements:
+        - usernameField
+        - passwordField
+        - loginButton
+        - errorMessage
+    - id: privacy
+      elements:
+        - privacyCheckbox
+        - privacyAgreementText
+        - privacyLink
+  readableWidth:
+    compactMax: 430
+    regularMax: 820
+    formMax: 390
+  horizontalPadding:
+    compact: 38
+    regular: 40
+  minTapTarget:
+    width: 44
+    height: 44
+
+breakpoints:
+  compactPortrait:
+    when: "height >= width or width < 600"
+    layout: vertical
+    rules:
+      - brand appears at the top center.
+      - form appears below brand.
+      - privacy appears near the bottom safe area when height is sufficient.
+      - content must scroll when available height is insufficient.
+      - privacy must be visible above the home indicator/navigation area without requiring an initial scroll on common phone portrait sizes.
+  regularLandscape:
+    when: "width > height and width >= 600"
+    layout: twoColumn
+    rules:
+      - brand appears in the left column.
+      - form and privacy appear in the right column.
+      - overall content is centered inside readableWidth.regularMax.
+      - form width must not exceed readableWidth.formMax.
+      - content must respect left/right safe drawing areas, including gesture areas, cutouts, and fold/hinge safe regions when the platform exposes them.
+      - content must scroll when available height is insufficient.
+
+spacing:
+  portrait:
+    topToIcon: 60
+    iconToTitle: 30
+    titleToSlogan: 10
+    sloganToForm: 105
+    fieldGap: 20
+    passwordToButton: 30
+    formToPrivacyMin: 24
+    privacyToBottom: 12
+  landscape:
+    outerVertical: 24
+    columnGap: 56
+    iconToTitle: 30
+    titleToSlogan: 10
+    fieldGap: 20
+    passwordToButton: 30
+    formToPrivacy: 28
+
+interaction:
+  privacyCheckbox:
+    visualState:
+      selectedAsset: ic_checkbox_selected
+      unselectedAsset: ic_checkbox_normal
+    feedback:
+      selectedStateMustChangeImmediately: true
+      avoidRectangularDefaultRipple: true
+      allowedFeedback:
+        - noVisibleFeedback
+        - boundedToIconShape
+        - hapticIfPlatformNative
+  privacyLink:
+    action: routeIntent.openPrivacyPolicy
+    mustNotSubmitLogin: true
+  loginButton:
+    loadingText: displayText.loadingButton
+    disabledWhen: "username is empty or password is empty or isLoading is true"
+
+platformMapping:
+  ios:
+    notes:
+      - UIKit may map readableWidth to readableContentGuide.
+      - Background may use CAGradientLayer below safe-area-aware content.
+  android:
+    notes:
+      - Compose should draw background edge-to-edge and apply safe drawing insets to content.
+      - Use a compact single-column layout and a regular landscape two-column layout.
+  web:
+    notes:
+      - CSS should use min-height: 100dvh and safe-area env variables when available.
+      - Use max-width constraints equivalent to readableWidth and switch to two columns at the regularLandscape breakpoint.
+      - Checkbox feedback must not flash a square browser-default highlight over the icon.
+
+prohibited:
+  - Do not implement landscape by simply centering the portrait column.
+  - Do not let controls disappear below system bars or browser safe areas.
+  - Do not make the background stop at the safe area; only content respects safe area.
+  - Do not put layout-only facts into domain models or use case outputs.
+  - Do not copy UIKit Auto Layout, Android Compose modifiers, or React component trees as the contract.

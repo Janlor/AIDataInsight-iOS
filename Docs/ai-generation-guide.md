@@ -20,6 +20,7 @@
 - `docs/cross-platform/contracts/api/openapi.yaml`
 - `docs/cross-platform/contracts/usecases/*.usecases.yaml`
 - `docs/cross-platform/contracts/ui-state/*.yaml`
+- `docs/cross-platform/contracts/ui-layout/*.yaml`
 - `docs/cross-platform/contracts/routes/route-intents.yaml`
 - `docs/cross-platform/contracts/design/tokens.json`
 - `docs/cross-platform/contracts/fixtures/**/*`
@@ -62,11 +63,12 @@ AI 生成目标端代码时，不能随手创造新的领域字段、新的 API 
 3. 读取 `docs/cross-platform/contracts/api/openapi.yaml`
 4. 读取 `docs/cross-platform/contracts/usecases/` 中相关 usecase 契约
 5. 读取 `docs/cross-platform/contracts/ui-state/` 中相关 state 契约
-6. 读取 `docs/cross-platform/contracts/routes/route-intents.yaml`
-7. 读取 `docs/cross-platform/contracts/fixtures/` 中相关 golden fixtures
-8. 读取目标端模块映射文档
-9. 读取目标端现有代码结构
-10. 再开始设计或改代码
+6. 读取 `docs/cross-platform/contracts/ui-layout/` 中相关 layout 契约
+7. 读取 `docs/cross-platform/contracts/routes/route-intents.yaml`
+8. 读取 `docs/cross-platform/contracts/fixtures/` 中相关 golden fixtures
+9. 读取目标端模块映射文档
+10. 读取目标端现有代码结构
+11. 再开始设计或改代码
 
 目标端模块映射文档：
 
@@ -158,6 +160,12 @@ AI 不应该手写这些生成模型。
 - UI 不直接解析 DTO
 - UI 不直接拼 API 请求参数
 - UI 不重新实现 use case 分支
+- UI layout 必须读取并遵守 `contracts/ui-layout/*.yaml`
+- 沉浸式背景和安全区要分层处理：背景可以延伸到系统栏或浏览器安全区下面，内容必须避开 safe area / home indicator / gesture area / cutout / 软键盘
+- 页面高度不足、横屏、小屏和键盘弹出时，内容必须可滚动，不能让关键控件不可达
+- 宽屏和横屏不能简单把竖屏 UI 缩窄居中；如果 layout 契约声明了 regular/landscape 分栏，必须实现目标端原生的响应式布局
+- 表单类页面应使用 readable content width，而不是在宽屏上贴边铺满
+- 图标类 toggle 的点击反馈不能出现与图标形状不匹配的默认方块高亮；反馈应限定在图标形状内，或使用无可见反馈/本端原生触感反馈
 
 ---
 

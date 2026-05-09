@@ -248,6 +248,26 @@ def validate_ai_chat_ui_fixture(path, fixture)
   end
 end
 
+def validate_login_ui_fixture(path, fixture)
+  state = fixture.fetch("state")
+  %w[
+    username
+    password
+    isPrivacyAccepted
+    isLoading
+    errorMessage
+    canLogin
+  ].each do |field|
+    assert(state.key?(field), "#{relative(path)} state missing #{field}")
+  end
+
+  assert(state.fetch("username").is_a?(String), "#{relative(path)} username must be a string")
+  assert(state.fetch("password").is_a?(String), "#{relative(path)} password must be a string")
+  assert([true, false].include?(state.fetch("isPrivacyAccepted")), "#{relative(path)} isPrivacyAccepted must be boolean")
+  assert([true, false].include?(state.fetch("isLoading")), "#{relative(path)} isLoading must be boolean")
+  assert([true, false].include?(state.fetch("canLogin")), "#{relative(path)} canLogin must be boolean")
+end
+
 def validate_fixtures(kind_map)
   Dir.glob(File.join(CONTRACTS_DIR, "fixtures/function-response/*.json")).sort.each do |path|
     fixture = read_json(path)
@@ -268,6 +288,10 @@ def validate_fixtures(kind_map)
 
   Dir.glob(File.join(CONTRACTS_DIR, "fixtures/ui/ai-chat-*.json")).sort.each do |path|
     validate_ai_chat_ui_fixture(path, read_json(path))
+  end
+
+  Dir.glob(File.join(CONTRACTS_DIR, "fixtures/ui/login-*.json")).sort.each do |path|
+    validate_login_ui_fixture(path, read_json(path))
   end
 end
 

@@ -19,9 +19,14 @@ fun AppNavHost() {
         startDestination = AppDestination.Login.route,
     ) {
         composable(AppDestination.Login.route) {
-            LoginScreen(onLoginSuccess = {
-                navController.navigate(AppDestination.Setting.route)
-            })
+            LoginScreen(
+                onLoginSuccess = {
+                    navController.navigate(AppDestination.Setting.route)
+                },
+                onOpenPrivacy = {
+                    navController.navigate(AppDestination.Privacy.route)
+                },
+            )
         }
         composable(AppDestination.Setting.route) {
             SettingScreen(

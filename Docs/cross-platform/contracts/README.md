@@ -12,6 +12,7 @@ contracts/
   api/          HTTP 接口和响应外壳的 OpenAPI 契约。
   usecases/     跨端 Application / UseCase 的输入、输出和规则。
   ui-state/     平台中立的 UI state 形状。
+  ui-layout/    平台中立的页面布局语义、响应式规则和安全区策略。
   routes/       共享路由意图词表。
   design/       机器可读的设计 token。
   fixtures/     多端 contract tests 共用的 golden examples。
@@ -68,7 +69,8 @@ scripts/generate-cross-platform-contracts.sh
 - 如果生成类型不对，先更新 `contracts/`，再重新生成。
 - Android Compose UI 应该把生成的 contract / application models 映射成本端 UI state。
 - Web React UI 应该把生成的 TypeScript contract / application models 映射成本端 UI state。
-- 没有设计稿时，iOS 真实实现只能用于提炼 UI state、interaction rules、display text 和 golden fixtures；提炼完成后，各端以契约为准。
+- 没有设计稿时，iOS / Android 的真实实现只能用于提炼 UI state、UI layout、interaction rules、display text 和 golden fixtures；提炼完成后，各端以契约为准。
+- UI layout 契约只描述跨端布局意图，例如 safe area、readable width、响应式分栏、滚动和交互反馈；不能写入 UIKit Auto Layout、Compose Modifier 或 React DOM 结构。
 - Android 和 Web 都不能把 iOS 的 `AIChat`、`AIBarChartData`、`HistorySectionViewData`、UIKit Cell 或 Controller 行为当作源事实。
 
 ## 第一版覆盖范围
@@ -82,8 +84,10 @@ scripts/generate-cross-platform-contracts.sh
 - History 领域模型。
 - 共享 API 响应外壳和 AI / History / Account 核心接口。
 - AI Chat / History use case 契约。
-- 平台中立的 AI Chat / History UI state。
+- 平台中立的 AI Chat / History / Login UI state。
+- Login UI layout 契约，用于约束沉浸式背景、安全区、竖屏单列、横屏双列、readable width、滚动和协议勾选反馈。
 - AI Chat golden UI fixtures，用于约束初始、模板、发送、意图、图表、fallback 和流式状态。
+- Login golden UI fixtures，用于约束 iOS demo 默认值、隐私协议、loading 和按钮可用状态。
 - 共享路由意图。
 - 设计 token。
 

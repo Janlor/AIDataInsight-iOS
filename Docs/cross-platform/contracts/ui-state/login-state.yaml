@@ -1,0 +1,45 @@
+version: 0.1.0
+feature: login
+state:
+  name: LoginUiState
+  fields:
+    username: string
+    password: string
+    isPrivacyAccepted: boolean
+    isLoading: boolean
+    errorMessage: string?
+    canLogin: boolean
+displayText:
+  title: "AI数据分析助手"
+  slogan: "让工作更流畅更轻松"
+  usernamePlaceholder: "请输入账号"
+  passwordPlaceholder: "请输入密码"
+  loginButton: "登录"
+  loadingButton: "登录中…"
+  privacyAgreement: "已阅读并同意《隐私政策》"
+  privacyLink: "《隐私政策》"
+  passwordEncryptFailed: "密码加密失败"
+defaults:
+  username: "demo"
+  password: "demo@123"
+  isPrivacyAccepted: true
+limits:
+  maxUsernameLength: 30
+  maxPasswordLength: 30
+events:
+  - updateUsername(text)
+  - updatePassword(text)
+  - togglePrivacyAccepted
+  - tapPrivacyPolicy
+  - tapLogin
+rules:
+  - Initial learning-project state uses the iOS demo account and accepted privacy agreement.
+  - Username and password are limited to 30 characters.
+  - canLogin is true only when username and password are both non-empty and isLoading is false.
+  - tapLogin validates username, password, and privacy agreement before calling repository.login.
+  - isLoading disables username and password editing and changes button text to displayText.loadingButton.
+  - Privacy link opens the platform privacy route; it does not submit login.
+platformNotes:
+  ios: UIKit maps this state to LoginViewController text fields, NormalBottomView, and checkbox assets.
+  android: "Compose should consume this state and follow docs/cross-platform/contracts/ui-layout/login-layout.yaml for safe area, edge-to-edge background, portrait, and landscape behavior."
+  web: "React should preserve the same state and display text while following docs/cross-platform/contracts/ui-layout/login-layout.yaml for responsive layout and browser safe areas."

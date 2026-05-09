@@ -1,0 +1,11 @@
+{
+  "description": "Login loading state disables editing and shows loading button text.",
+  "state": {
+    "username": "demo",
+    "password": "demo@123",
+    "isPrivacyAccepted": true,
+    "isLoading": true,
+    "errorMessage": null,
+    "canLogin": false
+  }
+}

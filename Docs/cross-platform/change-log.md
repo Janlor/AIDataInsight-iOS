@@ -56,6 +56,7 @@
 - `contracts/api/openapi.yaml`
 - `contracts/usecases/*.usecases.yaml`
 - `contracts/ui-state/*.yaml`
+- `contracts/ui-layout/*.yaml`
 - `contracts/routes/route-intents.yaml`
 - `contracts/design/tokens.json`
 - `contracts/fixtures/**/*`
@@ -407,6 +408,34 @@
 - Notes:
   - AI Chat SSE path 属于 AI Chat 子域，不能放进全局环境配置。
   - SSE URL 由平台网络层使用全局 `baseUrl` 和 AI Chat 领域 `streamPath` 组合得到，仓储层不能硬编码完整 URL，也不能直接引入底层 Networking 配置。
+
+## 2026-05-09 - Login Adaptive Layout Contract
+
+- Source:
+  - primary platform: `Android`
+  - reference file: `app-android/feature/login/src/main/java/com/aidatainsight/android/feature/login/ui/LoginScreen.kt`
+  - reference platform behavior: iOS `safeAreaLayoutGuide` / `readableContentGuide`
+- Change type:
+  - `UI Layout Contract Change`
+  - `Platform Implementation Learning`
+- Affected source of truth:
+  - `docs/cross-platform/contracts/ui-layout/login-layout.yaml`
+  - `docs/cross-platform/contracts/ui-state/login-state.yaml`
+  - `docs/ai-generation-guide.md`
+- Impact:
+  - 登录页背景必须 edge-to-edge，内容必须尊重 safe drawing area。
+  - 竖屏使用单列布局，隐私协议默认在 home indicator / navigation area 上方可见。
+  - 横屏 / regular 宽度使用品牌区 + 表单区双列布局，不能只是把竖屏 UI 缩窄居中。
+  - 表单类页面必须使用 readable content width。
+  - 协议勾选图标切换时不得出现与图标形状不匹配的默认方块高亮。
+- Synced:
+  - [x] Android
+  - [ ] iOS
+  - [ ] Web
+  - [ ] 鸿蒙
+- Notes:
+  - 本次不是把 Android 实现上升为唯一标准，而是把 Android 适配过程中验证出来的跨端布局语义沉淀为契约。
+  - Web 生成登录页时必须先读取 `ui-state/login-state.yaml` 和 `ui-layout/login-layout.yaml`，再选择 React / CSS 实现方式。
 
 ---
 
