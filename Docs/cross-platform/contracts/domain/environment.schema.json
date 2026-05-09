@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://aidatainsight.local/contracts/domain/environment.schema.json",
+  "title": "AIDataInsight Environment Domain",
+  "type": "object",
+  "$defs": {
+    "ApiEnvironment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "baseUrl"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "enum": ["mock", "dev", "sit", "uat", "staging", "pre", "production"]
+        },
+        "baseUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "description": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "MockApiEnvironment": {
+      "allOf": [
+        { "$ref": "#/$defs/ApiEnvironment" },
+        {
+          "type": "object",
+          "properties": {
+            "name": { "const": "mock" },
+            "baseUrl": {
+              "const": "https://m1.apifoxmock.com/m1/3174267-1700689-default"
+            },
+            "description": {
+              "const": "iOS 当前学习项目使用的 Apifox mock host，各端默认开发环境必须与它保持一致。"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

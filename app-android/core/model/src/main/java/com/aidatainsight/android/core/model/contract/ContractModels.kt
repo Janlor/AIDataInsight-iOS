@@ -4,6 +4,17 @@ package com.aidatainsight.android.core.model.contract
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+object MockApiEnvironment {
+    const val DefaultBaseUrl: String = "https://m1.apifoxmock.com/m1/3174267-1700689-default"
+}
+
+@Serializable
+data class ApiEnvironment(
+    val name: String,
+    val baseUrl: String,
+    val description: String? = null,
+)
+
 @Serializable
 data class AccountSession(
     val accessToken: String? = null,

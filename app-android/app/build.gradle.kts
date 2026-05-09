@@ -4,7 +4,7 @@ plugins {
 }
 
 val aiDataInsightBaseUrl = providers.gradleProperty("AI_DATA_INSIGHT_BASE_URL")
-    .orElse("https://example.invalid")
+    .orElse("https://m1.apifoxmock.com/m1/3174267-1700689-default")
     .get()
 
 android {

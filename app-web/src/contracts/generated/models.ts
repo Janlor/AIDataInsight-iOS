@@ -1,5 +1,17 @@
 // Generated from docs/cross-platform/contracts. Do not edit by hand.
 
+export const mockApiEnvironment = {
+  name: 'mock',
+  baseUrl: "https://m1.apifoxmock.com/m1/3174267-1700689-default",
+  description: 'iOS 当前学习项目使用的 Apifox mock host，各端默认开发环境必须与它保持一致。',
+} as const;
+
+export interface ApiEnvironment {
+  name: 'mock' | 'dev' | 'sit' | 'uat' | 'staging' | 'pre' | 'production';
+  baseUrl: string;
+  description?: string | null;
+}
+
 export interface AccountSession {
   accessToken?: string | null;
   refreshToken?: string | null;

@@ -1,6 +1,6 @@
 {
   "generator": "scripts/generate-cross-platform-contracts.rb",
-  "sourceHash": "6b724b8c56bc50382a20c602e1b7d222b969074f10af08d8243af10a68961242",
+  "sourceHash": "c8c50ef3b45c6a8d1f677ac435a121948b4dd8d22e96a69aac7e897f19fd5856",
   "outputs": [
     "app-android/core/model/src/main/java/com/aidatainsight/android/core/model/contract/ContractModels.kt",
     "app-web/src/contracts/generated/models.ts"
@@ -8,7 +8,7 @@
   "sources": [
     {
       "path": "docs/cross-platform/contracts/api/openapi.yaml",
-      "sha256": "2b5e229e4f7afa9bdb224719e191a304ef10f122b469ec2fea4af2a8adf428b1"
+      "sha256": "7b4128c642e52351b57c1e0d4d2496c22b0bca335117042e63c19f909b062dcd"
     },
     {
       "path": "docs/cross-platform/contracts/design/tokens.json",
@@ -21,6 +21,10 @@
     {
       "path": "docs/cross-platform/contracts/domain/ai-chat.schema.json",
       "sha256": "44c517b8ac6b1df7bca5c5303b1c36c29b991c1d227d3c541f02c7bc2f0c4a67"
+    },
+    {
+      "path": "docs/cross-platform/contracts/domain/environment.schema.json",
+      "sha256": "f42d3a02cc580b1a784723ed937bd673b716edea93dbbe813125dec335982943"
     },
     {
       "path": "docs/cross-platform/contracts/domain/history.schema.json",

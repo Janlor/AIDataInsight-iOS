@@ -354,6 +354,31 @@
 - Notes:
   - 禁止在新代码中继续使用 `tertiery` 拼写。
 
+## 2026-05-09 - Mock API Environment Default
+
+- Source:
+  - primary platform: `iOS`
+  - reference file: `app-ios/Packages/library-basics/Sources/Environment/AppEnvironmentValues.swift`
+- Change type:
+  - `Domain Change`
+  - `API Contract Change`
+- Affected source of truth:
+  - `docs/cross-platform/contracts/domain/environment.schema.json`
+  - `docs/cross-platform/contracts/api/openapi.yaml`
+  - `docs/cross-platform/domain-models.md`
+- Impact:
+  - `MockApiEnvironment.defaultBaseUrl`
+  - OpenAPI `servers[0].variables.baseUrl.default`
+  - Android default `AI_DATA_INSIGHT_BASE_URL`
+- Synced:
+  - [x] iOS
+  - [x] Android
+  - [x] Web generated contract model
+  - [ ] 鸿蒙
+- Notes:
+  - 默认学习环境统一为 Apifox mock host：`https://m1.apifoxmock.com/m1/3174267-1700689-default`。
+  - 真实后端环境仍可通过平台环境配置覆盖。
+
 ---
 
 ## 7. 给 AI 的执行规则

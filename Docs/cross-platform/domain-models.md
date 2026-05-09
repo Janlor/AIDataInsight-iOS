@@ -218,6 +218,40 @@ SettingSnapshot
 - `SettingSnapshot` 是跨端共享的核心聚合对象
 - 各端 UI 先消费 snapshot，再映射为本端 `UiState` / `ViewData`
 
+---
+
+## 4. Environment Domain
+
+### 4.1 ApiEnvironment
+
+来源：
+
+- `Packages/library-basics/Sources/Environment/AppEnvironmentValues.swift`
+- `docs/cross-platform/contracts/domain/environment.schema.json`
+
+Canonical Model:
+
+```text
+ApiEnvironment
+  name: mock | dev | sit | uat | staging | pre | production
+  baseUrl: String
+  description: String?
+```
+
+### 4.2 MockApiEnvironment
+
+当前学习项目默认使用 iOS 已验证的 Apifox mock host：
+
+```text
+https://m1.apifoxmock.com/m1/3174267-1700689-default
+```
+
+跨端要求：
+
+- iOS / Android / Web 在没有显式环境覆盖时，都应默认使用这个 mock host。
+- 真实后端环境可以通过平台环境配置覆盖，但不能把 `example.invalid` 当作可运行默认值。
+- API path / method / response envelope 仍以 `contracts/api/openapi.yaml` 为准。
+
 ### 3.4 SettingItemAction
 
 来源：

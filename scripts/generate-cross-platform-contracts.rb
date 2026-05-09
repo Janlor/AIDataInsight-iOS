@@ -49,6 +49,17 @@ def function_names
     .fetch("enum")
 end
 
+def mock_base_url
+  read_json(File.join(CONTRACTS_DIR, "domain/environment.schema.json"))
+    .fetch("$defs")
+    .fetch("MockApiEnvironment")
+    .fetch("allOf")
+    .last
+    .fetch("properties")
+    .fetch("baseUrl")
+    .fetch("const")
+end
+
 def kind_by_function_name
   dynamic_function_contract.fetch("argumentKindByFunctionName").each_with_object({}) do |(kind, names), result|
     names.each { |name| result[name] = kind }
@@ -95,6 +106,17 @@ def kotlin_models
 
     import kotlinx.serialization.SerialName
     import kotlinx.serialization.Serializable
+
+    object MockApiEnvironment {
+        const val DefaultBaseUrl: String = "#{mock_base_url}"
+    }
+
+    @Serializable
+    data class ApiEnvironment(
+        val name: String,
+        val baseUrl: String,
+        val description: String? = null,
+    )
 
     @Serializable
     data class AccountSession(
@@ -384,6 +406,18 @@ def typescript_models
 
   <<~TS
     #{generated_header(:typescript)}
+    export const mockApiEnvironment = {
+      name: 'mock',
+      baseUrl: #{JSON.generate(mock_base_url)},
+      description: 'iOS 当前学习项目使用的 Apifox mock host，各端默认开发环境必须与它保持一致。',
+    } as const;
+
+    export interface ApiEnvironment {
+      name: 'mock' | 'dev' | 'sit' | 'uat' | 'staging' | 'pre' | 'production';
+      baseUrl: string;
+      description?: string | null;
+    }
+
     export interface AccountSession {
       accessToken?: string | null;
       refreshToken?: string | null;
