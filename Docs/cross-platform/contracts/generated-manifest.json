@@ -1,6 +1,6 @@
 {
   "generator": "scripts/generate-cross-platform-contracts.rb",
-  "sourceHash": "488aca21b67e4d369d0643f239530c232e8c19004eafae64dba85c06680bbd55",
+  "sourceHash": "6ee56173db0dc1ef887395615b53faef06a2fca0f69429d18255a4ff1534e8d7",
   "outputs": [
     "app-android/core/model/src/main/java/com/aidatainsight/android/core/model/contract/ContractModels.kt",
     "app-web/src/contracts/generated/models.ts"
@@ -71,12 +71,40 @@
       "sha256": "ddc6c179840e26c65bcdbe9fa228672fdbc2d85a3b1e0429c7bd223d94f9507c"
     },
     {
+      "path": "docs/cross-platform/contracts/fixtures/ui/ai-chat-after-send.json",
+      "sha256": "d1c224390202c3a0b83ad9235e0fdccb542a064e755ffb39bae65b869e9792d0"
+    },
+    {
+      "path": "docs/cross-platform/contracts/fixtures/ui/ai-chat-chart-fallback.json",
+      "sha256": "949f63cf5ea817c42ea40d148acb9c75a0f3901334d130f8a14738be5d1f2d34"
+    },
+    {
+      "path": "docs/cross-platform/contracts/fixtures/ui/ai-chat-chart-success.json",
+      "sha256": "ff52061dec926ee533524fdc44f0c1df8efd097a721fe99de3faaeeb70c98d01"
+    },
+    {
+      "path": "docs/cross-platform/contracts/fixtures/ui/ai-chat-initial.json",
+      "sha256": "e41ff4c5f473d4315d0ecf5a7bc2549e5c1eb6badda962484ffe837d62362d05"
+    },
+    {
+      "path": "docs/cross-platform/contracts/fixtures/ui/ai-chat-streaming.json",
+      "sha256": "7955ac8b9ad6c9978e8b400dec787e581011ae17f3429c67057e8d7d14d06103"
+    },
+    {
+      "path": "docs/cross-platform/contracts/fixtures/ui/ai-chat-template-loaded.json",
+      "sha256": "a8fb784611ffe423a7a6672abc678b60b7f48d8a8eae5f574867fbce50bac49a"
+    },
+    {
+      "path": "docs/cross-platform/contracts/fixtures/ui/ai-chat-time-intent.json",
+      "sha256": "d22daa0122b47806682ba62e8cdcf5ca1d156814f9e2e19dadb6f8bcaae1e5bf"
+    },
+    {
       "path": "docs/cross-platform/contracts/routes/route-intents.yaml",
       "sha256": "c8be1e1e0eafed72d0c2c259ca62ef844b74260df6727ed262eb7f0e5dc0a6b4"
     },
     {
       "path": "docs/cross-platform/contracts/ui-state/ai-chat-state.yaml",
-      "sha256": "77f8ab1fee74156ef96c54d3dc84f362446057b9e06bd613f612be37969c4dab"
+      "sha256": "3b9dddb3e1852102f0a82b93df8a1ae792f1b78d47e716b05b7bd315ba77cda0"
     },
     {
       "path": "docs/cross-platform/contracts/ui-state/history-state.yaml",

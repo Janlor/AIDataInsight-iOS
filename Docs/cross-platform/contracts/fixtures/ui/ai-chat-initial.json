@@ -1,0 +1,16 @@
+{
+  "description": "AI Chat initial state before template loading succeeds.",
+  "state": {
+    "historyId": null,
+    "messages": [],
+    "templateQuestions": [],
+    "inputText": "",
+    "isLoadingTemplate": false,
+    "isSending": false,
+    "isStreaming": false,
+    "errorMessage": null,
+    "canSend": false,
+    "canClear": false,
+    "scrollToBottom": false
+  }
+}

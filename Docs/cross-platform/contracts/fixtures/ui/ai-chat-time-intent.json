@@ -1,0 +1,44 @@
+{
+  "description": "Function analysis requiring time range replaces loading with time intent.",
+  "event": "sendFunctionMessage.intent",
+  "state": {
+    "historyId": null,
+    "messages": [
+      {
+        "id": "local-user-1",
+        "role": "user",
+        "contentKind": "text",
+        "text": "查询销售额",
+        "intentType": null,
+        "chartPayload": null,
+        "feedback": "none",
+        "historyDetailId": null,
+        "functionName": null,
+        "templateQuestions": [],
+        "isStreaming": false
+      },
+      {
+        "id": "local-assistant-intent-1",
+        "role": "assistant",
+        "contentKind": "intent",
+        "text": "请选择查询时间范围",
+        "intentType": "time",
+        "chartPayload": null,
+        "feedback": "none",
+        "historyDetailId": null,
+        "functionName": null,
+        "templateQuestions": [],
+        "isStreaming": false
+      }
+    ],
+    "templateQuestions": [],
+    "inputText": "",
+    "isLoadingTemplate": false,
+    "isSending": false,
+    "isStreaming": false,
+    "errorMessage": null,
+    "canSend": false,
+    "canClear": true,
+    "scrollToBottom": true
+  }
+}

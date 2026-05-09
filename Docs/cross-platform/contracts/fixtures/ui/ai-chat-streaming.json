@@ -1,0 +1,45 @@
+{
+  "description": "Streaming response appends chunks to the current assistant streaming message.",
+  "event": "receiveStreamChunk",
+  "chunks": ["您好，", "这是分析结果。"],
+  "state": {
+    "historyId": null,
+    "messages": [
+      {
+        "id": "local-user-1",
+        "role": "user",
+        "contentKind": "text",
+        "text": "帮我分析经营情况",
+        "intentType": null,
+        "chartPayload": null,
+        "feedback": "none",
+        "historyDetailId": null,
+        "functionName": null,
+        "templateQuestions": [],
+        "isStreaming": false
+      },
+      {
+        "id": "local-assistant-stream-1",
+        "role": "assistant",
+        "contentKind": "text",
+        "text": "您好，这是分析结果。",
+        "intentType": null,
+        "chartPayload": null,
+        "feedback": "none",
+        "historyDetailId": null,
+        "functionName": null,
+        "templateQuestions": [],
+        "isStreaming": true
+      }
+    ],
+    "templateQuestions": [],
+    "inputText": "",
+    "isLoadingTemplate": false,
+    "isSending": false,
+    "isStreaming": true,
+    "errorMessage": null,
+    "canSend": false,
+    "canClear": true,
+    "scrollToBottom": true
+  }
+}

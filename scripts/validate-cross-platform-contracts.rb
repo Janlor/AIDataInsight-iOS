@@ -200,6 +200,54 @@ def validate_api_fixture(path, fixture)
   assert_equal(expected_action, expected.fetch("action"), "#{relative(path)} session action mismatch")
 end
 
+def validate_ai_chat_ui_fixture(path, fixture)
+  state = fixture.fetch("state")
+  required_state_fields = %w[
+    historyId
+    messages
+    templateQuestions
+    inputText
+    isLoadingTemplate
+    isSending
+    isStreaming
+    errorMessage
+    canSend
+    canClear
+    scrollToBottom
+  ]
+  required_state_fields.each do |field|
+    assert(state.key?(field), "#{relative(path)} state missing #{field}")
+  end
+
+  state.fetch("messages").each_with_index do |message, index|
+    %w[
+      id
+      role
+      contentKind
+      text
+      intentType
+      chartPayload
+      feedback
+      historyDetailId
+      functionName
+      templateQuestions
+      isStreaming
+    ].each do |field|
+      assert(message.key?(field), "#{relative(path)} message[#{index}] missing #{field}")
+    end
+
+    assert(%w[user assistant].include?(message.fetch("role")), "#{relative(path)} message[#{index}] invalid role")
+    assert(
+      %w[welcome text intent chart loading error].include?(message.fetch("contentKind")),
+      "#{relative(path)} message[#{index}] invalid contentKind"
+    )
+    assert(
+      %w[liked disliked none unknown].include?(message.fetch("feedback")),
+      "#{relative(path)} message[#{index}] invalid feedback"
+    )
+  end
+end
+
 def validate_fixtures(kind_map)
   Dir.glob(File.join(CONTRACTS_DIR, "fixtures/function-response/*.json")).sort.each do |path|
     fixture = read_json(path)
@@ -217,6 +265,10 @@ def validate_fixtures(kind_map)
   Dir.glob(File.join(CONTRACTS_DIR, "fixtures/api/*.json")).sort.each do |path|
     validate_api_fixture(path, read_json(path))
   end
+
+  Dir.glob(File.join(CONTRACTS_DIR, "fixtures/ui/ai-chat-*.json")).sort.each do |path|
+    validate_ai_chat_ui_fixture(path, read_json(path))
+  end
 end
 
 begin
@@ -230,4 +282,3 @@ rescue ContractFailure => e
   warn e.message
   exit 1
 end
-

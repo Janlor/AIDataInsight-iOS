@@ -4,25 +4,71 @@ state:
   name: AIChatUiState
   fields:
     historyId: integer?
-    messages: ConversationMessage[]
+    messages: AIChatMessageUi[]
     templateQuestions: string[]
     inputText: string
     isLoadingTemplate: boolean
     isSending: boolean
     isStreaming: boolean
     errorMessage: string?
+    canSend: boolean
+    canClear: boolean
+    scrollToBottom: boolean
+message:
+  name: AIChatMessageUi
+  fields:
+    id: string
+    role: "user | assistant"
+    contentKind: "welcome | text | intent | chart | loading | error"
+    text: string?
+    intentType: "time | index | null"
+    chartPayload: ChartPayload?
+    feedback: "liked | disliked | none | unknown"
+    historyDetailId: integer?
+    functionName: FunctionName?
+    templateQuestions: string[]
+    isStreaming: boolean
+displayText:
+  thinking: "智能引擎全力运转，您的答案即将揭晓。"
+  timeout: "非常抱歉，回答您的问题超出了预期时间。可能是由于系统繁忙。请稍后再试或重新提问。"
+  genericError: "这个问题目前无法回答。请尝试以不同的方式重新表述您的问题。"
+  chartTitle: "根据您的查询，以下是分析结果:"
+  chartFallback: "数据分析还在测试阶段，很快就能上线，敬请期待！"
+  timeIntent: "请选择查询时间范围"
+  indexIntent: "请选择分析指标"
+  genericIntent: "需要补充查询条件"
 events:
   - loadTemplate
   - loadHistoryDetail(historyId)
+  - updateInput(text)
+  - tapTemplateQuestion(text)
   - sendMessage(text)
+  - appendThinkingMessage
+  - replaceThinkingWithIntent(text, intentType)
+  - replaceThinkingWithChart(chartPayload)
+  - replaceThinkingWithError(message)
   - receiveStreamChunk(text)
   - completeStream
   - failStream(message)
   - sendFeedback(historyDetailId, like)
   - resetConversation
+rules:
+  - Initial state has no messages and no templateQuestions until template loading succeeds.
+  - Loading template sets isLoadingTemplate true and must not append a chat message.
+  - Sending blank input is ignored.
+  - Sending while isSending or isStreaming is true is ignored.
+  - Sending a message appends a user text message, clears inputText, appends an assistant loading message, and scrolls to bottom.
+  - Function analysis intent output replaces the loading message with an assistant intent message.
+  - Function analysis chart request stores historyId before loading chart data.
+  - Chart success replaces the loading message with an assistant chart message whose text is displayText.chartTitle.
+  - Chart failure or empty chart replaces the loading message with an assistant text/error message using displayText.chartFallback unless a contract failure message exists.
+  - Streaming output appends chunks to the current assistant streaming message in order.
+  - Stream failure replaces the current streaming/loading message with displayText.genericError unless a concrete message exists.
+  - Clear conversation removes messages, clears historyId, clears inputText, resets sending/streaming flags, and disables clear.
+  - Feedback can only be sent for chart messages with historyDetailId.
+  - Liked and disliked are mutually exclusive; selecting one replaces the previous feedback state.
 platformNotes:
-  ios: UIKit may map messages to AIChat cells and AIBarChartData.
+  ios: UIKit maps AIChatMessageUi to AIChat cells and ChartPayload to AIBarChartData in Presentation only.
   android: Compose may expose the state as StateFlow.
   web: React may expose the state through query/action hooks.
   desktop: Desktop UI may keep the same state shape with native widgets.
-

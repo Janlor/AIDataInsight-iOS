@@ -1,0 +1,44 @@
+{
+  "description": "Chart failure or empty chart shows the unified fallback copy.",
+  "event": "loadChartData.failure",
+  "state": {
+    "historyId": 1001,
+    "messages": [
+      {
+        "id": "local-user-1",
+        "role": "user",
+        "contentKind": "text",
+        "text": "查询本月销售额",
+        "intentType": null,
+        "chartPayload": null,
+        "feedback": "none",
+        "historyDetailId": null,
+        "functionName": null,
+        "templateQuestions": [],
+        "isStreaming": false
+      },
+      {
+        "id": "local-assistant-fallback-1",
+        "role": "assistant",
+        "contentKind": "error",
+        "text": "数据分析还在测试阶段，很快就能上线，敬请期待！",
+        "intentType": null,
+        "chartPayload": null,
+        "feedback": "none",
+        "historyDetailId": null,
+        "functionName": "querySalesGroupByMonth",
+        "templateQuestions": [],
+        "isStreaming": false
+      }
+    ],
+    "templateQuestions": [],
+    "inputText": "",
+    "isLoadingTemplate": false,
+    "isSending": false,
+    "isStreaming": false,
+    "errorMessage": null,
+    "canSend": false,
+    "canClear": true,
+    "scrollToBottom": true
+  }
+}

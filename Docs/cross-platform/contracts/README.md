@@ -68,6 +68,7 @@ scripts/generate-cross-platform-contracts.sh
 - 如果生成类型不对，先更新 `contracts/`，再重新生成。
 - Android Compose UI 应该把生成的 contract / application models 映射成本端 UI state。
 - Web React UI 应该把生成的 TypeScript contract / application models 映射成本端 UI state。
+- 没有设计稿时，iOS 真实实现只能用于提炼 UI state、interaction rules、display text 和 golden fixtures；提炼完成后，各端以契约为准。
 - Android 和 Web 都不能把 iOS 的 `AIChat`、`AIBarChartData`、`HistorySectionViewData`、UIKit Cell 或 Controller 行为当作源事实。
 
 ## 第一版覆盖范围
@@ -82,6 +83,7 @@ scripts/generate-cross-platform-contracts.sh
 - 共享 API 响应外壳和 AI / History / Account 核心接口。
 - AI Chat / History use case 契约。
 - 平台中立的 AI Chat / History UI state。
+- AI Chat golden UI fixtures，用于约束初始、模板、发送、意图、图表、fallback 和流式状态。
 - 共享路由意图。
 - 设计 token。
 

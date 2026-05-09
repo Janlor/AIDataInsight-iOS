@@ -1,0 +1,21 @@
+{
+  "description": "AI Chat state after template questions are loaded.",
+  "event": "loadTemplate.success",
+  "state": {
+    "historyId": null,
+    "messages": [],
+    "templateQuestions": [
+      "查询本月销售额",
+      "查询库存分布",
+      "查询应收账款"
+    ],
+    "inputText": "",
+    "isLoadingTemplate": false,
+    "isSending": false,
+    "isStreaming": false,
+    "errorMessage": null,
+    "canSend": false,
+    "canClear": false,
+    "scrollToBottom": false
+  }
+}
