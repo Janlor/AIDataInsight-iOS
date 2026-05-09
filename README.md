@@ -294,7 +294,7 @@ AI 生成端侧代码时必须遵守固定协议：
 
 ## Demo
 
-<img src="https://github.com/Janlor/AIDataInsight-iOS/blob/main/images/history.png" width="402"> <img src="https://github.com/Janlor/AIDataInsight-iOS/blob/main/images/chat.png" width="402">
+<img src="./images/history.png" width="402"> <img src="./images/chat.png" width="402">
 
 ## 说明
 
