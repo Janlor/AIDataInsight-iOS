@@ -38,6 +38,16 @@
         "queryPerformanceType"
       ]
     },
+    "AIChatEndpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["streamPath"],
+      "properties": {
+        "streamPath": {
+          "const": "/stream"
+        }
+      }
+    },
     "BasicQuery": {
       "type": "object",
       "additionalProperties": false,
@@ -198,4 +208,3 @@
     }
   }
 }
-

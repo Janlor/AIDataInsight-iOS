@@ -76,6 +76,7 @@ scripts/generate-cross-platform-contracts.sh
 
 - Account / Setting 领域模型。
 - Environment 领域模型，包含多端默认学习环境使用的 Apifox mock host。
+- AI Chat endpoint 领域模型，包含流式接口路径等子域 API 语义。
 - AI Chat 函数分析领域模型。
 - History 领域模型。
 - 共享 API 响应外壳和 AI / History / Account 核心接口。

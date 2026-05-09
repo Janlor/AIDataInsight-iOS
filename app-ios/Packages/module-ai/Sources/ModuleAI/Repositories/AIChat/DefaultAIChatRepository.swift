@@ -42,36 +42,6 @@ struct DefaultAIChatRepository: AIChatRepository {
     }
     
     func streamMessage(_ text: String) -> AsyncThrowingStream<String, Error> {
-        do {
-            let request = try makeStreamRequest(text: text)
-            return CommonRequester.requestSSE(request)
-        } catch {
-            return AsyncThrowingStream { continuation in
-                continuation.finish(throwing: error)
-            }
-        }
-    }
-}
-
-private extension DefaultAIChatRepository {
-    func makeStreamRequest(text: String) throws -> URLRequest {
-        let urlString = "https://m1.apifoxmock.com/m1/3174267-1700689-default/stream"
-        guard var components = URLComponents(string: urlString) else {
-            throw CommonRequesterError.requestFailed
-        }
-        
-        components.queryItems = [
-            URLQueryItem(name: "question", value: text)
-        ]
-        
-        guard let url = components.url else {
-            throw CommonRequesterError.requestFailed
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue("text/event-stream", forHTTPHeaderField: "Accept")
-        request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
-        return request
+        CommonRequester.requestSSE(ChatApi.stream(text))
     }
 }

@@ -242,6 +242,24 @@ paths:
                     properties:
                       data:
                         $ref: "#/components/schemas/FunctionResponse"
+  /stream:
+    get:
+      tags: [AIChat]
+      operationId: streamAIResponse
+      description: AI Chat SSE streaming endpoint. Path is provided by domain/ai-chat.schema.json.
+      parameters:
+        - name: question
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Server-sent events stream. Each data frame contains one text chunk.
+          content:
+            text/event-stream:
+              schema:
+                type: string
   /chart/{functionName}:
     get:
       tags: [Chart]

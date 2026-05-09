@@ -125,4 +125,3 @@ private class FakeSessionInvalidationHandler : SessionInvalidationHandler {
         invalidated = true
     }
 }
-

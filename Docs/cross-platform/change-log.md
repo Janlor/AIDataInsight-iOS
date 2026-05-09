@@ -379,6 +379,35 @@
   - 默认学习环境统一为 Apifox mock host：`https://m1.apifoxmock.com/m1/3174267-1700689-default`。
   - 真实后端环境仍可通过平台环境配置覆盖。
 
+## 2026-05-09 - AI Chat Stream Environment
+
+- Source:
+  - primary platform: `iOS`
+  - reference file: `app-ios/Packages/module-ai/Sources/ModuleAI/Repositories/AIChat/DefaultAIChatRepository.swift`
+  - environment file: `app-ios/Packages/library-basics/Sources/Environment/AppEnvironmentValues.swift`
+- Change type:
+  - `Domain Change`
+  - `API Contract Change`
+  - `Platform Implementation Change`
+- Affected source of truth:
+  - `docs/cross-platform/contracts/domain/environment.schema.json`
+  - `docs/cross-platform/contracts/api/openapi.yaml`
+  - `docs/cross-platform/domain-models.md`
+- Impact:
+  - `AIChatEndpoint.streamPath`
+  - iOS `AIChatEndpoint.streamPath`
+  - iOS `ChatApi.stream`
+  - iOS `CommonRequester.requestSSE(RequestDescriptor)`
+  - Android generated `AIChatEndpoint.StreamPath`
+- Synced:
+  - [x] iOS
+  - [x] Android
+  - [x] Web generated contract model
+  - [ ] 鸿蒙
+- Notes:
+  - AI Chat SSE path 属于 AI Chat 子域，不能放进全局环境配置。
+  - SSE URL 由平台网络层使用全局 `baseUrl` 和 AI Chat 领域 `streamPath` 组合得到，仓储层不能硬编码完整 URL，也不能直接引入底层 Networking 配置。
+
 ---
 
 ## 7. 给 AI 的执行规则

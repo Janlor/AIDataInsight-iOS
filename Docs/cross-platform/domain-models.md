@@ -377,6 +377,26 @@ HistoryContentType
 
 ## 5. AI Chat Domain
 
+### 5.0 AIChatEndpoint
+
+来源：
+
+- `Packages/module-ai/Sources/ModuleAI/Domain/AIChat/AIChatEndpoint.swift`
+- `docs/cross-platform/contracts/domain/ai-chat.schema.json`
+
+Canonical Model:
+
+```text
+AIChatEndpoint
+  streamPath: "/stream"
+```
+
+说明：
+
+- `streamPath` 属于 AI Chat 子域，不属于全局环境配置。
+- AI Chat SSE URL 由平台网络层使用 `baseUrl + AIChatEndpoint.streamPath` 组合得到。
+- Repository 只能调用端侧 API descriptor / remote service，不能硬编码完整 URL。
+
 ### 5.1 TemplateQuestionSet
 
 来源：

@@ -6,6 +6,10 @@ export const mockApiEnvironment = {
   description: 'iOS 当前学习项目使用的 Apifox mock host，各端默认开发环境必须与它保持一致。',
 } as const;
 
+export const aiChatEndpoint = {
+  streamPath: "/stream",
+} as const;
+
 export interface ApiEnvironment {
   name: 'mock' | 'dev' | 'sit' | 'uat' | 'staging' | 'pre' | 'production';
   baseUrl: string;

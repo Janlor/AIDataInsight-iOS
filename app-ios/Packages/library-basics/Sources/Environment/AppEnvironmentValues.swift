@@ -9,6 +9,8 @@ import Foundation
 import BaseEnv
 
 enum AppEnvironmentValues {
+    private static let mockBaseURLString = "https://m1.apifoxmock.com/m1/3174267-1700689-default"
+
     static func oauthAppId(env: EnvInfo.EnvType) -> String {
         switch env {
         case .appStore, .pre:
@@ -56,20 +58,18 @@ enum AppEnvironmentValues {
     }
 
     static func baseURL(env: EnvInfo.EnvType, target: CommonTarget.TargetType) -> URL {
-        let mockURLString = "https://m1.apifoxmock.com/m1/3174267-1700689-default"
-
         switch env {
         case .pre:
             switch target {
             default:
-                return URL(string: mockURLString)!
+                return URL(string: mockBaseURLString)!
             }
         case .staging, .uat, .sit, .dev:
-            return URL(string: mockURLString)!
+            return URL(string: mockBaseURLString)!
         default:
             switch target {
             default:
-                return URL(string: mockURLString)!
+                return URL(string: mockBaseURLString)!
             }
         }
     }

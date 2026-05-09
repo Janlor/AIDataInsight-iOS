@@ -8,6 +8,7 @@ import com.aidatainsight.android.core.model.contract.HistoryChartDetail
 import com.aidatainsight.android.core.model.contract.HistoryRecord
 import com.aidatainsight.android.core.model.contract.TemplateQuestionSet
 import com.aidatainsight.android.core.network.client.AIDataInsightApiClient
+import com.aidatainsight.android.core.network.service.AIChatRemoteService
 import com.aidatainsight.android.core.network.service.ChartRemoteService
 import com.aidatainsight.android.core.network.service.HistoryRemoteService
 import com.aidatainsight.android.core.network.service.KtorAIChatRemoteService
@@ -16,12 +17,11 @@ import com.aidatainsight.android.core.network.service.KtorHistoryRemoteService
 import com.aidatainsight.android.feature.aichat.application.AIChatApplicationMapper
 import com.aidatainsight.android.feature.aichat.domain.AIChatRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.JsonObject
 
 class DefaultAIChatRepository(
     private val apiClient: AIDataInsightApiClient = AccountRuntime.graph.apiClient,
-    private val aiChatRemoteService: KtorAIChatRemoteService = KtorAIChatRemoteService(apiClient),
+    private val aiChatRemoteService: AIChatRemoteService = KtorAIChatRemoteService(apiClient),
     private val historyRemoteService: HistoryRemoteService = KtorHistoryRemoteService(apiClient),
     private val chartRemoteService: ChartRemoteService = KtorChartRemoteService(apiClient),
 ) : AIChatRepository {
@@ -64,7 +64,5 @@ class DefaultAIChatRepository(
         )
     }
 
-    override fun streamMessage(text: String): Flow<String> = flow {
-        emit(text)
-    }
+    override fun streamMessage(text: String): Flow<String> = aiChatRemoteService.streamMessage(text)
 }

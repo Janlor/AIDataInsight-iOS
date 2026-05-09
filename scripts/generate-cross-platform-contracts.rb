@@ -50,14 +50,27 @@ def function_names
 end
 
 def mock_base_url
+  mock_environment_properties
+    .fetch("baseUrl")
+    .fetch("const")
+end
+
+def mock_ai_chat_stream_path
+  read_json(File.join(CONTRACTS_DIR, "domain/ai-chat.schema.json"))
+    .fetch("$defs")
+    .fetch("AIChatEndpoint")
+    .fetch("properties")
+    .fetch("streamPath")
+    .fetch("const")
+end
+
+def mock_environment_properties
   read_json(File.join(CONTRACTS_DIR, "domain/environment.schema.json"))
     .fetch("$defs")
     .fetch("MockApiEnvironment")
     .fetch("allOf")
     .last
     .fetch("properties")
-    .fetch("baseUrl")
-    .fetch("const")
 end
 
 def kind_by_function_name
@@ -109,6 +122,10 @@ def kotlin_models
 
     object MockApiEnvironment {
         const val DefaultBaseUrl: String = "#{mock_base_url}"
+    }
+
+    object AIChatEndpoint {
+        const val StreamPath: String = "#{mock_ai_chat_stream_path}"
     }
 
     @Serializable
@@ -410,6 +427,10 @@ def typescript_models
       name: 'mock',
       baseUrl: #{JSON.generate(mock_base_url)},
       description: 'iOS 当前学习项目使用的 Apifox mock host，各端默认开发环境必须与它保持一致。',
+    } as const;
+
+    export const aiChatEndpoint = {
+      streamPath: #{JSON.generate(mock_ai_chat_stream_path)},
     } as const;
 
     export interface ApiEnvironment {

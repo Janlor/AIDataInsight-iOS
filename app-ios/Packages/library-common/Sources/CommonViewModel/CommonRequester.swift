@@ -70,6 +70,10 @@ public protocol Requesting {
     static func requestSSE(
         _ request: URLRequest
     ) -> AsyncThrowingStream<String, Error>
+
+    static func requestSSE(
+        _ target: RequestDescriptor
+    ) -> AsyncThrowingStream<String, Error>
 }
 
 private final class CancellableTaskBox: @unchecked Sendable {
@@ -314,6 +318,19 @@ public enum CommonRequester: Requesting {
             
             continuation.onTermination = { @Sendable _ in
                 taskBox.task?.cancel()
+            }
+        }
+    }
+
+    public static func requestSSE(
+        _ target: RequestDescriptor
+    ) -> AsyncThrowingStream<String, Error> {
+        do {
+            let request = try RequestBuilder().buildRequest(from: target)
+            return requestSSE(request)
+        } catch {
+            return AsyncThrowingStream { continuation in
+                continuation.finish(throwing: error)
             }
         }
     }

@@ -14,11 +14,16 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
+import io.ktor.client.request.prepareGet
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsChannel
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import io.ktor.utils.io.readUTF8Line
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.JsonElement
 
@@ -53,6 +58,30 @@ class AIDataInsightApiClient(
         query: Map<String, Any?> = emptyMap(),
     ) {
         request<JsonElement>(path = path, query = query, body = body, method = Method.Post, hasRetriedAfterRefresh = false)
+    }
+
+    fun streamServerSentEvents(
+        path: String,
+        query: Map<String, Any?> = emptyMap(),
+    ): Flow<String> = flow {
+        httpClient.prepareGet(requestUrl(path)) {
+            applyCommonHeaders()
+            applyQuery(query)
+            header("Accept", "text/event-stream")
+            header("Cache-Control", "no-cache")
+        }.execute { response ->
+            if (response.status !in HttpStatusCode.OK..HttpStatusCode.MultipleChoices) {
+                throw NetworkException(errorCode = response.status.value, message = "HTTP ${response.status.value}")
+            }
+
+            val channel = response.bodyAsChannel()
+            while (!channel.isClosedForRead) {
+                val line = channel.readUTF8Line() ?: break
+                val chunk = parseServerSentEventLine(line) ?: continue
+                if (chunk == "[DONE]") break
+                emit(chunk)
+            }
+        }
     }
 
     suspend inline fun <reified T> request(
@@ -106,7 +135,7 @@ class AIDataInsightApiClient(
         body: Any?,
         method: Method,
     ): HttpResponse {
-        val url = config.baseUrl.trimEnd('/') + "/" + path.trimStart('/')
+        val url = requestUrl(path)
         return when (method) {
             Method.Get -> httpClient.get(url) {
                 applyCommonHeaders()
@@ -120,6 +149,8 @@ class AIDataInsightApiClient(
             }
         }
     }
+
+    private fun requestUrl(path: String): String = config.baseUrl.trimEnd('/') + "/" + path.trimStart('/')
 
     private fun HttpRequestBuilder.applyCommonHeaders() {
         credentialProvider.accessToken?.takeIf { it.isNotBlank() }?.let { bearerAuth(it) }
@@ -139,5 +170,18 @@ class AIDataInsightApiClient(
     enum class Method {
         Get,
         Post,
+    }
+}
+
+private fun parseServerSentEventLine(line: String): String? {
+    val trimmed = line.trim()
+    return when {
+        trimmed.isBlank() -> null
+        trimmed.startsWith(":") -> null
+        trimmed.startsWith("event:") -> null
+        trimmed.startsWith("id:") -> null
+        trimmed.startsWith("retry:") -> null
+        trimmed.startsWith("data:") -> trimmed.removePrefix("data:").trim()
+        else -> trimmed
     }
 }
