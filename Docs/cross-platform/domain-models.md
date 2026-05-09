@@ -414,6 +414,9 @@ TemplateQuestionSet
 
 - 当前 iOS 名称为 `TemplateModel`
 - 跨端母版更强调语义，可命名为 `TemplateQuestionSet`
+- `TemplateQuestionSet` 是应用层和 UI state 看到的唯一形态。
+- 如果接口外壳 `data` 返回的是内嵌 JSON 字符串，端侧网络层或 AI Chat remote service 必须先解码字符串，再映射为 `TemplateQuestionSet`。
+- Repository / UseCase / Presentation 不应把 `String data` 继续向上传递，也不应让 UI 直接解析接口字符串。
 
 ### 5.2 FunctionModel
 

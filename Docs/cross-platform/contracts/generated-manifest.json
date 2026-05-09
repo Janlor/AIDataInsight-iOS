@@ -1,6 +1,6 @@
 {
   "generator": "scripts/generate-cross-platform-contracts.rb",
-  "sourceHash": "b7be41d997ca870432067838a5b63be0c7b9686b97f5b453e499fdc2d15a77b4",
+  "sourceHash": "a918b5e37bb3bcc67e2182eae6792e9de625a7a755b45900f279be10be1e9d5e",
   "outputs": [
     "app-android/core/model/src/main/java/com/aidatainsight/android/core/model/contract/ContractModels.kt",
     "app-web/src/contracts/generated/models.ts"
@@ -8,7 +8,7 @@
   "sources": [
     {
       "path": "docs/cross-platform/contracts/api/openapi.yaml",
-      "sha256": "152c2fc105f297b78d2a910435dd8053d254aebbb92105d3ae4764c80daa0b73"
+      "sha256": "f6cd3a490308208627e649c5f137258fa0cb02169c03d48caac6dce7e9284719"
     },
     {
       "path": "docs/cross-platform/contracts/design/tokens.json",
@@ -37,6 +37,10 @@
     {
       "path": "docs/cross-platform/contracts/domain/setting.schema.json",
       "sha256": "0dbef5576ad09e911a86e4df2ff0bbc4da7aaadeace209014c071820fe8b37d2"
+    },
+    {
+      "path": "docs/cross-platform/contracts/fixtures/api/chat-template-string-payload.json",
+      "sha256": "b38cd10c51ee33bf46c4a57b2c18b3bdb3fc720dff7acb8fc5dbddc4500d2160"
     },
     {
       "path": "docs/cross-platform/contracts/fixtures/api/response-401.json",
@@ -140,7 +144,7 @@
     },
     {
       "path": "docs/cross-platform/contracts/ui-layout/ai-home-layout.yaml",
-      "sha256": "39fedeaadb234a9ae2c013499c770e9e71ec261e2c45bc4743a19e702d1a240e"
+      "sha256": "84a33dee64f2a1bd998f74f1015f01e8b24406e53a8c7204b1ed1657a93c1e3b"
     },
     {
       "path": "docs/cross-platform/contracts/ui-layout/login-layout.yaml",

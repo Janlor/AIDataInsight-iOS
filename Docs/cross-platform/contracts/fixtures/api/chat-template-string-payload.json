@@ -1,0 +1,21 @@
+{
+  "description": "Apifox mock may return /chat/template data as an embedded JSON string; clients must normalize it to TemplateQuestionSet.",
+  "request": {
+    "method": "GET",
+    "path": "/chat/template"
+  },
+  "response": {
+    "code": 200,
+    "msg": "OK",
+    "data": "{\n  \"questions\": [\n    \"今年第三季度销售额大于2亿的公司有哪些？\",\n    \"查看仓库中煤炭库存大于5万吨的公司。\",\n    \"列出公司FHJK应收余额超过5000万的客户。\"\n  ]\n}"
+  },
+  "expected": {
+    "code": 200,
+    "action": null,
+    "templateQuestions": [
+      "今年第三季度销售额大于2亿的公司有哪些？",
+      "查看仓库中煤炭库存大于5万吨的公司。",
+      "列出公司FHJK应收余额超过5000万的客户。"
+    ]
+  }
+}

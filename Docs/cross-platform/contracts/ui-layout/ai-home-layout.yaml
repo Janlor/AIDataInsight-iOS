@@ -16,6 +16,12 @@ shell:
     background: extendBehindSystemBars
     content: respectSafeDrawingArea
     keyboard: keepChatInputAboveKeyboard
+  layeringPolicy:
+    - Full-screen module background must be drawn behind system bars, browser safe areas, display cutouts, and gesture/home-indicator regions.
+    - Overlay scrim for history panel must cover the full viewport, including status bar and home-indicator/navigation-bar regions.
+    - History panel container background must cover the full panel height from viewport top to bottom.
+    - History panel content must still respect safe drawing area, so titles, buttons, list rows, and destructive actions do not sit under status bar, cutout, browser chrome, home indicator, or gesture navigation.
+    - Platform default drawer/sheet/list insets must not create unpainted top or bottom bands; disable or override default container insets when they conflict with this layering policy.
 
 surfaces:
   main:
@@ -85,6 +91,10 @@ panelBehavior:
       velocityThreshold: 500
       settleThresholdFraction: 0.5
       animationDurationRangeMs: [100, 250]
+    visualLayering:
+      - During drag-open and drag-close, dim layer and panel background must move/draw as full-viewport layers.
+      - Safe-area padding belongs to panel content, not to the panel container or overlay scrim.
+      - The visible background behind the status bar should be the same history/grouped-page background used by the panel body, not a default white/black system or component color.
 
 layoutModes:
   compact:

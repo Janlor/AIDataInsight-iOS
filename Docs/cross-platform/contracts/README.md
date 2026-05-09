@@ -84,11 +84,12 @@ scripts/generate-cross-platform-contracts.sh
 - AI Chat 函数分析领域模型。
 - History 领域模型。
 - 共享 API 响应外壳和 AI / History / Account 核心接口。
+- AI Chat template 的兼容解析约束：`/chat/template` 的 `data` 可为对象或内嵌 JSON 字符串，但应用层统一看到 `TemplateQuestionSet`。
 - AI Home / AI Chat / History use case 契约。
 - 平台中立的 AI Chat / History / Login UI state。
 - 平台中立的 AI Home UI state，用于组合 AIChat、History 和 Settings 入口。
 - Login UI layout 契约，用于约束沉浸式背景、安全区、竖屏单列、横屏双列、readable width、滚动和协议勾选反馈。
-- AI Home UI layout 契约，用于约束登录成功后的主入口、聊天主内容、历史辅助面板、设置入口、安全区、键盘避让和响应式分栏。
+- AI Home UI layout 契约，用于约束登录成功后的主入口、聊天主内容、历史辅助面板、设置入口、安全区、键盘避让、背景/蒙层/面板全屏穿透和响应式分栏。
 - AI Chat golden UI fixtures，用于约束初始、模板、发送、意图、图表、fallback 和流式状态。
 - AI Home golden UI fixtures，用于约束登录后进入 AI 主入口、打开历史面板、选择历史会话和开始新会话。
 - Login golden UI fixtures，用于约束 iOS demo 默认值、隐私协议、loading 和按钮可用状态。

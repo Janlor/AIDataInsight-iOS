@@ -214,7 +214,12 @@ paths:
                   - type: object
                     properties:
                       data:
-                        $ref: "#/components/schemas/TemplateQuestionSet"
+                        oneOf:
+                          - $ref: "#/components/schemas/TemplateQuestionSet"
+                          - type: string
+                            description: >
+                              当前 Apifox mock 与 iOS 实现返回的是内嵌 JSON 字符串，
+                              字符串内容解码后必须符合 TemplateQuestionSet。
   /chat/function:
     get:
       tags: [AIChat]

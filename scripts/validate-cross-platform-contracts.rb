@@ -198,6 +198,16 @@ def validate_api_fixture(path, fixture)
                     else nil
                     end
   assert_equal(expected_action, expected.fetch("action"), "#{relative(path)} session action mismatch")
+
+  return unless expected.key?("templateQuestions")
+
+  data = fixture.fetch("response").fetch("data")
+  template_payload = data.is_a?(String) ? read_inline_json(data, path) : data
+  assert_equal(
+    expected.fetch("templateQuestions"),
+    template_payload.fetch("questions"),
+    "#{relative(path)} template questions mismatch"
+  )
 end
 
 def validate_ai_chat_ui_fixture(path, fixture)

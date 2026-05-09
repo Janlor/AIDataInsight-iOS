@@ -187,7 +187,26 @@ AI 不应该手写这些生成模型。
 - 开始新会话必须清空 `selectedHistoryId`，命令 AI Chat 清空当前消息并重新加载模板问题。
 - 删除当前选中的历史会话或清空全部历史时，AI Chat 必须回到新会话状态；删除非当前会话不能重置聊天。
 - 设置入口使用 `routeIntent.openSettings`，由目标端选择 modal、sheet、page 或 navigation destination。
+- Chat / History 切换时，背景层、灰色蒙层和 History 面板容器必须覆盖完整 viewport，包括 status bar、home indicator、浏览器安全区和手势区域；内容层再单独避让 safe area。
+- 不要把 safe-area padding 加在承载抽屉、蒙层或背景的外层容器上，否则拖拽打开 History 时会露出顶部/底部空白带。
+- History 面板的渐变/列表背景必须画到系统栏底下；标题、刷新、设置、列表项和删除按钮必须留在 safe drawing area 内。
+- 如果目标端组件自带 drawer/sheet/list inset，必须判断它是否制造了未绘制的顶部或底部空白；如有冲突，应关闭默认 inset，由契约定义的背景层和内容层分别处理。
 - Android/Web 不得照抄 iOS `ContainerViewController.addChild`、`UINavigationController`、transform 手势实现；只能复用其表达的内容切换语义。
+
+#### AI Chat Template 解析规则
+
+`/chat/template` 的领域输出固定为 `TemplateQuestionSet`：
+
+```text
+TemplateQuestionSet.questions: string[]
+```
+
+当前 mock 接口可能把 `data` 返回为内嵌 JSON 字符串，而不是直接返回对象。目标端生成代码时必须：
+
+- 在网络层或 AI Chat remote service 把 `data` 归一化为 `TemplateQuestionSet`。
+- 同时兼容 `data` 是对象和 `data` 是 JSON 字符串两种形态。
+- Repository / UseCase 只能返回 `TemplateQuestionSet` 或 application output，不能把接口 `String data` 泄漏给上层。
+- UI 不得为了显示推荐问题去解析接口 JSON 字符串。
 
 ---
 

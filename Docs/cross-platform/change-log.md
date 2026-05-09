@@ -473,6 +473,38 @@
   - `ContainerViewController` 的 UIKit child-controller、navigation controller、transform 动画不是跨端源事实。
   - 跨端源事实是“已认证 AI 模块壳层 + 聊天主内容 + 历史辅助面板 + 设置入口 + 状态保持/切换规则”。
 
+## 2026-05-09 - AI Home History Layering and Template Parsing
+
+- Source:
+  - primary platform: `Android`
+  - reference behavior: AI Home 手势打开 History 面板时，背景、蒙层和面板容器需要全屏穿透，内容仍避让 safe area
+  - reference API: `GET /chat/template`
+- Change type:
+  - `API Contract Change`
+  - `UI Layout Contract Change`
+  - `Contract Fixture Change`
+  - `AI Generation Rule Change`
+- Affected source of truth:
+  - `docs/cross-platform/contracts/api/openapi.yaml`
+  - `docs/cross-platform/api-contract.md`
+  - `docs/cross-platform/domain-models.md`
+  - `docs/cross-platform/contracts/ui-layout/ai-home-layout.yaml`
+  - `docs/cross-platform/contracts/fixtures/api/chat-template-string-payload.json`
+  - `docs/ai-generation-guide.md`
+- Impact:
+  - `/chat/template` 的领域输出固定为 `TemplateQuestionSet`，但接口 `data` 可兼容对象或内嵌 JSON 字符串。
+  - 目标端必须在网络层或 AI Chat remote service 做归一化，不能让 Repository / UseCase / UI 直接处理接口字符串。
+  - AI Home 中 History 面板的背景层、灰色蒙层和面板容器必须覆盖完整 viewport。
+  - safe area 只应用于 History 内容，不应用于背景、蒙层或面板容器外层。
+- Synced:
+  - [x] Android
+  - [ ] iOS
+  - [ ] Web
+  - [ ] 鸿蒙
+- Notes:
+  - Android 的 `ModalNavigationDrawer`、`ModalDrawerSheet`、`windowInsets` 只是发现问题的实现细节，不是跨端契约。
+  - Web 生成时应映射为 CSS 层级：viewport 背景/overlay fixed 全屏，panel background full-height，panel content 使用 safe-area env padding。
+
 ---
 
 ## 7. 给 AI 的执行规则

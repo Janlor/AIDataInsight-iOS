@@ -385,6 +385,29 @@ Response:
 
 - `ResponseModel<TemplateQuestionSet>`
 
+兼容性约束：
+
+- Canonical data 是 `TemplateQuestionSet`：
+
+```json
+{
+  "questions": ["今年第三季度销售额大于2亿的公司有哪些？"]
+}
+```
+
+- 当前 Apifox mock 与 iOS 实现的真实链路中，`data` 可能不是对象，而是一个内嵌 JSON 字符串：
+
+```json
+{
+  "code": 200,
+  "msg": "OK",
+  "data": "{\n  \"questions\": [\"今年第三季度销售额大于2亿的公司有哪些？\"]\n}"
+}
+```
+
+- 各端网络层或 remote service 必须把 `data` 归一化为 `TemplateQuestionSet` 后再交给 Repository / UseCase。
+- Presentation / UI 层不得解析这个内嵌 JSON 字符串。
+
 ### 5.2 Function Analysis
 
 ```text
