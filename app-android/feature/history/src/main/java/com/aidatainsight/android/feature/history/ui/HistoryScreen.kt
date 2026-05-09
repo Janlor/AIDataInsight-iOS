@@ -1,6 +1,7 @@
 package com.aidatainsight.android.feature.history.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,12 +34,17 @@ import com.aidatainsight.android.feature.history.presentation.HistoryItemUiModel
 import com.aidatainsight.android.feature.history.presentation.HistoryViewModel
 
 @Composable
-fun HistoryScreen(viewModel: HistoryViewModel = viewModel()) {
+fun HistoryScreen(
+    modifier: Modifier = Modifier,
+    onOpenHistory: (String) -> Unit = {},
+    onOpenSettings: (() -> Unit)? = null,
+    viewModel: HistoryViewModel = viewModel(),
+) {
     val uiState by viewModel.uiState.collectAsState()
     val colors = AIDataInsightThemeTokens.colors
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(colors.groupedBackground.primary)
             .padding(horizontal = 16.dp, vertical = 12.dp),
@@ -61,6 +67,11 @@ fun HistoryScreen(viewModel: HistoryViewModel = viewModel()) {
                 )
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                onOpenSettings?.let {
+                    OutlinedButton(onClick = it) {
+                        Text("设置")
+                    }
+                }
                 OutlinedButton(
                     onClick = viewModel::refresh,
                     enabled = !uiState.isLoading,
@@ -111,6 +122,7 @@ fun HistoryScreen(viewModel: HistoryViewModel = viewModel()) {
                     items(section.items, key = { it.id }) { item ->
                         HistoryRow(
                             item = item,
+                            onOpen = { onOpenHistory(item.id) },
                             onDelete = { viewModel.delete(item.id) },
                         )
                     }
@@ -145,6 +157,7 @@ fun HistoryScreen(viewModel: HistoryViewModel = viewModel()) {
 @Composable
 private fun HistoryRow(
     item: HistoryItemUiModel,
+    onOpen: () -> Unit,
     onDelete: () -> Unit,
 ) {
     val colors = AIDataInsightThemeTokens.colors
@@ -152,6 +165,7 @@ private fun HistoryRow(
         modifier = Modifier
             .fillMaxWidth()
             .background(colors.groupedBackground.secondary, RoundedCornerShape(8.dp))
+            .clickable(onClick = onOpen)
             .padding(12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -192,4 +206,3 @@ private fun EmptyHistory() {
         )
     }
 }
-

@@ -9,6 +9,7 @@ import com.aidatainsight.android.core.model.contract.FunctionName
 import com.aidatainsight.android.feature.aichat.application.model.SendFunctionMessageOutput
 import com.aidatainsight.android.feature.aichat.application.model.UseCaseResult
 import com.aidatainsight.android.feature.aichat.application.usecase.LoadChartDataUseCase
+import com.aidatainsight.android.feature.aichat.application.usecase.LoadHistoryDetailUseCase
 import com.aidatainsight.android.feature.aichat.application.usecase.LoadTemplateUseCase
 import com.aidatainsight.android.feature.aichat.application.usecase.SendFunctionMessageUseCase
 import com.aidatainsight.android.feature.aichat.data.DefaultAIChatRepository
@@ -22,6 +23,7 @@ class AIChatViewModel(
     repository: AIChatRepository = DefaultAIChatRepository(),
 ) : ViewModel() {
     private val loadTemplateUseCase = LoadTemplateUseCase(repository)
+    private val loadHistoryDetailUseCase = LoadHistoryDetailUseCase(repository)
     private val sendFunctionMessageUseCase = SendFunctionMessageUseCase(repository)
     private val loadChartDataUseCase = LoadChartDataUseCase(repository)
 
@@ -46,6 +48,37 @@ class AIChatViewModel(
                     _uiState.value = _uiState.value.copy(
                         isLoadingTemplate = false,
                         errorMessage = error.message ?: "加载失败",
+                    )
+                }
+        }
+    }
+
+    fun startNewConversation() {
+        _uiState.value = AIChatUiState(isLoadingTemplate = true)
+        refresh()
+    }
+
+    fun loadConversation(historyId: Int) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                historyId = historyId,
+                messages = emptyList(),
+                templateQuestions = emptyList(),
+                input = "",
+                isLoadingTemplate = true,
+                isSending = false,
+                isStreaming = false,
+                errorMessage = null,
+            )
+            runCatching { loadHistoryDetailUseCase(historyId) }
+                .onSuccess { output ->
+                    loadHistory(output.messages)
+                    _uiState.value = _uiState.value.copy(historyId = historyId)
+                }
+                .onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoadingTemplate = false,
+                        errorMessage = error.message ?: "加载历史会话失败",
                     )
                 }
         }

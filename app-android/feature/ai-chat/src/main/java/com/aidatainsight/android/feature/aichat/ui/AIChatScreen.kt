@@ -40,39 +40,45 @@ import com.aidatainsight.android.feature.aichat.presentation.AIChatMessageUiMode
 import com.aidatainsight.android.feature.aichat.presentation.AIChatViewModel
 
 @Composable
-fun AIChatScreen(viewModel: AIChatViewModel = viewModel()) {
+fun AIChatScreen(
+    modifier: Modifier = Modifier,
+    showHeader: Boolean = true,
+    viewModel: AIChatViewModel = viewModel(),
+) {
     val uiState by viewModel.uiState.collectAsState()
     val colors = AIDataInsightThemeTokens.colors
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(colors.groupedBackground.primary)
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column {
-                Text(
-                    text = "AI Chat",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.SemiBold,
-                )
-                Text(
-                    text = "经营数据分析",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.label.secondary,
-                )
+        if (showHeader) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column {
+                    Text(
+                        text = "AI数据分析助手",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Text(
+                        text = "经营数据分析",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colors.label.secondary,
+                    )
+                }
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.padding(4.dp))
+                }
             }
-            if (uiState.isLoading) {
-                CircularProgressIndicator(modifier = Modifier.padding(4.dp))
-            }
-        }
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+        }
 
         LazyColumn(
             modifier = Modifier
