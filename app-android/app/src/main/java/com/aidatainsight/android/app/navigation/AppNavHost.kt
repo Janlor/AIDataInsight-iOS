@@ -28,6 +28,11 @@ fun AppNavHost() {
                 onOpenPrivacy = { navController.navigate(AppDestination.Privacy.route) },
                 onOpenHistory = { navController.navigate(AppDestination.History.route) },
                 onOpenAIChat = { navController.navigate(AppDestination.AIChat.route) },
+                onLogout = {
+                    navController.navigate(AppDestination.Login.route) {
+                        popUpTo(AppDestination.Login.route) { inclusive = true }
+                    }
+                },
             )
         }
         composable(AppDestination.Privacy.route) {

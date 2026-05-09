@@ -21,7 +21,43 @@ class SettingViewModel(
 
     fun refresh() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(snapshot = repository.loadSnapshot(), errorMessage = null)
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            runCatching { repository.loadSnapshot() }
+                .onSuccess { snapshot ->
+                    _uiState.value = _uiState.value.copy(
+                        snapshot = snapshot,
+                        isLoading = false,
+                    )
+                }
+                .onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = error.message ?: "加载失败",
+                    )
+                }
         }
+    }
+
+    fun logout(onSuccess: () -> Unit) {
+        if (_uiState.value.isLoggingOut) return
+
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoggingOut = true, errorMessage = null)
+            repository.logout()
+                .onSuccess {
+                    _uiState.value = _uiState.value.copy(isLoggingOut = false)
+                    onSuccess()
+                }
+                .onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoggingOut = false,
+                        errorMessage = error.message ?: "退出登录失败",
+                    )
+                }
+        }
+    }
+
+    fun dismissError() {
+        _uiState.value = _uiState.value.copy(errorMessage = null)
     }
 }

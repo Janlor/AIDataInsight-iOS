@@ -3,6 +3,10 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+val aiDataInsightBaseUrl = providers.gradleProperty("AI_DATA_INSIGHT_BASE_URL")
+    .orElse("https://example.invalid")
+    .get()
+
 android {
     namespace = "com.aidatainsight.android.app"
     compileSdk = 34
@@ -16,6 +20,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        buildConfigField("String", "AIDATAINSIGHT_BASE_URL", "\"$aiDataInsightBaseUrl\"")
     }
 
     buildTypes {
@@ -38,6 +43,7 @@ android {
     }
 
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 

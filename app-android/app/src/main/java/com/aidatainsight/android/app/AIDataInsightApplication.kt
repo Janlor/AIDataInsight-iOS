@@ -6,6 +6,9 @@ import com.aidatainsight.android.core.account.runtime.AccountRuntime
 class AIDataInsightApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        AccountRuntime.install(this)
+        AccountRuntime.install(
+            context = this,
+            baseUrl = BuildConfig.AIDATAINSIGHT_BASE_URL,
+        )
     }
 }
