@@ -244,6 +244,63 @@ FunctionName -> FunctionArguments kind -> /chart/{FunctionName.rawValue} -> Char
 - UIKit view data 必须在 Presentation 层映射
 - 不把 `UIViewController` / `IndexPath` / `NSAttributedString` 放进 Application 层
 
+#### iOS 网络边界规则
+
+iOS 当前网络主链路是：
+
+```text
+Domain endpoint / RequestDescriptor -> CommonRequester -> Repository -> UseCase -> ViewModel
+```
+
+AI 修改 iOS 网络请求时必须遵守：
+
+- 子模块 API path 必须先落在本模块的 API descriptor 中，例如 `ChatApi`、`HistoryApi`、`ChartApi`，或者新增同级的 `StreamApi`。
+- Repository 只能调用 API descriptor 和 `CommonRequester`，不能自己拼完整 URL，不能自己构造底层网络配置。
+- 流式接口也必须走同一边界：先在 `ChatApi.stream` 或同级 `StreamApi` 描述 path / method / parameters / headers，再由 `CommonRequester.requestSSE(...)` 发起请求。
+- `CommonRequester` 是 iOS 业务层访问网络的 façade；如果它缺少某种请求入口，应优先给 `CommonRequester` 增加稳定入口，而不是让 Repository 绕过它。
+- `Networking`、`NetworkServer`、`RequestBuilder`、`URLSession` 等底层设施只能出现在网络基础设施层、API descriptor 层或 `CommonRequester` 内部，不能泄漏到业务 Repository。
+- 全局 `Environment` 只放 host、渠道、OAuth、上传地址等真正跨模块运行时配置；子模块 endpoint path 属于对应领域契约，例如 AI Chat 的 `/stream` 属于 `AIChatEndpoint`。
+
+禁止：
+
+- 在 `DefaultAIChatRepository`、`DefaultHistoryRepository`、`DefaultLoginRepository` 等业务 Repository 中 `import Networking` 来读取 `NetworkServer` 或底层配置。
+- 在 Repository 中写死 `https://.../stream` 这类完整 URL。
+- 因为某个请求是 SSE / 文件 / 特殊接口，就跳过 `ChatApi` / `StreamApi` / `CommonRequester` 这条边界。
+- 把子模块 URL path 放到全局环境配置中，例如把 AI Chat 的 `/stream` 写成 `Environment.server.aiChatStreamURL` 或 Android 的全局 `NetworkConfig.aiChatStreamPath`。
+
+正确示例：
+
+```swift
+enum ChatApi: RequestDescriptor {
+    case stream(String)
+
+    var path: String {
+        switch self {
+        case .stream:
+            return AIChatEndpoint.streamPath
+        }
+    }
+}
+
+struct DefaultAIChatRepository: AIChatRepository {
+    func streamMessage(_ text: String) -> AsyncThrowingStream<String, Error> {
+        CommonRequester.requestSSE(ChatApi.stream(text))
+    }
+}
+```
+
+错误示例：
+
+```swift
+struct DefaultAIChatRepository: AIChatRepository {
+    func streamMessage(_ text: String) -> AsyncThrowingStream<String, Error> {
+        let url = NetworkServer.aiChatStreamURL
+        var request = URLRequest(url: url)
+        return CommonRequester.requestSSE(request)
+    }
+}
+```
+
 ### 鸿蒙 HarmonyOS / OpenHarmony
 
 规则：
@@ -321,6 +378,8 @@ AI 最终回复必须说明：
 3. 不要从 iOS UIKit 页面或 ViewData 反推领域模型。
 4. 如果契约缺字段或缺规则，先指出并更新 contract。
 5. 生成端侧代码时，按 Contract Models -> Repository -> Data -> UseCase -> UI State Mapper -> UI 的顺序。
-6. 修改后运行 contract validation 和目标端可用的测试/编译命令。
-7. 最终说明生成产物、手写实现、验证结果和未验证风险。
+6. 修改 iOS 网络请求时，必须保持 `API descriptor -> CommonRequester -> Repository` 边界；Repository 不能引入 `Networking`、不能拼完整 URL、不能绕过 `CommonRequester`。
+7. 子模块 endpoint path 必须沉到对应领域契约，不能放进全局环境配置；全局环境只放 host 等跨模块运行时配置。
+8. 修改后运行 contract validation 和目标端可用的测试/编译命令。
+9. 最终说明生成产物、手写实现、验证结果和未验证风险。
 ```
