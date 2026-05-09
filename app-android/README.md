@@ -40,6 +40,11 @@ app-android
 - Ktor Client + OkHttp
 - Gradle Android Plugin 8.5.2
 
+## Android 文档
+
+- [初始化方案](docs/android-initialization-plan.md)
+- [模块映射清单](docs/android-module-mapping-checklist.md)
+
 ## 运行
 
 用 Android Studio 打开：

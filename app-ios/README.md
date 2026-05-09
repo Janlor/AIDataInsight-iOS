@@ -235,7 +235,11 @@ Packages/library-basics/Sources/Networking
 iOS 专属架构文档已经放在 `app-ios/docs`：
 
 - [架构设计说明书](docs/架构设计说明书.md)
+- [当前架构基线](docs/current-architecture-baseline.md)
+- [ModuleAI UseCase 落地记录](docs/module-ai-use-case-entry-design.md)
 - [Networking 架构定稿](docs/networking-architecture-final.md)
+- [Moya / Alamofire 替换记录](docs/moya-replacement-plan.md)
+- [Packages 审计模板](docs/package-audit-template.md)
 - [组件依赖关系图索引](docs/组件依赖关系图.mmd.md)
 - [组件依赖关系图 PDF](docs/组件依赖关系图.pdf)
 - [高层依赖图源文件](docs/组件依赖关系图-高层.mmd)

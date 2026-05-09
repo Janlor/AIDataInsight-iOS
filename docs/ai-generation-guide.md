@@ -72,7 +72,7 @@ AI 生成目标端代码时，不能随手创造新的领域字段、新的 API 
 
 目标端模块映射文档：
 
-- Android：`docs/architecture/android-module-mapping-checklist.md`
+- Android：`app-android/docs/android-module-mapping-checklist.md`
 - Android / Web 脚手架：`docs/architecture/android-web-scaffold-design.md`
 - 总体蓝图：`docs/architecture/cross-platform-blueprint.md`
 - 端侧优先级和技术栈：`docs/architecture/platform-adaptation-strategy.md`

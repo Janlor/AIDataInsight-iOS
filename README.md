@@ -286,7 +286,6 @@ AI 生成端侧代码时必须遵守固定协议：
 - iOS 专属文档：[app-ios/docs](app-ios/docs)
 - 多端适配建议：[docs/architecture/platform-adaptation-strategy.md](docs/architecture/platform-adaptation-strategy.md)
 - AI 生成协议：[docs/ai-generation-guide.md](docs/ai-generation-guide.md)
-- 当前架构基线：[docs/architecture/current-architecture-baseline.md](docs/architecture/current-architecture-baseline.md)
 - 跨平台蓝图：[docs/architecture/cross-platform-blueprint.md](docs/architecture/cross-platform-blueprint.md)
 - 领域模型说明：[docs/cross-platform/domain-models.md](docs/cross-platform/domain-models.md)
 - API 契约说明：[docs/cross-platform/api-contract.md](docs/cross-platform/api-contract.md)
