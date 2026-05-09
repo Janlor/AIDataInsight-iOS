@@ -1,11 +1,25 @@
 package com.aidatainsight.android.feature.aichat.presentation
 
+import com.aidatainsight.android.core.model.contract.ConversationContentKind
 import com.aidatainsight.android.core.model.contract.ConversationMessage
+import com.aidatainsight.android.core.model.contract.ConversationRole
 
 object AIChatHistoryMapper {
-    fun makeMessages(items: List<ConversationMessage>): List<String> {
+    fun makeMessages(items: List<ConversationMessage>): List<AIChatMessageUiModel> {
         return items.mapNotNull { item ->
-            item.text ?: item.chartPayload?.emptyMessage ?: item.chartPayload?.series?.joinToString { it.xAxis }
+            val text = item.text
+                ?: item.chartPayload?.emptyMessage
+                ?: item.chartPayload?.series?.joinToString { it.xAxis }
+                ?: return@mapNotNull null
+            AIChatMessageUiModel(
+                id = item.id,
+                role = when (item.role) {
+                    ConversationRole.User -> AIChatMessageRoleUi.User
+                    ConversationRole.Assistant -> AIChatMessageRoleUi.Assistant
+                },
+                text = text,
+                isChart = item.contentKind == ConversationContentKind.Chart,
+            )
         }
     }
 }
