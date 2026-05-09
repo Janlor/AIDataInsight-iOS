@@ -1,15 +1,25 @@
 package com.aidatainsight.android.feature.history.application.usecase
 
+import com.aidatainsight.android.feature.history.application.HistoryApplicationMapper
+import com.aidatainsight.android.feature.history.application.model.HistoryRecordGroup
+import com.aidatainsight.android.feature.history.application.model.HistoryStateSnapshot
 import com.aidatainsight.android.feature.history.domain.HistoryRepository
-import com.aidatainsight.android.feature.history.presentation.HistoryListBuilder
-import com.aidatainsight.android.feature.history.presentation.HistorySectionUiModel
 
 class LoadHistoryPageUseCase(
     private val repository: HistoryRepository,
 ) {
-    suspend operator fun invoke(): List<HistorySectionUiModel> {
-        val records = repository.loadHistoryPage()
-        val groups = HistoryListBuilder.groupRecords(records)
-        return HistoryListBuilder.makeSections(groups)
+    suspend operator fun invoke(
+        currentPage: Int,
+        pageSize: Int,
+        existingGroups: List<HistoryRecordGroup>,
+    ): HistoryStateSnapshot {
+        val page = repository.loadHistoryPage(currentPage = currentPage, pageSize = pageSize)
+        val newGroups = HistoryApplicationMapper.groupRecords(page.records)
+        val groups = if ((page.currentPage ?: currentPage) == 1 || existingGroups.isEmpty()) {
+            newGroups
+        } else {
+            HistoryApplicationMapper.mergeGroups(existingGroups, newGroups)
+        }
+        return HistoryStateSnapshot(page = page, groups = groups)
     }
 }

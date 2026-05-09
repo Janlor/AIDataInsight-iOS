@@ -17,9 +17,13 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:account"))
     implementation(project(":core:model"))
+    implementation(project(":core:network"))
     implementation(project(":core:ui"))
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.5")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.5")
     implementation("androidx.compose.material3:material3:1.3.0")
+
+    testImplementation(kotlin("test"))
 }

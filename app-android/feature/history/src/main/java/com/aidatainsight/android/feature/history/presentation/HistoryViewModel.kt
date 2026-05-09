@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.aidatainsight.android.feature.history.application.usecase.LoadHistoryPageUseCase
 import com.aidatainsight.android.feature.history.data.DefaultHistoryRepository
 import com.aidatainsight.android.feature.history.domain.HistoryRepository
+import com.aidatainsight.android.feature.history.application.model.HistoryRecordGroup
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,6 +15,7 @@ class HistoryViewModel(
     repository: HistoryRepository = DefaultHistoryRepository(),
 ) : ViewModel() {
     private val loadHistoryPage = LoadHistoryPageUseCase(repository)
+    private var recordGroups: List<HistoryRecordGroup> = emptyList()
 
     private val _uiState = MutableStateFlow(HistoryUiState())
     val uiState: StateFlow<HistoryUiState> = _uiState.asStateFlow()
@@ -24,7 +26,19 @@ class HistoryViewModel(
 
     fun refresh() {
         viewModelScope.launch {
-            _uiState.value = HistoryUiState(sections = loadHistoryPage())
+            val snapshot = loadHistoryPage(
+                currentPage = 1,
+                pageSize = DEFAULT_PAGE_SIZE,
+                existingGroups = emptyList(),
+            )
+            recordGroups = snapshot.groups
+            _uiState.value = HistoryUiState(
+                sections = HistoryListBuilder.makeSections(recordGroups),
+            )
         }
+    }
+
+    private companion object {
+        const val DEFAULT_PAGE_SIZE = 20
     }
 }

@@ -1,20 +1,26 @@
 package com.aidatainsight.android.feature.history.data
 
-import com.aidatainsight.android.core.model.history.HistoryRecord
+import com.aidatainsight.android.core.account.runtime.AccountRuntime
+import com.aidatainsight.android.core.model.contract.RecordPage
+import com.aidatainsight.android.core.network.client.AIDataInsightApiClient
+import com.aidatainsight.android.core.network.service.HistoryRemoteService
+import com.aidatainsight.android.core.network.service.KtorHistoryRemoteService
 import com.aidatainsight.android.feature.history.domain.HistoryRepository
 
-class DefaultHistoryRepository : HistoryRepository {
-    private val seedRecords = listOf(
-        HistoryRecord(id = "today-1", title = "Today revenue summary", createdAtLabel = "Today"),
-        HistoryRecord(id = "month-1", title = "Monthly sales comparison", createdAtLabel = "This Month"),
-        HistoryRecord(id = "other-1", title = "Quarterly finance outlook", createdAtLabel = "Other"),
-    )
-
-    override suspend fun loadHistoryPage(): List<HistoryRecord> = seedRecords
-
-    override suspend fun deleteHistory(id: String): List<HistoryRecord> {
-        return seedRecords.filterNot { it.id == id }
+class DefaultHistoryRepository(
+    private val apiClient: AIDataInsightApiClient = AccountRuntime.graph.apiClient,
+    private val remoteService: HistoryRemoteService = KtorHistoryRemoteService(apiClient),
+) : HistoryRepository {
+    override suspend fun loadHistoryPage(currentPage: Int, pageSize: Int): RecordPage {
+        return remoteService.pageHistory(currentPage = currentPage, pageSize = pageSize)
+            ?: RecordPage(currentPage = currentPage, pageSize = pageSize, records = emptyList())
     }
 
-    override suspend fun deleteAllHistory(): List<HistoryRecord> = emptyList()
+    override suspend fun deleteHistory(historyId: Int) {
+        remoteService.deleteHistory(historyId)
+    }
+
+    override suspend fun deleteAllHistory() {
+        remoteService.deleteAllHistory()
+    }
 }
