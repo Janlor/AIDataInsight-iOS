@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.aidatainsight.android.core.ui.layout.AIDataInsightGradientBackground
 import com.aidatainsight.android.core.ui.theme.AIDataInsightThemeTokens
 import com.aidatainsight.android.feature.history.presentation.HistoryItemUiModel
 import com.aidatainsight.android.feature.history.presentation.HistoryViewModel
@@ -36,6 +37,8 @@ import com.aidatainsight.android.feature.history.presentation.HistoryViewModel
 @Composable
 fun HistoryScreen(
     modifier: Modifier = Modifier,
+    drawBackground: Boolean = true,
+    respectSafeDrawingArea: Boolean = true,
     onOpenHistory: (String) -> Unit = {},
     onOpenSettings: (() -> Unit)? = null,
     viewModel: HistoryViewModel = viewModel(),
@@ -43,10 +46,11 @@ fun HistoryScreen(
     val uiState by viewModel.uiState.collectAsState()
     val colors = AIDataInsightThemeTokens.colors
 
+    val content: @Composable () -> Unit = {
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
-            .background(colors.groupedBackground.primary)
+            .then(if (drawBackground) Modifier else Modifier.background(colors.groupedBackground.primary))
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
         Row(
@@ -73,7 +77,7 @@ fun HistoryScreen(
                     }
                 }
                 OutlinedButton(
-                    onClick = viewModel::refresh,
+                    onClick = { viewModel.refresh(silent = false) },
                     enabled = !uiState.isLoading,
                 ) {
                     Text("刷新")
@@ -150,6 +154,20 @@ fun HistoryScreen(
             ) {
                 Text(message)
             }
+        }
+    }
+    }
+
+    if (drawBackground) {
+        AIDataInsightGradientBackground(
+            modifier = modifier.fillMaxSize(),
+            respectSafeDrawingArea = respectSafeDrawingArea,
+        ) {
+            content()
+        }
+    } else {
+        Box(modifier = modifier.fillMaxSize()) {
+            content()
         }
     }
 }

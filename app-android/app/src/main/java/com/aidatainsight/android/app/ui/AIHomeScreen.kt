@@ -1,6 +1,5 @@
 package com.aidatainsight.android.app.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -11,7 +10,9 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
@@ -35,9 +36,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.aidatainsight.android.core.ui.layout.AIDataInsightGradientBackground
 import com.aidatainsight.android.core.ui.theme.AIDataInsightThemeTokens
 import com.aidatainsight.android.feature.aichat.presentation.AIChatViewModel
+import com.aidatainsight.android.feature.aichat.ui.AIChatBackground
 import com.aidatainsight.android.feature.aichat.ui.AIChatScreen
 import com.aidatainsight.android.feature.history.presentation.HistoryViewModel
 import com.aidatainsight.android.feature.history.ui.HistoryScreen
@@ -49,20 +50,27 @@ fun AIHomeScreen(
     chatViewModel: AIChatViewModel = viewModel(),
     historyViewModel: HistoryViewModel = viewModel(),
 ) {
-    AIDataInsightGradientBackground {
-        val isRegular = maxWidth >= 600.dp
-        if (isRegular) {
-            RegularAIHome(
-                onOpenSettings = onOpenSettings,
-                chatViewModel = chatViewModel,
-                historyViewModel = historyViewModel,
-            )
-        } else {
-            CompactAIHome(
-                onOpenSettings = onOpenSettings,
-                chatViewModel = chatViewModel,
-                historyViewModel = historyViewModel,
-            )
+    AIChatBackground(modifier = Modifier.fillMaxSize()) {
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxSize()
+                .safeDrawingPadding()
+                .imePadding(),
+        ) {
+            val isRegular = maxWidth >= 600.dp
+            if (isRegular) {
+                RegularAIHome(
+                    onOpenSettings = onOpenSettings,
+                    chatViewModel = chatViewModel,
+                    historyViewModel = historyViewModel,
+                )
+            } else {
+                CompactAIHome(
+                    onOpenSettings = onOpenSettings,
+                    chatViewModel = chatViewModel,
+                    historyViewModel = historyViewModel,
+                )
+            }
         }
     }
 }
@@ -78,7 +86,7 @@ private fun CompactAIHome(
 
     LaunchedEffect(drawerState.isOpen) {
         if (drawerState.isOpen) {
-            historyViewModel.refresh()
+            historyViewModel.refresh(silent = true)
         }
     }
 
@@ -90,6 +98,7 @@ private fun CompactAIHome(
                 modifier = Modifier
                     .fillMaxHeight()
                     .widthIn(max = 360.dp),
+                drawerContainerColor = AIDataInsightThemeTokens.colors.groupedBackground.primary,
             ) {
                 HistoryPanel(
                     onOpenSettings = onOpenSettings,
@@ -120,7 +129,7 @@ private fun RegularAIHome(
 
     LaunchedEffect(isHistoryOpen) {
         if (isHistoryOpen) {
-            historyViewModel.refresh()
+            historyViewModel.refresh(silent = true)
         }
     }
 
@@ -174,7 +183,6 @@ private fun AIHomeChatSurface(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(colors.groupedBackground.primary)
             .padding(horizontal = 16.dp, vertical = 12.dp),
     ) {
         Row(
@@ -209,6 +217,7 @@ private fun AIHomeChatSurface(
         AIChatScreen(
             modifier = Modifier.weight(1f),
             showHeader = false,
+            drawBackground = false,
             viewModel = chatViewModel,
         )
     }
@@ -221,6 +230,8 @@ private fun HistoryPanel(
     historyViewModel: HistoryViewModel,
 ) {
     HistoryScreen(
+        drawBackground = true,
+        respectSafeDrawingArea = false,
         onOpenHistory = onOpenHistory,
         onOpenSettings = onOpenSettings,
         viewModel = historyViewModel,

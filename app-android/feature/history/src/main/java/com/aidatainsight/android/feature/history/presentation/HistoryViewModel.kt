@@ -29,9 +29,13 @@ class HistoryViewModel(
         refresh()
     }
 
-    fun refresh() {
+    fun refresh(silent: Boolean = false) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            val shouldShowLoading = !silent || _uiState.value.sections.isEmpty()
+            _uiState.value = _uiState.value.copy(
+                isLoading = shouldShowLoading,
+                errorMessage = null,
+            )
             runCatching {
                 loadHistoryPage(
                     currentPage = 1,

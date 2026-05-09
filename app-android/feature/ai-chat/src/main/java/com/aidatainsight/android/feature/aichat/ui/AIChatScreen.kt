@@ -43,100 +43,112 @@ import com.aidatainsight.android.feature.aichat.presentation.AIChatViewModel
 fun AIChatScreen(
     modifier: Modifier = Modifier,
     showHeader: Boolean = true,
+    drawBackground: Boolean = true,
     viewModel: AIChatViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val colors = AIDataInsightThemeTokens.colors
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(colors.groupedBackground.primary)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-    ) {
-        if (showHeader) {
+    val content: @Composable () -> Unit = {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+        ) {
+            if (showHeader) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column {
+                        Text(
+                            text = "AI数据分析助手",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        Text(
+                            text = "经营数据分析",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = colors.label.secondary,
+                        )
+                    }
+                    if (uiState.isLoading) {
+                        CircularProgressIndicator(modifier = Modifier.padding(4.dp))
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentPadding = PaddingValues(vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                if (uiState.templateQuestions.isNotEmpty()) {
+                    item {
+                        TemplateQuestionPanel(
+                            questions = uiState.templateQuestions,
+                            onQuestionClick = viewModel::useTemplate,
+                        )
+                    }
+                }
+
+                if (uiState.messages.isEmpty() && uiState.templateQuestions.isEmpty() && !uiState.isLoading) {
+                    item {
+                        EmptyConversation()
+                    }
+                }
+
+                items(uiState.messages, key = { it.id }) { message ->
+                    MessageBubble(message)
+                }
+            }
+
+            uiState.errorMessage?.let { message ->
+                Snackbar(
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    action = {
+                        TextButton(onClick = viewModel::dismissError) { Text("关闭") }
+                    },
+                ) {
+                    Text(message)
+                }
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Column {
-                    Text(
-                        text = "AI数据分析助手",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    Text(
-                        text = "经营数据分析",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = colors.label.secondary,
-                    )
+                OutlinedTextField(
+                    value = uiState.input,
+                    onValueChange = viewModel::updateInput,
+                    modifier = Modifier.weight(1f),
+                    label = { Text("输入问题") },
+                    minLines = 1,
+                    maxLines = 4,
+                )
+                Button(
+                    onClick = viewModel::sendCurrentMessage,
+                    enabled = uiState.canSend,
+                ) {
+                    Text("发送")
                 }
-                if (uiState.isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.padding(4.dp))
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-        }
-
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            contentPadding = PaddingValues(vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            if (uiState.templateQuestions.isNotEmpty()) {
-                item {
-                    TemplateQuestionPanel(
-                        questions = uiState.templateQuestions,
-                        onQuestionClick = viewModel::useTemplate,
-                    )
-                }
-            }
-
-            if (uiState.messages.isEmpty() && uiState.templateQuestions.isEmpty() && !uiState.isLoading) {
-                item {
-                    EmptyConversation()
-                }
-            }
-
-            items(uiState.messages, key = { it.id }) { message ->
-                MessageBubble(message)
             }
         }
+    }
 
-        uiState.errorMessage?.let { message ->
-            Snackbar(
-                modifier = Modifier.padding(bottom = 8.dp),
-                action = {
-                    TextButton(onClick = viewModel::dismissError) { Text("关闭") }
-                },
-            ) {
-                Text(message)
-            }
+    if (drawBackground) {
+        AIChatBackground(modifier = modifier.fillMaxSize()) {
+            content()
         }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            OutlinedTextField(
-                value = uiState.input,
-                onValueChange = viewModel::updateInput,
-                modifier = Modifier.weight(1f),
-                label = { Text("输入问题") },
-                minLines = 1,
-                maxLines = 4,
-            )
-            Button(
-                onClick = viewModel::sendCurrentMessage,
-                enabled = uiState.canSend,
-            ) {
-                Text("发送")
-            }
+    } else {
+        Box(modifier = modifier.fillMaxSize()) {
+            content()
         }
     }
 }
