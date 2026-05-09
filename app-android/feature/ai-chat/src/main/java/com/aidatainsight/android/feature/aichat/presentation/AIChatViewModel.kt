@@ -2,6 +2,10 @@ package com.aidatainsight.android.feature.aichat.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aidatainsight.android.core.model.contract.AIChatIntentType
+import com.aidatainsight.android.core.model.contract.ChartPayload
+import com.aidatainsight.android.core.model.contract.FeedbackState
+import com.aidatainsight.android.core.model.contract.FunctionName
 import com.aidatainsight.android.feature.aichat.application.model.SendFunctionMessageOutput
 import com.aidatainsight.android.feature.aichat.application.model.UseCaseResult
 import com.aidatainsight.android.feature.aichat.application.usecase.LoadChartDataUseCase
@@ -30,17 +34,17 @@ class AIChatViewModel(
 
     fun refresh() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
+            _uiState.value = _uiState.value.copy(isLoadingTemplate = true, errorMessage = null)
             runCatching { loadTemplateUseCase() }
                 .onSuccess { output ->
                     _uiState.value = _uiState.value.copy(
                         templateQuestions = output.questions,
-                        isLoading = false,
+                        isLoadingTemplate = false,
                     )
                 }
                 .onFailure { error ->
                     _uiState.value = _uiState.value.copy(
-                        isLoading = false,
+                        isLoadingTemplate = false,
                         errorMessage = error.message ?: "加载失败",
                     )
                 }
@@ -67,11 +71,18 @@ class AIChatViewModel(
             id = "local-user-${System.currentTimeMillis()}",
             role = AIChatMessageRoleUi.User,
             text = trimmed,
+            contentKind = AIChatMessageContentKindUi.Text,
+        )
+        val loadingMessage = AIChatMessageUiModel(
+            id = "local-assistant-loading-${System.currentTimeMillis()}",
+            role = AIChatMessageRoleUi.Assistant,
+            text = THINKING_TEXT,
+            contentKind = AIChatMessageContentKindUi.Loading,
         )
         _uiState.value = _uiState.value.copy(
             input = "",
-            messages = _uiState.value.messages + userMessage,
-            isLoading = true,
+            messages = _uiState.value.messages + listOf(userMessage, loadingMessage),
+            isSending = true,
             errorMessage = null,
         )
 
@@ -79,13 +90,17 @@ class AIChatViewModel(
             runCatching {
                 when (val result = sendFunctionMessageUseCase(trimmed, _uiState.value.historyId)) {
                     is UseCaseResult.Failure -> {
-                        appendAssistantMessage(result.message ?: "未找到可用分析结果")
+                        replaceProgressMessage(
+                            text = result.message ?: "未找到可用分析结果",
+                            contentKind = AIChatMessageContentKindUi.Error,
+                        )
                     }
                     is UseCaseResult.Success -> handleFunctionOutput(result.value)
                 }
             }.onFailure { error ->
                 _uiState.value = _uiState.value.copy(
-                    isLoading = false,
+                    isSending = false,
+                    isStreaming = false,
                     errorMessage = error.message ?: "发送失败",
                 )
             }
@@ -95,44 +110,79 @@ class AIChatViewModel(
     private suspend fun handleFunctionOutput(output: SendFunctionMessageOutput) {
         when (output) {
             is SendFunctionMessageOutput.Intent -> {
-                val text = when (output.type.name) {
-                    "Time" -> "请选择查询时间范围"
-                    "Index" -> "请选择分析指标"
-                    else -> "需要补充查询条件"
-                }
-                appendAssistantMessage(text)
+                replaceProgressMessage(
+                    text = intentText(output.type),
+                    contentKind = AIChatMessageContentKindUi.Intent,
+                    intentType = output.type,
+                )
             }
             is SendFunctionMessageOutput.ChartRequest -> {
                 _uiState.value = _uiState.value.copy(historyId = output.historyId)
                 when (val chartResult = loadChartDataUseCase(output.name, output.historyId, output.arguments)) {
-                    is UseCaseResult.Failure -> appendAssistantMessage(
-                        chartResult.message ?: "数据分析还在测试阶段，很快就能上线，敬请期待！",
+                    is UseCaseResult.Failure -> replaceProgressMessage(
+                        text = chartResult.message ?: CHART_FALLBACK_TEXT,
+                        contentKind = AIChatMessageContentKindUi.Error,
+                        functionName = output.name,
                     )
                     is UseCaseResult.Success -> {
-                        val seriesText = chartResult.value.payload.series.joinToString(separator = "\n") { series ->
-                            "${series.xAxis}: ${series.values.joinToString()}"
+                        val payload = chartResult.value.payload
+                        if (payload.series.isEmpty()) {
+                            replaceProgressMessage(
+                                text = payload.emptyMessage ?: CHART_FALLBACK_TEXT,
+                                contentKind = AIChatMessageContentKindUi.Error,
+                                functionName = output.name,
+                            )
+                        } else {
+                            replaceProgressMessage(
+                                text = CHART_TITLE_TEXT,
+                                contentKind = AIChatMessageContentKindUi.Chart,
+                                chartPayload = payload,
+                                functionName = output.name,
+                            )
                         }
-                        appendAssistantMessage(
-                            text = seriesText.ifBlank { "数据分析还在测试阶段，很快就能上线，敬请期待！" },
-                            isChart = true,
-                        )
                     }
                 }
             }
         }
     }
 
-    private fun appendAssistantMessage(text: String, isChart: Boolean = false) {
+    private fun replaceProgressMessage(
+        text: String,
+        contentKind: AIChatMessageContentKindUi,
+        intentType: AIChatIntentType? = null,
+        chartPayload: ChartPayload? = null,
+        functionName: FunctionName? = null,
+    ) {
         val message = AIChatMessageUiModel(
             id = "local-assistant-${System.currentTimeMillis()}",
             role = AIChatMessageRoleUi.Assistant,
             text = text,
-            isChart = isChart,
+            contentKind = contentKind,
+            intentType = intentType,
+            chartPayload = chartPayload,
+            feedback = FeedbackState.None,
+            functionName = functionName,
         )
+        val messages = _uiState.value.messages
+        val withoutProgress = if (messages.lastOrNull()?.role == AIChatMessageRoleUi.Assistant &&
+            messages.lastOrNull()?.contentKind == AIChatMessageContentKindUi.Loading
+        ) {
+            messages.dropLast(1)
+        } else {
+            messages
+        }
         _uiState.value = _uiState.value.copy(
-            messages = _uiState.value.messages + message,
-            isLoading = false,
+            messages = withoutProgress + message,
+            isSending = false,
+            isStreaming = false,
         )
+    }
+
+    private fun intentText(type: AIChatIntentType): String {
+        return when (type) {
+            AIChatIntentType.Time -> TIME_INTENT_TEXT
+            AIChatIntentType.Index -> INDEX_INTENT_TEXT
+        }
     }
 
     fun dismissError() {
@@ -143,7 +193,17 @@ class AIChatViewModel(
         _uiState.value = _uiState.value.copy(
             messages = AIChatHistoryMapper.makeMessages(messages),
             errorMessage = null,
-            isLoading = false,
+            isLoadingTemplate = false,
+            isSending = false,
+            isStreaming = false,
         )
+    }
+
+    companion object {
+        const val THINKING_TEXT = "智能引擎全力运转，您的答案即将揭晓。"
+        const val CHART_TITLE_TEXT = "根据您的查询，以下是分析结果:"
+        const val CHART_FALLBACK_TEXT = "数据分析还在测试阶段，很快就能上线，敬请期待！"
+        const val TIME_INTENT_TEXT = "请选择查询时间范围"
+        const val INDEX_INTENT_TEXT = "请选择分析指标"
     }
 }

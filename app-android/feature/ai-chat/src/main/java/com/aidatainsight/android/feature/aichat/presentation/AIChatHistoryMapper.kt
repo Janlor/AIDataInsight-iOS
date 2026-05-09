@@ -18,7 +18,17 @@ object AIChatHistoryMapper {
                     ConversationRole.Assistant -> AIChatMessageRoleUi.Assistant
                 },
                 text = text,
-                isChart = item.contentKind == ConversationContentKind.Chart,
+                contentKind = when (item.contentKind) {
+                    ConversationContentKind.Welcome -> AIChatMessageContentKindUi.Welcome
+                    ConversationContentKind.Text -> AIChatMessageContentKindUi.Text
+                    ConversationContentKind.Intent -> AIChatMessageContentKindUi.Intent
+                    ConversationContentKind.Chart -> AIChatMessageContentKindUi.Chart
+                },
+                intentType = item.intentType,
+                chartPayload = item.chartPayload,
+                feedback = item.feedback,
+                historyDetailId = item.historyDetailId,
+                functionName = item.functionName,
             )
         }
     }

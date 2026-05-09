@@ -127,7 +127,7 @@ fun AIChatScreen(viewModel: AIChatViewModel = viewModel()) {
             )
             Button(
                 onClick = viewModel::sendCurrentMessage,
-                enabled = uiState.input.isNotBlank() && !uiState.isLoading,
+                enabled = uiState.canSend,
             ) {
                 Text("发送")
             }
