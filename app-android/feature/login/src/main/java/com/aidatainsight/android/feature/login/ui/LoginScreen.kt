@@ -1,23 +1,18 @@
 package com.aidatainsight.android.feature.login.ui
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
@@ -40,10 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -55,6 +47,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.aidatainsight.android.core.ui.layout.AIDataInsightGradientBackground
 import com.aidatainsight.android.core.ui.theme.AIDataInsightThemeTokens
 import com.aidatainsight.android.feature.login.R
 import com.aidatainsight.android.feature.login.presentation.LoginUiState
@@ -67,58 +60,31 @@ fun LoginScreen(
     viewModel: LoginViewModel = viewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val colors = AIDataInsightThemeTokens.colors
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colors.groupedBackground.primary)
-            .drawWithCache {
-                val backgroundBrush = Brush.linearGradient(
-                    colorStops = arrayOf(
-                        0f to Color(0x142F7BFF),
-                        0.3f to Color(0x0518B8FF),
-                        0.7f to Color(0x0518B8FF),
-                        1f to Color(0x0F2F7BFF),
-                    ),
-                    start = Offset(size.width * 0.2f, 0f),
-                    end = Offset(size.width * 0.8f, size.height),
-                )
-                onDrawBehind {
-                    drawRect(backgroundBrush)
-                }
-            }
-    ) {
-        BoxWithConstraints(
-            modifier = Modifier
-                .fillMaxSize()
-                .safeDrawingPadding()
-                .imePadding()
-        ) {
-            val isLandscapeLayout = maxWidth > maxHeight && maxWidth >= 600.dp
+    AIDataInsightGradientBackground {
+        val isLandscapeLayout = maxWidth > maxHeight && maxWidth >= 600.dp
 
-            if (isLandscapeLayout) {
-                LandscapeLoginContent(
-                    uiState = uiState,
-                    onUsernameChange = viewModel::updateUsername,
-                    onPasswordChange = viewModel::updatePassword,
-                    onTogglePrivacy = viewModel::togglePrivacyAccepted,
-                    onLogin = { viewModel.login(onLoginSuccess) },
-                    onOpenPrivacy = onOpenPrivacy,
-                    modifier = Modifier.align(Alignment.TopCenter),
-                    minHeight = maxHeight,
-                )
-            } else {
-                PortraitLoginContent(
-                    uiState = uiState,
-                    onUsernameChange = viewModel::updateUsername,
-                    onPasswordChange = viewModel::updatePassword,
-                    onTogglePrivacy = viewModel::togglePrivacyAccepted,
-                    onLogin = { viewModel.login(onLoginSuccess) },
-                    onOpenPrivacy = onOpenPrivacy,
-                    modifier = Modifier.align(Alignment.TopCenter),
-                    minHeight = maxHeight,
-                )
-            }
+        if (isLandscapeLayout) {
+            LandscapeLoginContent(
+                uiState = uiState,
+                onUsernameChange = viewModel::updateUsername,
+                onPasswordChange = viewModel::updatePassword,
+                onTogglePrivacy = viewModel::togglePrivacyAccepted,
+                onLogin = { viewModel.login(onLoginSuccess) },
+                onOpenPrivacy = onOpenPrivacy,
+                modifier = Modifier.align(Alignment.TopCenter),
+                minHeight = maxHeight,
+            )
+        } else {
+            PortraitLoginContent(
+                uiState = uiState,
+                onUsernameChange = viewModel::updateUsername,
+                onPasswordChange = viewModel::updatePassword,
+                onTogglePrivacy = viewModel::togglePrivacyAccepted,
+                onLogin = { viewModel.login(onLoginSuccess) },
+                onOpenPrivacy = onOpenPrivacy,
+                modifier = Modifier.align(Alignment.TopCenter),
+                minHeight = maxHeight,
+            )
         }
     }
 }
