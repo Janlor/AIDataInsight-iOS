@@ -670,7 +670,7 @@ def arkts_function_argument_kind_switch(names)
   <<~ARKTS
     export function functionArgumentKindForName(name: FunctionName): FunctionArgumentKind {
       switch (name) {
-#{cases}
+    #{cases}
         default:
           throw new Error('Unknown FunctionName: ' + name)
       }

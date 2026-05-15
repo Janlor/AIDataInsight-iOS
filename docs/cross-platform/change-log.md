@@ -179,6 +179,29 @@ HarmonyOS NEXT 进入阶段 3：基于 golden fixtures 补最小 mapper tests。
 
 ---
 
+## 2026-05-15 - HarmonyOS NEXT Stage 4 Core Foundation
+
+### Context
+
+HarmonyOS NEXT 进入阶段 4：建立 core 基础层，为后续 Login、AIHome、History、AIChat feature 接入做准备。
+
+### Scope
+
+- `core:model` 接入 generated models，提供统一 re-export 入口。
+- `core:network` 增加 mock baseURL、请求响应外壳、错误归一化、mock transport。
+- `core:account` 增加 session store、登录服务和自动登录判断。
+- `core:ui` 增加主题 token、统一渐变背景、安全区容器、主按钮、列表行。
+- 本地测试套件增加 core foundation tests。
+
+### Rule
+
+- feature repository 不直接拼接 baseURL，统一走 `ApiEnvironmentProvider`。
+- 页面不直接判断 token 字段，自动登录统一走 `shouldAutoLogin` 或 `AccountAuthService.canAutoLogin`。
+- 后续接真实 HarmonyOS HTTP / preferences 时，通过新增 transport/store 实现替换，不改 use case。
+- 页面样式优先复用 `core:ui` 的背景、安全区、按钮和列表行。
+
+---
+
 ## 2. 变更分类
 
 任何改动先归类，不能直接开始“翻译到其它端”。

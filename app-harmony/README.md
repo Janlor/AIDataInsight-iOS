@@ -7,6 +7,7 @@ AIDataInsight HarmonyOS NEXT 是多端契约的下一阶段实现端。当前目
 - 已建立 `app-harmony` 源码骨架。
 - 已固定并生成 ArkTS contract models。
 - 已补最小 contract mapper 和 golden fixture 单测。
+- 已建立 `core:model`、`core:network`、`core:account`、`core:ui` 基础层。
 - 已建立 App 路由、Core、Feature 的命名边界。
 - Login、AIHome、Setting、Privacy、History、AIChat 目前是占位页面。
 - 第一版面向学习项目和 mock 环境，不连接真实生产后端。
@@ -55,4 +56,4 @@ app-harmony/entry/src/main/ets/contracts/generated/ContractModels.ets
 
 ## 下一步
 
-阶段 4：补 HarmonyOS NEXT core 层，先接 `core/network`、`core/account` 和 mock 环境配置。
+阶段 5：按契约补 Login 链路，接 `core:account`、mock 登录和自动登录导航。

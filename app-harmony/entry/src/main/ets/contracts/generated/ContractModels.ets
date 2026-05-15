@@ -181,8 +181,8 @@ export enum FunctionArgumentKind {
   PerformanceType = 'performanceType'
 }
 
-    export function functionArgumentKindForName(name: FunctionName): FunctionArgumentKind {
-      switch (name) {
+export function functionArgumentKindForName(name: FunctionName): FunctionArgumentKind {
+  switch (name) {
     case FunctionName.QueryArGroupByOrg:
       return FunctionArgumentKind.Basic
     case FunctionName.QueryArGroupByCustomer:
@@ -219,10 +219,10 @@ export enum FunctionArgumentKind {
       return FunctionArgumentKind.Basic
     case FunctionName.QueryPerformanceType:
       return FunctionArgumentKind.PerformanceType
-        default:
-          throw new Error('Unknown FunctionName: ' + name)
-      }
-    }
+    default:
+      throw new Error('Unknown FunctionName: ' + name)
+  }
+}
 
 export interface BasicQuery {
   orgId?: number | null
