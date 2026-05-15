@@ -30,7 +30,7 @@ class AIDataInsightApiClientTest {
         val engine = MockEngine {
             request = it
             respond(
-                content = """{"code":200,"data":{"accessToken":"access-1","refreshToken":"refresh-1"}}""",
+                content = """{"code":200,"data":{"access_token":"access-1","refresh_token":"refresh-1"}}""",
                 status = HttpStatusCode.OK,
                 headers = headersOf(HttpHeaders.ContentType, "application/json"),
             )
@@ -41,6 +41,7 @@ class AIDataInsightApiClientTest {
 
         val body = request?.body?.toString().orEmpty()
         assertEquals("access-1", model?.accessToken)
+        assertEquals("refresh-1", model?.refreshToken)
         assertTrue(body.contains("demo"))
         assertTrue(body.contains("pwd"))
         assertEquals("Bearer access-token", request?.headers?.get(HttpHeaders.Authorization))

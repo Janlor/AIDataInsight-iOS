@@ -1,6 +1,8 @@
 package com.aidatainsight.android.core.network.model
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.JsonNames
 
 @Serializable
 data class LoginRequest(
@@ -9,9 +11,13 @@ data class LoginRequest(
 )
 
 @Serializable
+@OptIn(ExperimentalSerializationApi::class)
 data class OAuthModel(
+    @JsonNames("access_token")
     val accessToken: String? = null,
+    @JsonNames("refresh_token")
     val refreshToken: String? = null,
+    @JsonNames("org_id")
     val orgId: Int? = null,
     val username: String? = null,
 )
@@ -35,4 +41,3 @@ data class MenuItem(
     val path: String? = null,
     val children: List<MenuItem>? = null,
 )
-
