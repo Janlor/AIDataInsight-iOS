@@ -74,3 +74,17 @@ app-android/.idea/
 
 # JetBrains IDE project settings
 .idea/
+
+# HarmonyOS NEXT
+app-harmony/node_modules
+app-harmony/oh_modules
+app-harmony/local.properties
+app-harmony/.idea
+app-harmony/**/build
+app-harmony/.hvigor
+app-harmony/.cxx
+app-harmony/.clangd
+app-harmony/.clang-format
+app-harmony/.clang-tidy
+app-harmony/**/.test
+app-harmony/book
