@@ -59,6 +59,16 @@ content:
   minTapTarget:
     width: 44
     height: 44
+  brand:
+    appIcon:
+      asset: ic_login_app
+      displaySize:
+        compact: 86
+        androidReference: 72
+      cornerRadius:
+        compact: 19
+        androidReference: 16
+      rule: "App icon is displayed as a rounded square image; do not render it as a sharp-corner bitmap."
 
 breakpoints:
   compactPortrait:

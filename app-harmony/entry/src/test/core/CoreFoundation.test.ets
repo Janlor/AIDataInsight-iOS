@@ -28,9 +28,9 @@ export default function coreFoundationTest() {
     })
 
     it('requests data from mock transport envelope', 0, async () => {
-      let transport = new MockHttpTransport({
-        '/chat/template': '{"code":200,"msg":"OK","data":{"questions":["A","B"]}}'
-      })
+      let responses = new Map<string, string>()
+      responses.set('/chat/template', '{"code":200,"msg":"OK","data":{"questions":["A","B"]}}')
+      let transport = new MockHttpTransport(responses)
       let requester = new CommonRequester(transport)
       let data = await requester.request<QuestionData>({
         path: '/chat/template',
@@ -57,9 +57,9 @@ export default function coreFoundationTest() {
     })
 
     it('login saves normalized session', 0, async () => {
-      let transport = new MockHttpTransport({
-        '/login': '{"code":200,"msg":"ok","data":{"access_token":"access-token","refresh_token":"refresh-token"}}'
-      })
+      let responses = new Map<string, string>()
+      responses.set('/oauth2/login', '{"code":200,"msg":"ok","data":{"access_token":"access-token","refresh_token":"refresh-token"}}')
+      let transport = new MockHttpTransport(responses)
       let requester = new CommonRequester(transport)
       let store = new MemoryAccountSessionStore()
       let service = new AccountAuthService(requester, store)

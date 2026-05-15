@@ -2,21 +2,21 @@ import { AppColors, AppSpacing, AppTypography } from '../theme/AppTheme'
 
 @Component
 export struct ListRow {
-  title: string
-  subtitle?: string
-  onClick: () => void = () => {}
+  rowTitle: string = ''
+  rowSubtitle: string = ''
+  tapAction: () => void = () => {}
 
   build() {
     Row() {
       Column() {
-        Text(this.title)
+        Text(this.rowTitle)
           .fontSize(AppTypography.body)
           .fontColor(AppColors.textPrimary)
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
 
-        if (this.subtitle !== undefined && this.subtitle.length > 0) {
-          Text(this.subtitle)
+        if (this.rowSubtitle.length > 0) {
+          Text(this.rowSubtitle)
             .fontSize(AppTypography.footnote)
             .fontColor(AppColors.textSecondary)
             .maxLines(1)
@@ -35,6 +35,6 @@ export struct ListRow {
     .minHeight(AppSpacing.listRowMinHeight)
     .padding({ top: 10, bottom: 10 })
     .border({ width: { bottom: 1 }, color: AppColors.divider })
-    .onClick(this.onClick)
+    .onClick(this.tapAction)
   }
 }

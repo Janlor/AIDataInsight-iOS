@@ -7,6 +7,16 @@ export interface LoginRequest {
   password: string
 }
 
+class LoginApiRequest {
+  name: string
+  pwd: string
+
+  constructor(name: string, pwd: string) {
+    this.name = name
+    this.pwd = pwd
+  }
+}
+
 interface LoginPayload {
   accessToken?: string | null
   refreshToken?: string | null
@@ -27,9 +37,9 @@ export class AccountAuthService {
 
   async login(request: LoginRequest): Promise<AccountSession> {
     let payload = await this.requester.request<LoginPayload>({
-      path: '/login',
+      path: '/oauth2/login',
       method: HttpMethod.Post,
-      body: request
+      body: new LoginApiRequest(request.username, request.password)
     })
 
     let session: AccountSession = {

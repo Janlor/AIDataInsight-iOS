@@ -1,4 +1,35 @@
-export const AppColors = {
+export interface AppColorTokens {
+  brandStart: string
+  brandEnd: string
+  accent: string
+  textPrimary: string
+  textSecondary: string
+  divider: string
+  surface: string
+  danger: string
+}
+
+export interface AppSpacingTokens {
+  pageHorizontal: number
+  pageVertical: number
+  itemGap: number
+  controlHeight: number
+  listRowMinHeight: number
+}
+
+export interface AppRadiusTokens {
+  control: number
+  panel: number
+}
+
+export interface AppTypographyTokens {
+  title: number
+  subtitle: number
+  body: number
+  footnote: number
+}
+
+export const AppColors: AppColorTokens = {
   brandStart: '#EAF6FF',
   brandEnd: '#F8FBFF',
   accent: '#1677FF',
@@ -9,7 +40,7 @@ export const AppColors = {
   danger: '#E5484D'
 }
 
-export const AppSpacing = {
+export const AppSpacing: AppSpacingTokens = {
   pageHorizontal: 24,
   pageVertical: 20,
   itemGap: 12,
@@ -17,12 +48,12 @@ export const AppSpacing = {
   listRowMinHeight: 56
 }
 
-export const AppRadius = {
+export const AppRadius: AppRadiusTokens = {
   control: 8,
   panel: 8
 }
 
-export const AppTypography = {
+export const AppTypography: AppTypographyTokens = {
   title: 24,
   subtitle: 16,
   body: 15,

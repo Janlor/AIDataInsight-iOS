@@ -202,6 +202,44 @@ HarmonyOS NEXT 进入阶段 4：建立 core 基础层，为后续 Login、AIHome
 
 ---
 
+## 2026-05-15 - HarmonyOS NEXT Stage 5 Login Flow
+
+### Context
+
+HarmonyOS NEXT 进入阶段 5：按契约补 Login 链路，接 `core:account`、mock 登录和自动登录导航。
+
+### Scope
+
+- 新增 `feature/login/application/LoginState.ets`。
+- `feature/login/pages/LoginPage.ets` 接入账号、密码、隐私协议、loading、错误状态和 mock 登录。
+- 新增 `app/services/AppServices.ets`，提供 App 级 mock requester、session store 和 `AccountAuthService`。
+- `pages/Index.ets` 从 Hello World 改为 App shell，启动时读取 `AccountAuthService.canAutoLogin()`，并在 Login / AIHome / Privacy 之间切换。
+- `AccountAuthService` 登录路径修正为 OpenAPI 契约中的 `/oauth2/login`。
+- 本地测试套件新增 Login state tests。
+
+### Rule
+
+- 登录请求路径必须来自 OpenAPI 契约语义：`/oauth2/login`。
+- 登录表单状态必须遵守 `login-state.yaml`：默认 demo 账号、30 字符限制、隐私协议校验、loading 禁用登录。
+- 登录成功后不 push 新页面，而是替换 App 主入口为 AIHome。
+- 启动自动登录统一走 `AccountAuthService.canAutoLogin()`，页面不直接判断 token 字段。
+
+---
+
+## 2026-05-15 - Login App Icon Visual Contract
+
+### Context
+
+HarmonyOS NEXT 登录页还原时发现 app icon 资源已接入，但展示缺少圆角。
+
+### Rule
+
+- 登录页品牌区 `appIcon` 使用 `ic_login_app` 资源。
+- app icon 必须按圆角方形展示，不能直接显示为尖角位图。
+- Android 参考值为 72dp / 16dp corner radius；HarmonyOS NEXT 当前使用 86vp / 19vp corner radius。
+
+---
+
 ## 2. 变更分类
 
 任何改动先归类，不能直接开始“翻译到其它端”。

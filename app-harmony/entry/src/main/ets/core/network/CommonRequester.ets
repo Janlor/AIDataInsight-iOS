@@ -10,8 +10,8 @@ export enum HttpMethod {
 export interface ApiRequest {
   path: string
   method: HttpMethod
-  headers?: Record<string, string>
-  body?: object | string | null
+  headers?: Map<string, string>
+  body?: Object | string | null
 }
 
 export interface HttpTransport {
@@ -35,10 +35,14 @@ export class CommonRequester {
   }
 
   async request<T>(request: ApiRequest): Promise<T> {
-    let responseText = await this.transport.send({
-      ...request,
+    let resolvedRequest: ResolvedApiRequest = {
+      path: request.path,
+      method: request.method,
+      headers: request.headers,
+      body: request.body,
       url: this.environmentProvider.resolve(request.path)
-    })
+    }
+    let responseText = await this.transport.send(resolvedRequest)
 
     let envelope = this.decodeEnvelope<T>(responseText)
     let error = apiErrorFromCode(envelope.code, envelope.msg)
