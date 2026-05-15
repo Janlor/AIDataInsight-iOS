@@ -30,6 +30,7 @@ playground.xcworkspace
 # .swiftpm
 
 .build/
+DerivedData/
 
 # CocoaPods
 #
@@ -69,6 +70,7 @@ app-android/.gradle/
 app-android/**/build/
 app-android/local.properties
 app-android/.idea/
+*.iml
 
 # JetBrains IDE project settings
 .idea/
