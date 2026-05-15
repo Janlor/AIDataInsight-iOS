@@ -47,9 +47,8 @@ fun AppNavHost() {
         }
         composable(AppDestination.Setting.route) {
             SettingScreen(
+                onClose = { navController.popBackStack() },
                 onOpenPrivacy = { navController.navigate(AppDestination.Privacy.route) },
-                onOpenHistory = { navController.navigate(AppDestination.History.route) },
-                onOpenAIChat = { navController.navigate(AppDestination.AIHome.route) },
                 onLogout = {
                     navController.navigateToLoginAndClearBackStack()
                 },
