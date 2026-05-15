@@ -129,6 +129,27 @@ HarmonyOS NEXT 进入阶段 1：建立工程骨架。
 
 ---
 
+## 2026-05-15 - HarmonyOS NEXT Stage 2 Contract Models
+
+### Context
+
+HarmonyOS NEXT 进入阶段 2：从跨端契约生成 ArkTS contract models。
+
+### Scope
+
+- `scripts/generate-cross-platform-contracts.rb` 增加 ArkTS 输出。
+- 新增生成产物 `app-harmony/entry/src/main/ets/contracts/generated/ContractModels.ets`。
+- `docs/cross-platform/contracts/generated-manifest.json` 增加 HarmonyOS NEXT 输出路径。
+- `app-harmony/README.md` 更新阶段状态。
+
+### Rule
+
+- HarmonyOS NEXT 模型必须从 `docs/cross-platform/contracts` 生成。
+- 生成物不能手改；模型错误先修契约，再重新生成。
+- ArkTS 不能直接复制 Web TypeScript，生成器应使用 ArkTS 可维护的 `enum`、`interface` 和显式 helper function。
+
+---
+
 ## 2. 变更分类
 
 任何改动先归类，不能直接开始“翻译到其它端”。

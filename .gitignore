@@ -88,3 +88,4 @@ app-harmony/.clang-format
 app-harmony/.clang-tidy
 app-harmony/**/.test
 app-harmony/book
+app-harmony/entry/.preview

@@ -1,14 +1,15 @@
 {
   "generator": "scripts/generate-cross-platform-contracts.rb",
-  "sourceHash": "a918b5e37bb3bcc67e2182eae6792e9de625a7a755b45900f279be10be1e9d5e",
+  "sourceHash": "6b23c2d41231d857d55fefe6dad7e357254db80dd0538341fbda0df2b70bbd2f",
   "outputs": [
     "app-android/core/model/src/main/java/com/aidatainsight/android/core/model/contract/ContractModels.kt",
-    "app-web/src/contracts/generated/models.ts"
+    "app-web/src/contracts/generated/models.ts",
+    "app-harmony/entry/src/main/ets/contracts/generated/ContractModels.ets"
   ],
   "sources": [
     {
       "path": "docs/cross-platform/contracts/api/openapi.yaml",
-      "sha256": "f6cd3a490308208627e649c5f137258fa0cb02169c03d48caac6dce7e9284719"
+      "sha256": "719a1dc4910c0abf2edb1b1cadeac0e91697482a97b2862017fb61f3438077eb"
     },
     {
       "path": "docs/cross-platform/contracts/design/tokens.json",
@@ -16,7 +17,7 @@
     },
     {
       "path": "docs/cross-platform/contracts/domain/account.schema.json",
-      "sha256": "4cd33e9b24747b3293a4a60ff41af9d09cafff275f49f84b31b3acc49ba11f84"
+      "sha256": "1b27d4168524dfdc513d8b826cd4ac338a8a42754b58b0df13a5a4e50ed8ba9b"
     },
     {
       "path": "docs/cross-platform/contracts/domain/ai-chat.schema.json",
@@ -32,15 +33,19 @@
     },
     {
       "path": "docs/cross-platform/contracts/domain/history.schema.json",
-      "sha256": "e0ca13f040b2da165442e871f3d8f4cefd8a2677c057f0d97fafa5270b282ba6"
+      "sha256": "a89f25da5896ce3d9c136d55afabde1b646117cf0160729f764ac7c4d5b9fa47"
     },
     {
       "path": "docs/cross-platform/contracts/domain/setting.schema.json",
-      "sha256": "0dbef5576ad09e911a86e4df2ff0bbc4da7aaadeace209014c071820fe8b37d2"
+      "sha256": "36071e3736dbb08ca51cf7f7fe92ac073615f9e329a8ae3190514f2836cbd101"
     },
     {
       "path": "docs/cross-platform/contracts/fixtures/api/chat-template-string-payload.json",
       "sha256": "b38cd10c51ee33bf46c4a57b2c18b3bdb3fc720dff7acb8fc5dbddc4500d2160"
+    },
+    {
+      "path": "docs/cross-platform/contracts/fixtures/api/login-response-snake-case.json",
+      "sha256": "0852b931fb480b1820937ec79d31a01ad302cd418de7f5b9508e1a0c96c56f70"
     },
     {
       "path": "docs/cross-platform/contracts/fixtures/api/response-401.json",
@@ -123,6 +128,10 @@
       "sha256": "8932d378ceeb74c34a257771cbb450bff54804d434ca2e7f6bc11aac4ebab17b"
     },
     {
+      "path": "docs/cross-platform/contracts/fixtures/ui/history-initial.json",
+      "sha256": "9d0e32687660f37b0d7a3641a385bf7c189e62521e065cb16235576469bd967e"
+    },
+    {
       "path": "docs/cross-platform/contracts/fixtures/ui/login-empty-fields.json",
       "sha256": "824cc608850d1e59bf27e4e54c59ca6bca1b89f9e94201a35684340cbbf6e4e5"
     },
@@ -139,20 +148,40 @@
       "sha256": "2d293d532ba3cb224c5ec44c2ce0037ff69bf0d8a404b2a4683d4bc33a4adc9a"
     },
     {
+      "path": "docs/cross-platform/contracts/fixtures/ui/setting-initial.json",
+      "sha256": "0625a9715070188f2270d8f0a6de9fdd7d4ee4e60974c57b37c2668f9d5093f5"
+    },
+    {
+      "path": "docs/cross-platform/contracts/fixtures/ui/setting-logout-confirm.json",
+      "sha256": "310315c044180ccb60087c59bbf0a03988d33781569e988fd4a471f479b5dcd3"
+    },
+    {
       "path": "docs/cross-platform/contracts/routes/route-intents.yaml",
       "sha256": "7d7a8d8e1daceb73935efebfe357ceff98290d6f6655633ce4883ec820ed650f"
+    },
+    {
+      "path": "docs/cross-platform/contracts/ui-layout/ai-chat-layout.yaml",
+      "sha256": "0bfbc1b50a36692252f76d0574f25b868bc80186e33b91ebdacf8b743b1a94c9"
     },
     {
       "path": "docs/cross-platform/contracts/ui-layout/ai-home-layout.yaml",
       "sha256": "84a33dee64f2a1bd998f74f1015f01e8b24406e53a8c7204b1ed1657a93c1e3b"
     },
     {
+      "path": "docs/cross-platform/contracts/ui-layout/history-layout.yaml",
+      "sha256": "d05612b20c1f327e6c24dbcefbd5afafdd01f67f891af033de4f36c8882cbc20"
+    },
+    {
       "path": "docs/cross-platform/contracts/ui-layout/login-layout.yaml",
       "sha256": "3619db43e971c2402260f855011bcc55d3db141e49b22203406af4e5a31a81c4"
     },
     {
+      "path": "docs/cross-platform/contracts/ui-layout/setting-layout.yaml",
+      "sha256": "6991ead28175b2d5b1b60764bda944282bd136a31ab1859fbf10e923ca592fdf"
+    },
+    {
       "path": "docs/cross-platform/contracts/ui-state/ai-chat-state.yaml",
-      "sha256": "3b9dddb3e1852102f0a82b93df8a1ae792f1b78d47e716b05b7bd315ba77cda0"
+      "sha256": "0f94524231ee7e4109c4e18d5c21432441c3bd9e622c206efe8edd51437d9eba"
     },
     {
       "path": "docs/cross-platform/contracts/ui-state/ai-home-state.yaml",
@@ -160,11 +189,15 @@
     },
     {
       "path": "docs/cross-platform/contracts/ui-state/history-state.yaml",
-      "sha256": "f8f69917aaf7feadd07d0d081b20a44f535daac84b6f342c53e1619df5875628"
+      "sha256": "7b236f06546fa2a0204c2ece8987506eac12284c8a736904fd51fbadf403c581"
     },
     {
       "path": "docs/cross-platform/contracts/ui-state/login-state.yaml",
       "sha256": "50d123fe5946dbb715c7abefb2f5be9fd970365911edd8cb99555c3e5727d710"
+    },
+    {
+      "path": "docs/cross-platform/contracts/ui-state/setting-state.yaml",
+      "sha256": "ab61639f233d8eb847fef6a5048b779d461bc674421b8d5558b4cb7b3f263331"
     },
     {
       "path": "docs/cross-platform/contracts/usecases/ai-chat.usecases.yaml",
@@ -172,11 +205,15 @@
     },
     {
       "path": "docs/cross-platform/contracts/usecases/ai-home.usecases.yaml",
-      "sha256": "236a1735bf3082fd113f5d8afd1e3c03a1194e889b135dd1cbda88cb61b53e98"
+      "sha256": "0a89a612b6b7da241f6c4bc2eef95b83cd7d339aa0435d8af2e4400d40ebe673"
     },
     {
       "path": "docs/cross-platform/contracts/usecases/history.usecases.yaml",
-      "sha256": "35f3ef65733837509ffc92da47cd7e817e41f7f65ae14fd032e537943daffd4f"
+      "sha256": "a83af2fd989a911bc32754f5dc876357115dd715665115bd5bc54cedf84c4160"
+    },
+    {
+      "path": "docs/cross-platform/contracts/usecases/setting.usecases.yaml",
+      "sha256": "29868340197ba4b0fa3ce609c9752c4fd00633c4942c08ed4763f87911222ffa"
     }
   ]
 }

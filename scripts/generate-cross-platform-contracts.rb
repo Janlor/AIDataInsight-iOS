@@ -15,6 +15,7 @@ ANDROID_OUTPUT = File.join(
   "app-android/core/model/src/main/java/com/aidatainsight/android/core/model/contract/ContractModels.kt"
 )
 WEB_OUTPUT = File.join(ROOT, "app-web/src/contracts/generated/models.ts")
+HARMONY_OUTPUT = File.join(ROOT, "app-harmony/entry/src/main/ets/contracts/generated/ContractModels.ets")
 MANIFEST_OUTPUT = File.join(ROOT, "docs/cross-platform/contracts/generated-manifest.json")
 
 def read_json(path)
@@ -84,6 +85,8 @@ def generated_header(language)
   when :kotlin
     "// Generated from docs/cross-platform/contracts. Do not edit by hand.\n"
   when :typescript
+    "// Generated from docs/cross-platform/contracts. Do not edit by hand.\n"
+  when :arkts
     "// Generated from docs/cross-platform/contracts. Do not edit by hand.\n"
   else
     ""
@@ -650,6 +653,284 @@ def typescript_models
   TS
 end
 
+def arkts_enum(name, values)
+  body = values.map { |value| "  #{enum_case(value)} = #{JSON.generate(value)}" }.join(",\n")
+  <<~ARKTS
+    export enum #{name} {
+    #{body}
+    }
+  ARKTS
+end
+
+def arkts_function_argument_kind_switch(names)
+  cases = names.map do |name|
+    "    case FunctionName.#{enum_case(name)}:\n      return FunctionArgumentKind.#{enum_case(kind_by_function_name.fetch(name))}"
+  end.join("\n")
+
+  <<~ARKTS
+    export function functionArgumentKindForName(name: FunctionName): FunctionArgumentKind {
+      switch (name) {
+#{cases}
+        default:
+          throw new Error('Unknown FunctionName: ' + name)
+      }
+    }
+  ARKTS
+end
+
+def arkts_models
+  names = function_names
+
+  <<~ARKTS
+    #{generated_header(:arkts)}
+    export interface ApiEnvironment {
+      name: string
+      baseUrl: string
+      description?: string | null
+    }
+
+    export const mockApiEnvironment: ApiEnvironment = {
+      name: 'mock',
+      baseUrl: #{JSON.generate(mock_base_url)},
+      description: 'iOS 当前学习项目使用的 Apifox mock host，各端默认开发环境必须与它保持一致。'
+    }
+
+    export interface AIChatEndpointContract {
+      streamPath: string
+    }
+
+    export const aiChatEndpoint: AIChatEndpointContract = {
+      streamPath: #{JSON.generate(mock_ai_chat_stream_path)}
+    }
+
+    export interface AccountSession {
+      accessToken?: string | null
+      refreshToken?: string | null
+      orgId?: number | null
+      username?: string | null
+      isLogin: boolean
+    }
+
+    export interface AccountUser {
+      id?: number | null
+      username?: string | null
+      nickname?: string | null
+      phone?: string | null
+    }
+
+    export enum AIHomeDestination {
+      Chat = 'chat',
+      History = 'history',
+      Settings = 'settings'
+    }
+
+    export enum AIHomePanel {
+      None = 'none',
+      History = 'history'
+    }
+
+    export enum AIHomeCommand {
+      OpenAIHome = 'openAIHome',
+      OpenHistoryPanel = 'openHistoryPanel',
+      CloseHistoryPanel = 'closeHistoryPanel',
+      SelectHistoryConversation = 'selectHistoryConversation',
+      StartNewConversation = 'startNewConversation',
+      OpenSettings = 'openSettings',
+      LogoutToLogin = 'logoutToLogin'
+    }
+
+    export interface AIHomeSession {
+      isAuthenticated: boolean
+      entryDestination: AIHomeDestination
+      selectedHistoryId?: number | null
+      activePanel: AIHomePanel
+    }
+
+    export enum HistoryDetailType {
+      Question = '1',
+      Answer = '2'
+    }
+
+    export enum HistoryContentType {
+      Ai = '1',
+      Chart = '2'
+    }
+
+    export interface HistoryDetail {
+      id?: number | null
+      historyId?: number | null
+      type?: HistoryDetailType | null
+      contentType?: HistoryContentType | null
+      content?: string | null
+      isLike?: string | null
+      createTime?: string | null
+      updateTime?: string | null
+    }
+
+    export interface HistoryRecord {
+      id?: number | null
+      name?: string | null
+      createId?: number | null
+      updateId?: number | null
+      createName?: string | null
+      updateName?: string | null
+      createTime?: string | null
+      updateTime?: string | null
+      detailList?: Array<HistoryDetail> | null
+    }
+
+    export interface RecordPage {
+      currentPage?: number | null
+      pageSize?: number | null
+      total?: number | null
+      pages?: number | null
+      cacheKey?: string | null
+      records?: Array<HistoryRecord> | null
+    }
+
+    export interface TemplateQuestionSet {
+      questions: Array<string>
+    }
+
+    #{arkts_enum("FunctionName", names).rstrip}
+
+    export enum FunctionArgumentKind {
+      Basic = 'basic',
+      TimeRange = 'timeRange',
+      Warehouse = 'warehouse',
+      AccountAge = 'accountAge',
+      PerformanceType = 'performanceType'
+    }
+
+    #{arkts_function_argument_kind_switch(names).rstrip}
+
+    export interface BasicQuery {
+      orgId?: number | null
+      customerName?: string | null
+      orderType?: string | null
+      operator?: string | null
+      value?: number | null
+    }
+
+    export interface TimeRangeQuery extends BasicQuery {
+      startDate?: string | null
+      endDate?: string | null
+      goodsType?: number | null
+    }
+
+    export interface WarehouseQuery {
+      orgId?: number | null
+      warehouseName?: string | null
+      goodsType?: number | null
+      orderType?: string | null
+      operator?: string | null
+      value?: number | null
+    }
+
+    export interface AccountAgeQuery {
+      orgId?: number | null
+      customerName?: string | null
+      orderType?: string | null
+      valueArray?: Array<string> | null
+    }
+
+    export interface PerformanceTypeQuery {
+      indexType?: string | null
+    }
+
+    export interface FunctionArguments {
+      kind: FunctionArgumentKind
+      basic?: BasicQuery | null
+      timeRange?: TimeRangeQuery | null
+      warehouse?: WarehouseQuery | null
+      accountAge?: AccountAgeQuery | null
+      performanceType?: PerformanceTypeQuery | null
+    }
+
+    export interface FunctionModel {
+      historyId?: number | null
+      hasTool?: boolean | null
+      name?: FunctionName | null
+      msg?: string | null
+      arguments?: FunctionArguments | null
+    }
+
+    export interface ChartCommonItem {
+      bizId?: string | null
+      name?: string | null
+      value?: number | null
+    }
+
+    export interface AccountAgeGroupItem {
+      name?: string | null
+      valueList?: Array<number> | null
+      labelList?: Array<string> | null
+      msg?: string | null
+      chartType?: string | null
+    }
+
+    export interface HistoryChartDetail {
+      funcType?: FunctionName | null
+      chartCommonVoList?: Array<ChartCommonItem> | null
+      accountAgeGroupVoList?: Array<AccountAgeGroupItem> | null
+    }
+
+    export enum ConversationRole {
+      User = 'user',
+      Assistant = 'assistant'
+    }
+
+    export enum ConversationContentKind {
+      Welcome = 'welcome',
+      Text = 'text',
+      Intent = 'intent',
+      Chart = 'chart'
+    }
+
+    export enum AIChatIntentType {
+      Time = 'time',
+      Index = 'index'
+    }
+
+    export enum FeedbackState {
+      Liked = 'liked',
+      Disliked = 'disliked',
+      None = 'none',
+      Unknown = 'unknown'
+    }
+
+    export enum ChartUnit {
+      Currency = 'currency',
+      Ton = 'ton'
+    }
+
+    export interface ChartSeries {
+      xAxis: string
+      labels: Array<string>
+      values: Array<number>
+    }
+
+    export interface ChartPayload {
+      functionName?: FunctionName | null
+      unit: ChartUnit
+      series: Array<ChartSeries>
+      emptyMessage?: string | null
+    }
+
+    export interface ConversationMessage {
+      id: string
+      role: ConversationRole
+      contentKind: ConversationContentKind
+      text?: string | null
+      intentType?: AIChatIntentType | null
+      chartPayload?: ChartPayload | null
+      feedback: FeedbackState
+      historyDetailId?: number | null
+      functionName?: FunctionName | null
+    }
+  ARKTS
+end
+
 def source_files
   Dir.glob(File.join(CONTRACTS_DIR, "**/*.{json,yaml}"))
     .reject { |path| path == MANIFEST_OUTPUT }
@@ -670,7 +951,8 @@ def manifest
     "sourceHash" => source_hash,
     "outputs" => [
       ANDROID_OUTPUT.sub("#{ROOT}/", ""),
-      WEB_OUTPUT.sub("#{ROOT}/", "")
+      WEB_OUTPUT.sub("#{ROOT}/", ""),
+      HARMONY_OUTPUT.sub("#{ROOT}/", "")
     ],
     "sources" => files
   }
@@ -687,8 +969,10 @@ end
 
 write_file(ANDROID_OUTPUT, kotlin_models)
 write_file(WEB_OUTPUT, typescript_models)
+write_file(HARMONY_OUTPUT, arkts_models)
 write_file(MANIFEST_OUTPUT, JSON.pretty_generate(manifest) + "\n")
 
 puts "Generated #{ANDROID_OUTPUT.sub("#{ROOT}/", "")}"
 puts "Generated #{WEB_OUTPUT.sub("#{ROOT}/", "")}"
+puts "Generated #{HARMONY_OUTPUT.sub("#{ROOT}/", "")}"
 puts "Generated #{MANIFEST_OUTPUT.sub("#{ROOT}/", "")}"

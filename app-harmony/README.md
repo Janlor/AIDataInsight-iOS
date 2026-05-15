@@ -5,7 +5,7 @@ AIDataInsight HarmonyOS NEXT 是多端契约的下一阶段实现端。当前目
 ## 当前状态
 
 - 已建立 `app-harmony` 源码骨架。
-- 已固定 ArkTS contract models 的目标路径。
+- 已固定并生成 ArkTS contract models。
 - 已建立 App 路由、Core、Feature 的命名边界。
 - Login、AIHome、Setting、Privacy、History、AIChat 目前是占位页面。
 - 第一版面向学习项目和 mock 环境，不连接真实生产后端。
@@ -36,13 +36,13 @@ app-harmony
 
 ## 生成目标
 
-后续扩展 `scripts/generate-cross-platform-contracts.sh` 时，ArkTS contract models 输出到：
+`scripts/generate-cross-platform-contracts.sh` 已支持输出 ArkTS contract models：
 
 ```text
 app-harmony/entry/src/main/ets/contracts/generated/ContractModels.ets
 ```
 
-不要手改生成文件。模型不对时先改 `docs/cross-platform/contracts`。
+不要手改生成文件。模型不对时先改 `docs/cross-platform/contracts`，再运行生成脚本。
 
 ## 开发规则
 
@@ -54,4 +54,4 @@ app-harmony/entry/src/main/ets/contracts/generated/ContractModels.ets
 
 ## 下一步
 
-阶段 2：扩展契约生成脚本，输出 ArkTS contract models，并用 golden fixtures 做最小 mapper 验证。
+阶段 3：用 golden fixtures 做最小 mapper 验证，先覆盖登录 session、模板问题、历史详情和图表 payload。
