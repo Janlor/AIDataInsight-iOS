@@ -3,6 +3,7 @@ import contractMapperTest from './ContractMapper.test';
 import loginStateTest from './LoginState.test';
 import settingStateTest from './SettingState.test';
 import coreFoundationTest from './core/CoreFoundation.test';
+import historyStateTest from './history/HistoryState.test';
 
 export default function testsuite() {
   localUnitTest();
@@ -10,4 +11,5 @@ export default function testsuite() {
   loginStateTest();
   settingStateTest();
   coreFoundationTest();
+  historyStateTest();
 }
