@@ -22,11 +22,21 @@ contracts/
 
 任何跨端变更都按下面顺序处理：
 
-1. 先更新相关契约文件。
-2. 再更新当前参考实现 iOS。
-3. 再同步到 Android、Web，以及已经进入计划的候选端。
-4. 如果行为是动态的或容易歧义，补充或更新 fixtures。
-5. 最后在 `docs/cross-platform/change-log.md` 记录这次变更。
+1. 先从 iOS 真实实现提炼相关契约草案。
+2. 更新机器可读契约、解释文档和必要 fixtures。
+3. 按契约生成或调整 Android。
+4. 用 Android 运行验证契约是否足够清晰。
+5. 如果 Android 暴露跨端问题，先回写契约和 fixtures，再修正 Android。
+6. Web 和后续端只从已验证契约生成，不能从 iOS 或 Android 页面反推。
+7. 最后在 `docs/cross-platform/change-log.md` 记录这次变更。
+
+简写流程：
+
+```text
+iOS reference -> contract draft -> Android validation -> contract refinement -> Web generation
+```
+
+注意：Android 验证后回写契约不是事后补文档，而是把契约从草案升级为已验证源事实。
 
 ## 契约测试
 

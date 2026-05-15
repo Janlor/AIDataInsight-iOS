@@ -44,11 +44,22 @@
 
 如果变更影响跨端源事实，顺序必须是：
 
-1. 先更新 `docs/cross-platform/contracts/` 中的机器可读契约
-2. 再更新跨端解释文档
-3. 再更新当前端实现
-4. 再同步到其它端
-5. 最后记录本次变更影响范围
+1. 先从 iOS 真实实现提炼契约草案
+2. 再更新 `docs/cross-platform/contracts/` 中的机器可读契约
+3. 再更新跨端解释文档和必要 fixtures
+4. 再按契约生成或调整 Android
+5. 再用 Android 运行验证契约
+6. 如果 Android 暴露跨端问题，回写契约和 fixtures，再修正 Android
+7. 再让 Web / 后续端从已验证契约生成
+8. 最后记录本次变更影响范围
+
+固定节奏：
+
+```text
+iOS reference -> contract draft -> Android validation -> contract refinement -> Web generation
+```
+
+Android 验证后回写契约不是返工，而是契约从草案变成已验证源事实的必要步骤。
 
 机器可读契约包括：
 
