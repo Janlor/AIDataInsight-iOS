@@ -1,0 +1,63 @@
+version: 0.1.0
+feature: setting
+
+layoutIntent:
+  screenRole: authenticatedSettings
+  presentation: modalOrPushedPage
+  background: sharedGradientGroupedBackground
+  contentStyle: insetGroupedList
+
+structure:
+  navigationBar:
+    title: "设置"
+    leadingAction:
+      semantic: close
+      behavior: dismissCurrentSettingSurface
+  content:
+    maxReadableWidth: true
+    scrollable: true
+    safeArea:
+      backgroundExtendsBehindSystemBars: true
+      contentAvoidsSafeArea: true
+    sections:
+      - kind: account
+        header: "账户"
+        rows: [nickname, username, phone]
+      - kind: about
+        header: "关于"
+        rows: [privacy, appVersion]
+      - kind: logout
+        header: null
+        rows: [logout]
+
+rowRules:
+  default:
+    minHeight: compactListRow
+    horizontalPadding: groupedListStandard
+    separator: insetGroupedSeparator
+    titleAlignment: leading
+    detailAlignment: trailing
+  privacy:
+    selectable: true
+    disclosure: true
+  appVersion:
+    selectable: false
+    disclosure: false
+  logout:
+    destructive: true
+    titleAlignment: center
+    disclosure: false
+
+iconRules:
+  source: optionalPlatformNativeIcons
+  rules:
+    - iOS may use SF Symbols for row decoration.
+    - Android/Web must use an available native/icon-library equivalent only when it clearly matches the semantic.
+    - If no matching icon exists, omit the icon and keep row alignment clean.
+    - Never render text placeholders such as "人", "盾", or "i" to imitate SF Symbols.
+
+interactionRules:
+  - Close dismisses Setting and returns to the previous authenticated surface.
+  - Privacy opens routeIntent.openPrivacy.
+  - Logout opens a confirmation dialog before clearing session.
+  - Setting content must remain scrollable on small screens and landscape.

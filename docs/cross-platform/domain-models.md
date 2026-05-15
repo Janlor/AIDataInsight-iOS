@@ -235,6 +235,64 @@ SettingSnapshot
 - `SettingSnapshot` 是跨端共享的核心聚合对象
 - 各端 UI 先消费 snapshot，再映射为本端 `UiState` / `ViewData`
 
+### 3.4 SettingItemAction
+
+来源：
+
+- `Packages/library-common/Sources/Setting/Domain/Models/SettingItemAction.swift`
+
+Canonical Enum:
+
+```text
+SettingItemAction
+  updatePassword
+  privacy
+  logout
+```
+
+说明：
+
+- 这是设置页语义动作
+- 不等于某端路由 API
+
+### 3.5 Setting 页面语义
+
+来源：
+
+- `Packages/library-common/Sources/Setting/SettingViewController.swift`
+- `Packages/library-common/Sources/Setting/Presentation/ViewModels/SettingViewModel.swift`
+- `app-android/feature/setting/src/main/java/com/aidatainsight/android/feature/setting/ui/SettingScreen.kt`
+
+跨端页面结构：
+
+```text
+Setting
+  title: 设置
+  sections:
+    account:
+      - 昵称
+      - 登录名
+      - 手机号
+    about:
+      - 隐私政策
+      - App版本
+    logout:
+      - 退出登录
+```
+
+跨端要求：
+
+- Setting 是已登录后的受保护页面，未登录时不能渲染账户信息
+- 页面采用分组列表语义，不是营销页或 dashboard
+- 空的昵称、登录名、手机号统一显示 `未设置`
+- `隐私政策` 行可点击并显示 disclosure，触发 `openPrivacy`
+- `App版本` 行只展示文本，不可点击
+- `退出登录` 行单独成组，红色、居中、点击前必须弹出确认
+- 退出确认文案固定为 `确认注销并退出系统吗？`，按钮为 `取消` / `确定`
+- 退出成功后清理 session，并替换 root/main surface 到 Login
+- iOS 可以用 SF Symbols 作为装饰图标；Android / Web 只有存在明确匹配的系统或图标库图标时才显示
+- 如果目标端没有合适图标，直接省略图标，不能用 `人`、`盾`、`i` 等文字假装图标
+
 ---
 
 ## 4. Environment Domain
@@ -269,29 +327,9 @@ https://m1.apifoxmock.com/m1/3174267-1700689-default
 - 真实后端环境可以通过平台环境配置覆盖，但不能把 `example.invalid` 当作可运行默认值。
 - API path / method / response envelope 仍以 `contracts/api/openapi.yaml` 为准。
 
-### 3.4 SettingItemAction
-
-来源：
-
-- `Packages/library-common/Sources/Setting/Domain/Models/SettingItemAction.swift`
-
-Canonical Enum:
-
-```text
-SettingItemAction
-  updatePassword
-  privacy
-  logout
-```
-
-说明：
-
-- 这是设置页语义动作
-- 不等于某端路由 API
-
 ---
 
-## 4. History Domain
+## 5. History Domain
 
 ### 4.1 RecordPage
 
@@ -392,7 +430,7 @@ HistoryContentType
 
 ---
 
-## 5. AI Chat Domain
+## 6. AI Chat Domain
 
 ### 5.0 AIChatEndpoint
 
@@ -614,7 +652,7 @@ AccountAgeGroupItem
 
 ---
 
-## 6. Application Output Models
+## 7. Application Output Models
 
 这些对象不是最底层 domain entity，但属于跨端共享的 use case 语义。
 
@@ -657,7 +695,7 @@ SendFunctionMessageOutput
 
 ---
 
-## 7. Naming Rules
+## 8. Naming Rules
 
 ### 7.1 Canonical Names
 
@@ -692,7 +730,7 @@ SendFunctionMessageOutput
 
 ---
 
-## 8. 同步规则
+## 9. 同步规则
 
 当这些模型发生变化时：
 
@@ -704,7 +742,7 @@ SendFunctionMessageOutput
 
 ---
 
-## 9. 当前缺口
+## 10. 当前缺口
 
 这份初稿还没有展开这些对象：
 

@@ -1,0 +1,47 @@
+version: 0.1.0
+feature: setting
+
+state:
+  title: "设置"
+  isLoading: boolean
+  isLoggingOut: boolean
+  errorMessage: string?
+  sections:
+    - kind: account | about | logout
+      title: string?
+      rows:
+        - kind: nickname | username | phone | privacy | appVersion | logout
+          title: string
+          detail: string?
+          action: none | openPrivacy | confirmLogout | openUpdatePassword
+          selectable: boolean
+          destructive: boolean
+          centered: boolean
+          showsDisclosure: boolean
+  logoutDialog:
+    visible: boolean
+    title: "确认注销并退出系统吗？"
+    cancelTitle: "取消"
+    confirmTitle: "确定"
+    confirmRole: destructive
+
+displayText:
+  unset: "未设置"
+  sectionAccount: "账户"
+  sectionAbout: "关于"
+  nickname: "昵称"
+  username: "登录名"
+  phone: "手机号"
+  privacy: "隐私政策"
+  appVersion: "App版本"
+  logout: "退出登录"
+  loggingOut: "退出中..."
+
+rules:
+  - Setting is an authenticated screen. Unauthenticated users must be routed to Login before rendering protected account rows.
+  - Section order is stable: account, about, logout.
+  - Empty account fields display as "未设置".
+  - Privacy row is selectable and shows disclosure only when canOpenPrivacy is true.
+  - App version row is not selectable and does not show disclosure.
+  - Logout row is destructive, centered, selectable, and requires confirmation.
+  - Icons are optional and not part of required UI state. Do not encode SF Symbols names as cross-platform state.

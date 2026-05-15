@@ -1,0 +1,38 @@
+{
+  "description": "Tapping logout shows a destructive confirmation dialog before session clearing.",
+  "state": {
+    "title": "设置",
+    "isLoading": false,
+    "isLoggingOut": false,
+    "errorMessage": null,
+    "sections": [
+      {
+        "kind": "logout",
+        "title": null,
+        "rows": [
+          {
+            "kind": "logout",
+            "title": "退出登录",
+            "detail": null,
+            "action": "confirmLogout",
+            "selectable": true,
+            "destructive": true,
+            "centered": true,
+            "showsDisclosure": false
+          }
+        ]
+      }
+    ],
+    "logoutDialog": {
+      "visible": true,
+      "title": "确认注销并退出系统吗？",
+      "cancelTitle": "取消",
+      "confirmTitle": "确定",
+      "confirmRole": "destructive"
+    }
+  },
+  "expected": {
+    "cancelAction": "dismissDialog",
+    "confirmAction": "logoutThenOpenLoginReplacingRoot"
+  }
+}

@@ -79,6 +79,7 @@ scripts/generate-cross-platform-contracts.sh
 `0.1.0` 版本覆盖：
 
 - Account / Setting 领域模型。
+- Setting use case / UI state / UI layout 契约，用于约束账户信息、关于、退出登录确认、可选图标和分组列表语义。
 - Account 自动登录规则：登录响应 token 归一化、session 持久化、启动读取 session、登录/退出/会话失效后的 root route 替换。
 - Environment 领域模型，包含多端默认学习环境使用的 Apifox mock host。
 - AI Home 领域模型，描述登录成功后的 AI 业务主入口、内容切换和辅助面板语义。
@@ -89,12 +90,15 @@ scripts/generate-cross-platform-contracts.sh
 - AI Chat template 的兼容解析约束：`/chat/template` 的 `data` 可为对象或内嵌 JSON 字符串，但应用层统一看到 `TemplateQuestionSet`。
 - AI Home / AI Chat / History use case 契约。
 - 平台中立的 AI Chat / History / Login UI state。
+- 平台中立的 Setting UI state，用于约束分组、行文案、隐私入口、版本展示和退出确认。
 - 平台中立的 AI Home UI state，用于组合 AIChat、History 和 Settings 入口。
 - Login UI layout 契约，用于约束沉浸式背景、安全区、竖屏单列、横屏双列、readable width、滚动和协议勾选反馈。
+- Setting UI layout 契约，用于约束分组列表、readable width、安全区、退出确认和无合适图标时省略图标。
 - AI Home UI layout 契约，用于约束登录成功后的主入口、聊天主内容、历史辅助面板、设置入口、安全区、键盘避让、背景/蒙层/面板全屏穿透和响应式分栏。
 - AI Chat golden UI fixtures，用于约束初始、模板、发送、意图、图表、fallback 和流式状态。
 - AI Home golden UI fixtures，用于约束登录后进入 AI 主入口、打开历史面板、选择历史会话和开始新会话。
 - Login golden UI fixtures，用于约束 iOS demo 默认值、隐私协议、loading 和按钮可用状态。
+- Setting golden UI fixtures，用于约束加载后的分组列表和退出确认状态。
 - 共享路由意图。
 - 设计 token。
 

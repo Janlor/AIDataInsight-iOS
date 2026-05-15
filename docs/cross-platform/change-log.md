@@ -538,6 +538,44 @@
 - Notes:
   - 本次问题证明“登录接口返回 200”不足以支撑自动登录；token 字段解析、session store 和启动路由必须作为一条主链路一起生成。
 
+## 2026-05-15 - Setting Screen Contract
+
+- Source:
+  - primary platform: `iOS`
+  - validation platform: `Android`
+  - reference files:
+    - `app-ios/Packages/library-common/Sources/Setting/SettingViewController.swift`
+    - `app-ios/Packages/library-common/Sources/Setting/Presentation/ViewModels/SettingViewModel.swift`
+    - `app-android/feature/setting/src/main/java/com/aidatainsight/android/feature/setting/ui/SettingScreen.kt`
+- Change type:
+  - `Domain Change`
+  - `UseCase Contract Change`
+  - `UI State Contract Change`
+  - `UI Layout Contract Change`
+  - `Contract Fixture Change`
+  - `AI Generation Rule Change`
+- Affected source of truth:
+  - `docs/cross-platform/contracts/domain/setting.schema.json`
+  - `docs/cross-platform/contracts/usecases/setting.usecases.yaml`
+  - `docs/cross-platform/contracts/ui-state/setting-state.yaml`
+  - `docs/cross-platform/contracts/ui-layout/setting-layout.yaml`
+  - `docs/cross-platform/contracts/fixtures/ui/setting-*.json`
+  - `docs/cross-platform/domain-models.md`
+  - `docs/ai-generation-guide.md`
+- Impact:
+  - Setting 固定为已认证页面，采用分组列表语义。
+  - 账户分组展示昵称、登录名、手机号；空值显示 `未设置`。
+  - 关于分组展示隐私政策和 App 版本。
+  - 退出登录单独成组，红色居中，必须先弹确认框。
+  - iOS SF Symbols 不是跨端源事实；Android/Web 没有明确匹配图标时应省略图标，不能用文字占位。
+- Synced:
+  - [x] iOS reference inspected
+  - [x] Android
+  - [ ] Web
+  - [ ] 鸿蒙
+- Notes:
+  - 本次沉淀的源事实是 Setting 的领域快照、行语义、动作和布局意图，不是 UITableView、Compose LazyColumn 或某个平台的图标系统。
+
 ---
 
 ## 7. 给 AI 的执行规则

@@ -212,6 +212,29 @@ AI 不应该手写这些生成模型。
 - 如果目标端组件自带 drawer/sheet/list inset，必须判断它是否制造了未绘制的顶部或底部空白；如有冲突，应关闭默认 inset，由契约定义的背景层和内容层分别处理。
 - Android/Web 不得照抄 iOS `ContainerViewController.addChild`、`UINavigationController`、transform 手势实现；只能复用其表达的内容切换语义。
 
+#### Setting / 设置页生成规则
+
+设置页必须读取：
+
+- `docs/cross-platform/contracts/domain/setting.schema.json`
+- `docs/cross-platform/contracts/usecases/setting.usecases.yaml`
+- `docs/cross-platform/contracts/ui-state/setting-state.yaml`
+- `docs/cross-platform/contracts/ui-layout/setting-layout.yaml`
+- `docs/cross-platform/contracts/fixtures/ui/setting-*.json`
+
+生成要求：
+
+- Setting 是已认证页面；未登录时必须先走登录路由，不能渲染账户信息。
+- 页面结构固定为分组列表：账户、关于、退出登录。
+- 账户分组行顺序为：昵称、登录名、手机号；空值显示 `未设置`。
+- 关于分组行顺序为：隐私政策、App版本；隐私政策可点击并显示 disclosure，App版本不可点击。
+- 退出登录必须单独成组，红色、居中、点击后先弹确认框，不能直接退出。
+- 退出确认标题固定为 `确认注销并退出系统吗？`，按钮为 `取消` / `确定`，确定是 destructive action。
+- 退出成功必须清除 session 并替换 root/main surface 到 Login；失败则停留在 Setting 并展示错误。
+- iOS 的 SF Symbols 只是平台装饰，不是跨端契约字段。Android/Web 只有在本端系统或图标库有清晰语义匹配时才显示图标；没有就省略。
+- 不允许用文字占位伪造图标，例如 `人`、`盾`、`i`。
+- 布局必须遵守 grouped list、readable width、safe area 和小屏/横屏可滚动规则。
+
 #### AI Chat Template 解析规则
 
 `/chat/template` 的领域输出固定为 `TemplateQuestionSet`：

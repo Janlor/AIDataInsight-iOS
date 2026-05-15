@@ -1,0 +1,57 @@
+version: 0.1.0
+feature: setting
+sourceReferences:
+  ios:
+    - app-ios/Packages/library-common/Sources/Setting/SettingViewController.swift
+    - app-ios/Packages/library-common/Sources/Setting/Presentation/ViewModels/SettingViewModel.swift
+    - app-ios/Packages/library-common/Sources/Setting/Presentation/ViewData/SettingViewData.swift
+  android:
+    - app-android/feature/setting/src/main/java/com/aidatainsight/android/feature/setting/ui/SettingScreen.kt
+
+repositoryDependencies:
+  - SettingsRepository
+  - AccountSessionStore
+  - PrivacyRouteProvider
+
+usecases:
+  - name: LoadSettingSnapshotUseCase
+    input:
+      session: AccountSession
+    output:
+      snapshot: SettingSnapshot
+    rules:
+      - Requires an authenticated session. If session.isLogin is false, caller must route to login before building Setting UI.
+      - accountInfo is built from remote user info when available, then local cached user/session fallback.
+      - Empty nickname, username, and phone display as "未设置" in UI state mapping.
+      - appVersion is displayed as plain text and is not selectable.
+
+  - name: BuildSettingStateUseCase
+    input:
+      snapshot: SettingSnapshot
+    output:
+      state: SettingUiState
+    rules:
+      - Build sections in this order when available: account, about, logout.
+      - Account section title is "账户" and includes nickname, username, phone rows.
+      - About section title is "关于" and includes privacy when canOpenPrivacy is true, then appVersion.
+      - Logout section has no header and contains a single centered destructive logout row when canLogout is true.
+      - Privacy row emits routeIntent openPrivacy.
+      - Logout row emits confirmLogout before calling logout.
+      - Update password is a capability/action but is not currently visible unless a future contract explicitly adds its row.
+      - Row icons are optional decoration. If the target platform has no matching native/icon-library asset, omit icons instead of using text placeholders or copying SF Symbols.
+
+  - name: ConfirmLogoutUseCase
+    input:
+      current: SettingUiState
+    output:
+      dialog:
+        title: "确认注销并退出系统吗？"
+        cancelTitle: "取消"
+        confirmTitle: "确定"
+        confirmRole: destructive
+    rules:
+      - Tapping logout must show confirmation before performing logout.
+      - Confirm action calls SettingsRepository.logout.
+      - Cancel only dismisses the dialog and does not mutate session.
+      - Successful logout clears protected app state and emits routeIntent openLogin with root/main surface replacement.
+      - Failed logout keeps the user on Setting and surfaces the error message.

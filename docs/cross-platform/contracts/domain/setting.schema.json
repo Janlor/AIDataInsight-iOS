@@ -36,7 +36,14 @@
     "SettingItemAction": {
       "type": "string",
       "enum": ["updatePassword", "privacy", "logout"]
+    },
+    "SettingSectionKind": {
+      "type": "string",
+      "enum": ["account", "about", "logout"]
+    },
+    "SettingDisplayRowKind": {
+      "type": "string",
+      "enum": ["nickname", "username", "phone", "privacy", "appVersion", "logout"]
     }
   }
 }
-
