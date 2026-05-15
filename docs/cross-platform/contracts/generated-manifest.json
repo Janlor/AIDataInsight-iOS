@@ -1,6 +1,6 @@
 {
   "generator": "scripts/generate-cross-platform-contracts.rb",
-  "sourceHash": "6b23c2d41231d857d55fefe6dad7e357254db80dd0538341fbda0df2b70bbd2f",
+  "sourceHash": "9708e22bcda28ede858488a855c4ba910ca1aed28397e9e6253530dc87fa9f8a",
   "outputs": [
     "app-android/core/model/src/main/java/com/aidatainsight/android/core/model/contract/ContractModels.kt",
     "app-web/src/contracts/generated/models.ts",
@@ -173,7 +173,7 @@
     },
     {
       "path": "docs/cross-platform/contracts/ui-layout/login-layout.yaml",
-      "sha256": "3619db43e971c2402260f855011bcc55d3db141e49b22203406af4e5a31a81c4"
+      "sha256": "8bd3fd8426e3691832db7744d24b4e348c6a76b81897d0810681bfda3a7a571f"
     },
     {
       "path": "docs/cross-platform/contracts/ui-layout/setting-layout.yaml",

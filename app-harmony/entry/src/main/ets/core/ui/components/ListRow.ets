@@ -32,7 +32,7 @@ export struct ListRow {
         .fontColor(AppColors.textSecondary)
     }
     .width('100%')
-    .minHeight(AppSpacing.listRowMinHeight)
+    .height(AppSpacing.listRowMinHeight)
     .padding({ top: 10, bottom: 10 })
     .border({ width: { bottom: 1 }, color: AppColors.divider })
     .onClick(this.tapAction)

@@ -51,6 +51,12 @@ struct Index {
         SettingPage({
           onBack: () => {
             this.current = AppDestination.AIHome
+          },
+          onOpenPrivacy: () => {
+            this.current = AppDestination.Privacy
+          },
+          onLogoutSucceeded: () => {
+            this.current = AppDestination.Login
           }
         })
       } else {

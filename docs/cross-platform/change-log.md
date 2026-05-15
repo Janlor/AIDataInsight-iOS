@@ -263,6 +263,31 @@ HarmonyOS NEXT 进入阶段 6：补 AIHome 壳层，承接登录成功后的 AI 
 
 ---
 
+## 2026-05-15 - HarmonyOS NEXT Stage 7 Setting Privacy
+
+### Context
+
+HarmonyOS NEXT 进入阶段 7：补 Setting / Privacy 链路，接账户信息、退出登录和本地隐私政策页面。
+
+### Scope
+
+- 新增 `feature/setting/application/SettingState.ets`。
+- `SettingPage` 展示账户、关于、App 版本和退出登录。
+- `SettingPage` 的隐私政策行路由到 `PrivacyPage`。
+- `SettingPage` 的退出登录先确认，再清 session 并回 Login。
+- 新增 `feature/privacy/application/PrivacyContent.ets`。
+- `PrivacyPage` 展示本地静态隐私政策内容，并支持返回。
+- 本地测试套件新增 Setting state tests。
+
+### Rule
+
+- Setting 是 authenticated screen，未登录状态不得渲染真实账户信息。
+- 空账户字段显示“未设置”。
+- Privacy 可以先用本地静态内容，后续再替换为 WebView 或资源 HTML。
+- 退出登录必须清 session，并替换回 Login，不能留在 AIHome 栈内。
+
+---
+
 ## 2. 变更分类
 
 任何改动先归类，不能直接开始“翻译到其它端”。

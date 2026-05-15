@@ -63,6 +63,24 @@ export interface AIHomeSession {
   activePanel: AIHomePanel
 }
 
+export interface SettingAccountInfo {
+  nickname?: string | null
+  username?: string | null
+  phone?: string | null
+}
+
+export interface SettingCapability {
+  canUpdatePassword: boolean
+  canOpenPrivacy: boolean
+  canLogout: boolean
+}
+
+export interface SettingSnapshot {
+  accountInfo: SettingAccountInfo
+  capability: SettingCapability
+  appVersion: string
+}
+
 export enum HistoryDetailType {
   Question = '1',
   Answer = '2'
