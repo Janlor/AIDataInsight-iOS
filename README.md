@@ -144,6 +144,7 @@ Domain + Data Layer
 AIDataInsight
 ├── app-ios/                 # iOS App、Swift Package 模块和 iOS 专属文档
 ├── app-android/             # Android Gradle 多模块工程
+├── app-harmony/             # HarmonyOS NEXT 源码骨架，后续接入 DevEco 工程
 ├── app-web/                 # Web contract generated models，后续扩展为 Web 工程
 ├── docs/
 │   ├── architecture/        # 架构、端侧策略、演进方案
@@ -158,6 +159,7 @@ AIDataInsight
 
 - iOS 端说明：[app-ios/README.md](app-ios/README.md)
 - Android 端说明：[app-android/README.md](app-android/README.md)
+- HarmonyOS NEXT 端说明：[app-harmony/README.md](app-harmony/README.md)
 - Web 端说明：[app-web/README.md](app-web/README.md)
 
 iOS 端是当前最完整的参考实现。iOS 专属架构设计、Networking 定稿和组件依赖关系图已经移到 [app-ios/docs](app-ios/docs)，根 README 不再重复展开这些端侧细节。

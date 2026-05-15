@@ -12,6 +12,12 @@ iOS -> Android -> HarmonyOS NEXT -> Web -> 其它候选端
 
 iOS 和 Android 已完成主要功能。HarmonyOS NEXT 是下一阶段目标，第一版仍面向学习项目和 mock 环境，不连接真实生产后端。
 
+## 当前执行状态
+
+- [x] 阶段 1 已建立 `app-harmony` 源码骨架、模块边界文档、路由占位和页面占位。
+- [ ] DevEco 工程配置待从已经跑通的模板工程迁入，避免手写版本敏感的 `json5` 配置。
+- [ ] 阶段 2 尚未开始：ArkTS contract models 生成与 mapper tests。
+
 ## 总原则
 
 - 先读 `docs/ai-generation-guide.md` 和 `docs/cross-platform/contracts/README.md`。
