@@ -7,5 +7,5 @@ class DefaultPrivacyRepository : PrivacyRepository {
 
     override fun saveLatestAgreement() = Unit
 
-    override fun privacyPolicyUrl(): String = "https://example.com.cn/privacypolicy"
+    override fun privacyPolicyUrl(): String = "file:///android_asset/privacy_policy.html"
 }

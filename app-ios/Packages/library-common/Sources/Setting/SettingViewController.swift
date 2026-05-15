@@ -8,7 +8,6 @@
 import UIKit
 import BaseUI
 import Router
-import Environment
 import AccountProtocol
 import PrivacyProtocol
 
@@ -77,7 +76,7 @@ private extension SettingViewController {
         case .updatePassword:
             Router.perform(key: AccountRouteService.self)?.toUpdatePassword(from: self)
         case .privacy:
-            let urlString = Environment.server.privacyPolicyURL
+            let urlString = Router.perform(key: PrivacyProtocol.self)?.privacyPolicyURL() ?? ""
             Router.push(from: self, to: PrivacyProtocol.self, animated: true)?
                 .insert(params: ["urlString": urlString])
         case .logout:

@@ -117,7 +117,8 @@ let package = Package(
                 .product(name: "Router", package: "library-basics"),
             ],
             resources: [
-                .process("Localizable.xcstrings")
+                .process("Localizable.xcstrings"),
+                .copy("Resources/privacy_policy.html")
             ],
             linkerSettings: [
                 .linkedFramework("Foundation"),

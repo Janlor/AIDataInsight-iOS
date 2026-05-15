@@ -12,7 +12,7 @@ import BaseUI
 class PrivacyPolicyViewController: BaseViewController {
     
     /// 链接
-    var urlString: String!
+    var urlString: String?
     var webView: WKWebView!
     
     override func setupUI() {
@@ -36,9 +36,15 @@ class PrivacyPolicyViewController: BaseViewController {
     
     override func setupData() {
         super.setupData()
-        guard let url = URL(string: urlString) else { return }
-        let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 20)
-        webView.load(request)
+        let fallbackURL = Bundle.module.url(forResource: "privacy_policy", withExtension: "html")
+        let url = urlString.flatMap(URL.init(string:)) ?? fallbackURL
+        guard let url else { return }
+        if url.isFileURL {
+            webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
+        } else {
+            let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 20)
+            webView.load(request)
+        }
     }
     
     open override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {

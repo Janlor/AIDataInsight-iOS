@@ -23,4 +23,6 @@ class PrivacyPolicyViewModel(
             )
         }
     }
+
+    fun privacyPolicyUrl(): String = repository.privacyPolicyUrl()
 }

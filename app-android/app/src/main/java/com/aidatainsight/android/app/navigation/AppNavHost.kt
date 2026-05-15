@@ -1,9 +1,12 @@
 package com.aidatainsight.android.app.navigation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -18,6 +21,7 @@ import com.aidatainsight.android.feature.setting.ui.SettingScreen
 @Composable
 fun AppNavHost() {
     val navController = rememberNavController()
+    val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val startDestination = remember {
         if (AccountRuntime.graph.sessionStore.isLogin) {
             AppDestination.AIHome.route
@@ -25,6 +29,11 @@ fun AppNavHost() {
             AppDestination.Login.route
         }
     }
+
+    BackHandler(
+        enabled = currentBackStackEntry?.destination?.route == AppDestination.Privacy.route,
+        onBack = { navController.popBackStack() },
+    )
 
     NavHost(
         navController = navController,
@@ -55,7 +64,9 @@ fun AppNavHost() {
             )
         }
         composable(AppDestination.Privacy.route) {
-            PrivacyScreen()
+            PrivacyScreen(
+                onClose = { navController.popBackStack() },
+            )
         }
         composable(AppDestination.History.route) {
             HistoryScreen(respectSafeDrawingArea = true)

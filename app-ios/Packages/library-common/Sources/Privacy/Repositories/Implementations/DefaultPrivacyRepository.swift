@@ -17,6 +17,7 @@ struct DefaultPrivacyRepository: PrivacyRepository {
     }
 
     func privacyPolicyURL() -> String {
-        PolicyManager.privacyPolicyURL
+        Bundle.module.url(forResource: "privacy_policy", withExtension: "html")?.absoluteString
+            ?? PolicyManager.privacyPolicyURL
     }
 }
