@@ -14,13 +14,13 @@
 这份文档服务于当前目标：
 
 - 设计一套稳定领域模型
-- 让 AI 稳定地产生 iOS / Android / Web / Desktop 四端实现
+- 让 AI 稳定地产生 iOS / Android / HarmonyOS NEXT / Web，并为其它候选端保留扩展空间
 
 ---
 
 ## 1. 核心原则
 
-### 1.1 不追求四端代码相同
+### 1.1 不追求各端代码相同
 
 四端保持一致的，不是代码，而是：
 
@@ -34,7 +34,7 @@
 
 以下内容不要求代码同步：
 
-- UIKit / Compose / React / Desktop UI 代码
+- UIKit / Compose / ArkUI / React / Desktop UI 代码
 - 动画 API
 - 布局系统
 - 路由实现
@@ -50,13 +50,13 @@
 4. 再按契约生成或调整 Android
 5. 再用 Android 运行验证契约
 6. 如果 Android 暴露跨端问题，回写契约和 fixtures，再修正 Android
-7. 再让 Web / 后续端从已验证契约生成
+7. 再让 HarmonyOS NEXT / Web / 后续端从已验证契约生成
 8. 最后记录本次变更影响范围
 
 固定节奏：
 
 ```text
-iOS reference -> contract draft -> Android validation -> contract refinement -> Web generation
+iOS reference -> contract draft -> Android validation -> contract refinement -> HarmonyOS native generation -> Web generation
 ```
 
 Android 验证后回写契约不是返工，而是契约从草案变成已验证源事实的必要步骤。
@@ -74,7 +74,7 @@ Android 验证后回写契约不是返工，而是契约从草案变成已验证
 
 旧流程中的“母版文档”现在拆成两层：
 
-- `contracts/` 是四端生成和测试的源事实
+- `contracts/` 是多端生成和测试的源事实
 - Markdown 文档是语义说明和决策背景
 
 历史顺序曾经是：
@@ -83,6 +83,27 @@ Android 验证后回写契约不是返工，而是契约从草案变成已验证
 2. 再更新当前端实现
 3. 再同步到其它端
 4. 最后记录本次变更影响范围
+
+---
+
+## 2026-05-15 - Platform Priority Update
+
+### Context
+
+iOS 和 Android 已完成主要功能开发。下一阶段端侧适配优先级从“Android 后优先 Web，HarmonyOS NEXT 作为候选端”调整为：
+
+1. iOS
+2. Android
+3. HarmonyOS NEXT
+4. Web
+5. macOS / Windows 等其它候选端
+
+### Rule
+
+- Android 继续作为已验证端和契约回归端。
+- HarmonyOS NEXT 成为 Android 后的下一优先级，按 ArkTS / ArkUI / DevEco Studio 原生路线生成。
+- Web 仍保留已有 TypeScript contract models，但完整 Web 工程排在 HarmonyOS NEXT 主链路之后。
+- HarmonyOS NEXT 和 Web 都只能从修正后的契约生成，不能从 iOS 或 Android 页面反推。
 
 ---
 
@@ -160,7 +181,7 @@ Android 验证后回写契约不是返工，而是契约从草案变成已验证
 
 - `docs/cross-platform/contracts/design/tokens.json`
 - `docs/cross-platform/design-tokens.md`
-- iOS / Android / Web / Desktop theme token 映射
+- iOS / Android / HarmonyOS NEXT / Web / 其它候选端 theme token 映射
 
 ### 2.4 Interaction Rule Change
 
@@ -263,14 +284,16 @@ Android 验证后回写契约不是返工，而是契约从草案变成已验证
 按这个顺序更稳：
 
 1. Android
-2. Web
-3. Desktop
+2. HarmonyOS NEXT
+3. Web
+4. 其它候选端
 
 原因：
 
 - 当前 iOS 是结构母版
-- Android 与 iOS 分层映射最直接
-- Web 和 Desktop 更适合在规则稳定后补齐
+- Android 与 iOS 分层映射最直接，且已完成第一轮契约验收
+- HarmonyOS NEXT 是 Android 完成后的下一优先级
+- Web 和其它候选端更适合在 HarmonyOS NEXT 主链路后补齐
 
 ### 4.6 第六步：记录变更
 
@@ -386,7 +409,7 @@ Android 验证后回写契约不是返工，而是契约从草案变成已验证
   - [x] iOS
   - [x] Android
   - [x] Web generated contract model
-  - [ ] 鸿蒙
+  - [ ] HarmonyOS NEXT
 - Notes:
   - 默认学习环境统一为 Apifox mock host：`https://m1.apifoxmock.com/m1/3174267-1700689-default`。
   - 真实后端环境仍可通过平台环境配置覆盖。
@@ -415,7 +438,7 @@ Android 验证后回写契约不是返工，而是契约从草案变成已验证
   - [x] iOS
   - [x] Android
   - [x] Web generated contract model
-  - [ ] 鸿蒙
+  - [ ] HarmonyOS NEXT
 - Notes:
   - AI Chat SSE path 属于 AI Chat 子域，不能放进全局环境配置。
   - SSE URL 由平台网络层使用全局 `baseUrl` 和 AI Chat 领域 `streamPath` 组合得到，仓储层不能硬编码完整 URL，也不能直接引入底层 Networking 配置。
@@ -443,7 +466,7 @@ Android 验证后回写契约不是返工，而是契约从草案变成已验证
   - [x] Android
   - [ ] iOS
   - [ ] Web
-  - [ ] 鸿蒙
+  - [ ] HarmonyOS NEXT
 - Notes:
   - 本次不是把 Android 实现上升为唯一标准，而是把 Android 适配过程中验证出来的跨端布局语义沉淀为契约。
   - Web 生成登录页时必须先读取 `ui-state/login-state.yaml` 和 `ui-layout/login-layout.yaml`，再选择 React / CSS 实现方式。
@@ -479,7 +502,7 @@ Android 验证后回写契约不是返工，而是契约从草案变成已验证
   - [x] iOS reference inspected
   - [ ] Android
   - [ ] Web
-  - [ ] 鸿蒙
+  - [ ] HarmonyOS NEXT
 - Notes:
   - `ContainerViewController` 的 UIKit child-controller、navigation controller、transform 动画不是跨端源事实。
   - 跨端源事实是“已认证 AI 模块壳层 + 聊天主内容 + 历史辅助面板 + 设置入口 + 状态保持/切换规则”。
@@ -511,7 +534,7 @@ Android 验证后回写契约不是返工，而是契约从草案变成已验证
   - [x] Android
   - [ ] iOS
   - [ ] Web
-  - [ ] 鸿蒙
+  - [ ] HarmonyOS NEXT
 - Notes:
   - Android 的 `ModalNavigationDrawer`、`ModalDrawerSheet`、`windowInsets` 只是发现问题的实现细节，不是跨端契约。
   - Web 生成时应映射为 CSS 层级：viewport 背景/overlay fixed 全屏，panel background full-height，panel content 使用 safe-area env padding。
@@ -545,7 +568,7 @@ Android 验证后回写契约不是返工，而是契约从草案变成已验证
   - [x] Android
   - [ ] iOS reference already has equivalent behavior
   - [ ] Web
-  - [ ] 鸿蒙
+  - [ ] HarmonyOS NEXT
 - Notes:
   - 本次问题证明“登录接口返回 200”不足以支撑自动登录；token 字段解析、session store 和启动路由必须作为一条主链路一起生成。
 
@@ -583,7 +606,7 @@ Android 验证后回写契约不是返工，而是契约从草案变成已验证
   - [x] iOS reference inspected
   - [x] Android
   - [ ] Web
-  - [ ] 鸿蒙
+  - [ ] HarmonyOS NEXT
 - Notes:
   - 本次沉淀的源事实是 Setting 的领域快照、行语义、动作和布局意图，不是 UITableView、Compose LazyColumn 或某个平台的图标系统。
 
@@ -621,7 +644,7 @@ Android 验证后回写契约不是返工，而是契约从草案变成已验证
   - [x] iOS reference inspected
   - [x] Android
   - [ ] Web
-  - [ ] 鸿蒙
+  - [ ] HarmonyOS NEXT
 - Notes:
   - iOS 的 UITableView、MenuViewController 和图片资源不是跨端源事实；跨端源事实是历史分组、行语义、时间显示和交互动作。
 
@@ -652,7 +675,7 @@ Android 验证后回写契约不是返工，而是契约从草案变成已验证
   - [x] iOS reference inspected
   - [x] Android
   - [ ] Web
-  - [ ] 鸿蒙
+  - [ ] HarmonyOS NEXT
 - Notes:
   - iOS 的 UIKit cell、图片按钮和 SF Symbols 不是跨端源事实；跨端源事实是 AIChat 的背景语义、消息布局、欢迎内容、输入行为和错误兜底。
 
@@ -680,7 +703,7 @@ Android 验证后回写契约不是返工，而是契约从草案变成已验证
   - [x] iOS reference inspected
   - [x] Android
   - [ ] Web
-  - [ ] 鸿蒙
+  - [ ] HarmonyOS NEXT
 
 ---
 

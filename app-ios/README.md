@@ -2,7 +2,7 @@
 
 AIDataInsight iOS 是 AIDataInsight 多端学习项目中的 iOS 端实现。当前 iOS 端是最完整的参考端，使用 UIKit + Swift Package Manager 构建，已经实现登录、设置、隐私协议、AI Chat、历史会话、函数调用分析、图表展示、流式回复和会话反馈等核心功能。
 
-项目的长期目标不是让其它端照抄 iOS 页面，而是从 iOS 的真实实现中提炼领域模型、UseCase、UI State、UI Layout 和 API 契约，再让 Android / Web 等端按契约生成。iOS 端因此既是可运行产品原型，也是跨端契约的重要参考实现。
+项目的长期目标不是让其它端照抄 iOS 页面，而是从 iOS 的真实实现中提炼领域模型、UseCase、UI State、UI Layout 和 API 契约，再让 Android / HarmonyOS NEXT / Web 等端按契约生成。iOS 端因此既是可运行产品原型，也是跨端契约的重要参考实现。
 
 ## 当前能力
 
@@ -110,7 +110,7 @@ ModuleAI
 - 选择历史：关闭 History，并命令 Chat 在原位加载该会话
 - 打开 History：刷新历史列表，但不销毁 Chat 状态
 
-这套实现已经被抽象进跨端契约。后续 Android / Web 不应该照抄 UIKit child-controller 或 transform 细节，只需要实现“主 Chat + History 辅助面板 + 状态保持”的领域语义。
+这套实现已经被抽象进跨端契约。后续 Android / HarmonyOS NEXT / Web 不应该照抄 UIKit child-controller 或 transform 细节，只需要实现“主 Chat + History 辅助面板 + 状态保持”的领域语义。
 
 ## AI Chat 主链路
 

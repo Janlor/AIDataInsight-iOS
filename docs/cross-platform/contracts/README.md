@@ -1,6 +1,6 @@
 # AIDataInsight 跨平台契约包
 
-这个目录是 iOS、Android、Web 以及未来候选端共享的机器可读契约包。
+这个目录是 iOS、Android、HarmonyOS NEXT、Web 以及未来候选端共享的机器可读契约包。
 
 `docs/cross-platform` 下的 Markdown 文档负责解释设计意图和背景；本目录下的文件是多端生成代码和手写镜像实现的源事实。
 
@@ -27,13 +27,13 @@ contracts/
 3. 按契约生成或调整 Android。
 4. 用 Android 运行验证契约是否足够清晰。
 5. 如果 Android 暴露跨端问题，先回写契约和 fixtures，再修正 Android。
-6. Web 和后续端只从已验证契约生成，不能从 iOS 或 Android 页面反推。
+6. HarmonyOS NEXT、Web 和后续端只从已验证契约生成，不能从 iOS 或 Android 页面反推。
 7. 最后在 `docs/cross-platform/change-log.md` 记录这次变更。
 
 简写流程：
 
 ```text
-iOS reference -> contract draft -> Android validation -> contract refinement -> Web generation
+iOS reference -> contract draft -> Android validation -> contract refinement -> HarmonyOS native generation -> Web generation
 ```
 
 注意：Android 验证后回写契约不是事后补文档，而是把契约从草案升级为已验证源事实。
@@ -56,9 +56,9 @@ ruby scripts/validate-cross-platform-contracts.rb
 - 登录 mock 的 snake_case token 字段能归一化为 `AccountSession`，并支持自动登录；
 - `401` / `402` fixtures 能映射到预期的会话处理动作。
 
-## Android / Web 生成
+## Android / HarmonyOS NEXT / Web 生成
 
-Android 和 Web 必须消费由契约生成的模型，不能复制 iOS UIKit 展示模型，也不能从 iOS 页面行为反推业务事实。
+Android、HarmonyOS NEXT 和 Web 必须消费由契约生成的模型，不能复制 iOS UIKit 展示模型，也不能从 iOS 页面行为反推业务事实。
 
 完整的 AI 生成流程见 `docs/ai-generation-guide.md`。
 
@@ -79,10 +79,11 @@ scripts/generate-cross-platform-contracts.sh
 - 不要手改生成文件。
 - 如果生成类型不对，先更新 `contracts/`，再重新生成。
 - Android Compose UI 应该把生成的 contract / application models 映射成本端 UI state。
+- HarmonyOS NEXT ArkUI 页面应该把生成的 contract / application models 映射成本端 page state，不能直接复制 Android Compose 或 Web React 结构。
 - Web React UI 应该把生成的 TypeScript contract / application models 映射成本端 UI state。
 - 没有设计稿时，iOS / Android 的真实实现只能用于提炼 UI state、UI layout、interaction rules、display text 和 golden fixtures；提炼完成后，各端以契约为准。
 - UI layout 契约只描述跨端布局意图，例如 safe area、readable width、响应式分栏、滚动和交互反馈；不能写入 UIKit Auto Layout、Compose Modifier 或 React DOM 结构。
-- Android 和 Web 都不能把 iOS 的 `AIChat`、`AIBarChartData`、`HistorySectionViewData`、UIKit Cell 或 Controller 行为当作源事实。
+- Android、HarmonyOS NEXT 和 Web 都不能把 iOS 的 `AIChat`、`AIBarChartData`、`HistorySectionViewData`、UIKit Cell 或 Controller 行为当作源事实。
 
 ## 第一版覆盖范围
 

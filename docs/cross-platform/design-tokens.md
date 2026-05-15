@@ -145,7 +145,8 @@
 - iOS 使用 AppIcon 资源集
 - Android 使用 adaptive icon
 - Web 使用 favicon / app icon 变体
-- Desktop 使用各平台图标规范
+- HarmonyOS NEXT 使用 ArkUI / HarmonyOS 平台图标规范
+- 其它候选端使用各平台图标规范
 
 ### 4.2 Login Brand Icon
 
@@ -262,7 +263,7 @@
 
 ---
 
-## 7. Android / Web / Desktop 落地建议
+## 7. Android / HarmonyOS NEXT / Web / 候选端落地建议
 
 ### Android
 
@@ -275,10 +276,16 @@
 - 在 `src/styles` 或 `src/theme` 中转成 CSS variables / TS theme object
 - 背景图可按 Web 性能和响应式策略做降级
 
-### Desktop
+### HarmonyOS NEXT
+
+- 优先使用 ArkUI / HarmonyOS 可维护的原生资源和 token 映射
+- 没有明确平台等价图标时省略装饰图标，不用文字假图标占位
+- 背景、safe area、状态栏和导航栏适配必须按 HarmonyOS NEXT 官方窗口能力验证
+
+### 其它候选端
 
 - 保持 token 名称一致
-- 按各桌面框架映射到本地主题系统
+- 按各端框架映射到本地主题系统
 
 ---
 

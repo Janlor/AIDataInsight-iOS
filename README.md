@@ -2,9 +2,9 @@
 
 AIDataInsight 是一个 AI 驱动的数据分析多端应用项目。
 
-项目的核心目标不是“手写多套互相漂移的端侧代码”，而是先设计一套稳定的领域模型、API 契约、业务用例和设计规则，再让 AI 基于这套契约辅助生成 iOS、Android、Web 以及未来候选端实现。
+项目的核心目标不是“手写多套互相漂移的端侧代码”，而是先设计一套稳定的领域模型、API 契约、业务用例和设计规则，再让 AI 基于这套契约辅助生成 iOS、Android、HarmonyOS NEXT、Web 以及未来候选端实现。
 
-当前 iOS 端已完成主要功能开发，并逐步沉淀为参考实现；Android 和 Web 正在按同一份契约启动；鸿蒙、macOS、Windows 等端暂作为后续候选方向评估。
+当前 iOS 和 Android 已完成主要功能开发，并逐步沉淀为参考实现与契约验收端；下一阶段优先适配 HarmonyOS NEXT，其次再适配 Web；macOS、Windows 等端暂作为后续候选方向评估。
 
 ## 项目理念
 
@@ -25,7 +25,7 @@ contracts -> generated models -> repository -> usecase -> UI state mapper -> UI
 - 设计 token
 - golden fixtures / contract tests
 
-iOS 当前是参考实现，但不是其它端照抄的来源。Android / Web / 未来鸿蒙端都应该从 `docs/cross-platform/contracts` 出发，而不是从 iOS 页面、Cell 或 ViewData 反推业务模型。
+iOS 当前是参考实现，但不是其它端照抄的来源。Android / HarmonyOS NEXT / Web / 未来候选端都应该从 `docs/cross-platform/contracts` 出发，而不是从 iOS 页面、Cell 或 ViewData 反推业务模型。
 
 ## 当前端侧策略
 
@@ -33,9 +33,9 @@ iOS 当前是参考实现，但不是其它端照抄的来源。Android / Web / 
 
 ```text
 P0 iOS：已完成主要功能，继续稳定和契约化
-P1 Android：第二优先级，先跑通主链路
-P2 Web：第三优先级，先跑通主链路
-P3 鸿蒙：候选端，等前三端后评估
+P1 Android：已完成主要功能，继续作为契约验收端
+P2 HarmonyOS NEXT：下一优先级，按契约启动 ArkTS / ArkUI 原生实现
+P3 Web：HarmonyOS NEXT 主链路后再推进，先保留 contract models
 P4 macOS：短期靠 iPadOS 兼容模式，SwiftUI 化后再看
 P5 Windows：暂不规划，未来优先 Web / PWA
 ```
@@ -80,7 +80,7 @@ P5 Windows：暂不规划，未来优先 Web / PWA
 -> 对话气泡增量展示
 ```
 
-iOS 端当前已落地流式响应和打字机式渲染，Android / Web 后续会按同一 use case 语义分别映射到 `Flow` 和 `ReadableStream` / async iterator。
+iOS 端当前已落地流式响应和打字机式渲染，Android 已按同一 use case 语义映射到 `Flow`；后续 HarmonyOS NEXT 应映射到 ArkTS 可维护的异步流/状态更新机制，Web 再映射到 `ReadableStream` / async iterator。
 
 ## 架构分层
 
@@ -197,9 +197,29 @@ app-android
 - Kotlinx Serialization
 - Ktor Client 或 Retrofit
 
+## HarmonyOS NEXT 当前状态
+
+HarmonyOS NEXT 是 Android 完成后的下一优先级。当前尚未建立完整工程，建议先按契约做最小可运行链路：
+
+推荐评估路线：
+
+```text
+contracts -> ArkTS models -> mapper tests -> mock page -> repository -> network -> 真机验证
+```
+
+推荐技术栈：
+
+- ArkTS
+- ArkUI 声明式 UI
+- DevEco Studio
+- 官方网络能力或项目统一网络封装
+- DevEco Studio 单元测试 / UI 测试 / 模拟器验证
+
+没有 HarmonyOS NEXT 真机时，先以编译、模拟器、contract fixtures 和官方文档对照为主；真机能力、性能和发布链路需要单独标记为未验证。
+
 ## Web 当前状态
 
-Web 端目前已生成 TypeScript contract models：
+Web 端目前已生成 TypeScript contract models，但完整 Web 工程排在 HarmonyOS NEXT 之后：
 
 - `app-web/src/contracts/generated/models.ts`
 
@@ -212,15 +232,7 @@ Web 端目前已生成 TypeScript contract models：
 - ECharts 或 AntV
 - Vitest / Testing Library / Playwright
 
-## 鸿蒙与桌面端
-
-鸿蒙暂作为候选端，建议等 iOS / Android / Web 三端主链路完成后再评估。
-
-推荐评估路线：
-
-```text
-contracts -> ArkTS models -> mapper tests -> mock page -> repository -> network -> 真机验证
-```
+## 桌面端
 
 macOS 当前可以通过 iPadOS 兼容模式运行 iOS App。未来如果 UIKit 逐步迁移 SwiftUI，可再评估 macOS 原生 target。
 
@@ -251,7 +263,7 @@ contracts/
 scripts/validate-cross-platform-contracts.sh
 ```
 
-生成 Android / Web contract models：
+生成 Android / Web contract models；HarmonyOS NEXT 工程建立后也应接入同一生成链路：
 
 ```bash
 scripts/generate-cross-platform-contracts.sh
@@ -299,6 +311,6 @@ AI 生成端侧代码时必须遵守固定协议：
 
 - 当前仓库以 AI 数据分析 Demo、多端架构设计和契约驱动生成实践为主
 - iOS 已经具备完整参考实现
-- Android / Web 正在从契约生成和脚手架逐步推进
+- iOS / Android 已完成主要功能，下一阶段优先 HarmonyOS NEXT，其次 Web
 - 部分接口和流式数据仍可能使用 mock
-- 鸿蒙、macOS、Windows 暂不作为当前阶段强目标
+- macOS、Windows 暂不作为当前阶段强目标

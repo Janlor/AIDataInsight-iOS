@@ -3,11 +3,11 @@
 ## 目标
 
 > 端侧优先级和技术栈建议见 `docs/architecture/platform-adaptation-strategy.md`。
-> 当前明确优先支持 iOS / Android / Web；鸿蒙、macOS、Windows 暂作为后续候选端评估。
+> 当前明确优先支持 iOS / Android / HarmonyOS NEXT / Web；macOS、Windows 暂作为后续候选端评估。
 
 这份蓝图回答的是：
 
-- 在你当前真实包结构上，未来 Android 和 Web 应该如何映射
+- 在你当前真实包结构上，未来 Android、HarmonyOS NEXT 和 Web 应该如何映射
 - iOS 代码应该先演进到什么形态
 - 哪些东西共享“规则”，哪些东西各端独立实现
 
@@ -27,7 +27,7 @@
 
 ## 设计原则
 
-你的目标不是“一个人写多套完全不同的程序”，而是“一个人维护一套稳定的业务模型，让 AI 去帮助生成 iOS / Android / Web，并为后续候选端保留扩展空间”。
+你的目标不是“一个人写多套完全不同的程序”，而是“一个人维护一套稳定的业务模型，让 AI 去帮助生成 iOS / Android / HarmonyOS NEXT / Web，并为后续候选端保留扩展空间”。
 
 所以真正应该共享的是：
 
@@ -42,6 +42,7 @@
 
 - UIKit 页面代码
 - Android Compose 页面代码
+- HarmonyOS NEXT ArkUI 页面代码
 - Web React 页面代码
 
 ## 基于当前仓库的目标分层
@@ -192,7 +193,7 @@
 3. 再拆模型
 4. 最后再考虑拆 target
 
-## 前三端映射关系
+## 当前优先端映射关系
 
 ### iOS
 
@@ -207,6 +208,13 @@
 - 状态层：`ViewModel + StateFlow`
 - 数据层：repository + Retrofit/Ktor
 - 流式输出：`Flow`
+
+### HarmonyOS NEXT
+
+- 表现层：ArkUI + ArkTS
+- 状态层：ArkUI page state / 状态管理机制
+- 数据层：data service / repository
+- 流式输出：ArkTS 可维护的异步流或状态增量更新
 
 ### Web
 
@@ -350,13 +358,14 @@ enum AppRouteIntent {
 - 仓储协议稳定
 - 路由意图稳定
 
-### 里程碑 3：Android/Web 启动
+### 里程碑 3：Android / HarmonyOS NEXT / Web 启动
 
 完成标准：
 
 - Android 可以按同一仓储协议实现数据层
+- HarmonyOS NEXT 可以按同一实体、use case 和页面状态契约生成 ArkTS / ArkUI 实现
 - Web 可以按同一实体和请求模型实现服务层
-- AI 可以根据同一文档稳定生成 iOS / Android / Web 代码，并为候选端复用契约
+- AI 可以根据同一文档稳定生成 iOS / Android / HarmonyOS NEXT / Web 代码，并为候选端复用契约
 
 ## 你现在最值得做的事
 
@@ -365,8 +374,8 @@ enum AppRouteIntent {
 1. 继续收敛 `module-ai` 的 application/use case 层
 2. 冻结领域契约与请求契约
 3. 继续减少 UIKit-only 模型和路由耦合
-4. 把当前 iOS 结构作为 Android / Web 的正式母版
-5. 再开始 Android/Web 实现
+4. 把当前 iOS 结构和 Android 验证结果作为 HarmonyOS NEXT / Web 的正式契约依据
+5. Android 完成后先开始 HarmonyOS NEXT，再推进 Web
 
 ## 结论
 
@@ -376,6 +385,6 @@ enum AppRouteIntent {
 - 业务边界先稳定
 - 异步模型先统一
 - 契约先沉淀
-- 然后让 AI 基于这套契约生成 Android 和 Web
+- 然后让 AI 基于这套契约生成 Android、HarmonyOS NEXT 和 Web
 
 这是最适合“一人 + AI + 多端学习”的路线。

@@ -11,7 +11,7 @@
 
 - 固定跨端的业务对象命名
 - 固定核心字段语义
-- 防止 iOS / Android / Web / Desktop 各自长出不同模型
+- 防止 iOS / Android / HarmonyOS NEXT / Web / 其它候选端各自长出不同模型
 - 作为 AI 生成多端代码时的主要输入之一
 
 这份文档只描述：
@@ -134,7 +134,7 @@ AccountUser
 
 跨端要求：
 
-- Android / Web / Desktop 不继续使用 `nikeName`
+- Android / HarmonyOS NEXT / Web / 其它候选端不继续使用 `nikeName`
 - iOS 后续如果重构字段命名，应向 `nickname` 靠拢
 
 ### 2.3 MenuItem
@@ -290,7 +290,7 @@ Setting
 - `退出登录` 行单独成组，红色、居中、点击前必须弹出确认
 - 退出确认文案固定为 `确认注销并退出系统吗？`，按钮为 `取消` / `确定`
 - 退出成功后清理 session，并替换 root/main surface 到 Login
-- iOS 可以用 SF Symbols 作为装饰图标；Android / Web 只有存在明确匹配的系统或图标库图标时才显示
+- iOS 可以用 SF Symbols 作为装饰图标；Android / HarmonyOS NEXT / Web 只有存在明确匹配的系统或图标库图标时才显示
 - 如果目标端没有合适图标，直接省略图标，不能用 `人`、`盾`、`i` 等文字假装图标
 
 ---
@@ -323,7 +323,7 @@ https://m1.apifoxmock.com/m1/3174267-1700689-default
 
 跨端要求：
 
-- iOS / Android / Web 在没有显式环境覆盖时，都应默认使用这个 mock host。
+- iOS / Android / HarmonyOS NEXT / Web 在没有显式环境覆盖时，都应默认使用这个 mock host。
 - 真实后端环境可以通过平台环境配置覆盖，但不能把 `example.invalid` 当作可运行默认值。
 - API path / method / response envelope 仍以 `contracts/api/openapi.yaml` 为准。
 
@@ -756,7 +756,7 @@ SendFunctionMessageOutput
 说明：
 
 - 这是典型的跨端共享业务分支
-- Android / Web 不要把这块重新写成完全不同的结果结构
+- Android / HarmonyOS NEXT / Web 不要把这块重新写成完全不同的结果结构
 
 ---
 
@@ -791,7 +791,7 @@ SendFunctionMessageOutput
 说明：
 
 - 这些名字暂时不要求立刻在 iOS 内部重构
-- 但 Android / Web / Desktop 的新实现应以 canonical name 为准
+- 但 Android / HarmonyOS NEXT / Web / 其它候选端的新实现应以 canonical name 为准
 
 ---
 
@@ -802,7 +802,7 @@ SendFunctionMessageOutput
 1. 先更新本文件
 2. 再更新 `Docs/architecture/*` 映射文档
 3. 再更新 iOS 当前实现
-4. 再同步 Android / Web / Desktop
+4. 再同步 Android / HarmonyOS NEXT / Web / 其它候选端
 5. 最后在 `Docs/cross-platform/change-log.md` 追加记录
 
 ---

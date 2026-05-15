@@ -665,7 +665,7 @@ Response:
 1. 先更新本文件
 2. 再更新 `Docs/cross-platform/domain-models.md` 中受影响模型
 3. 再更新 iOS 当前实现
-4. 再同步 Android / Web / Desktop
+4. 再同步 Android / HarmonyOS NEXT / Web / 其它候选端
 5. 最后在 `Docs/cross-platform/change-log.md` 追加记录
 
 ---

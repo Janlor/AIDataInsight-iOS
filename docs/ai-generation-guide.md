@@ -2,7 +2,7 @@
 
 ## 文档目的
 
-这份文档固定 AI 生成 iOS / Android / Web / 鸿蒙 / 其它候选端代码时必须遵守的协议。
+这份文档固定 AI 生成 iOS / Android / HarmonyOS NEXT / Web / 其它候选端代码时必须遵守的协议。
 
 它的目标不是让 AI “看着某一端页面照抄”，而是让 AI 只从跨平台契约、目标端模块映射和 golden fixtures 出发，稳定地产生各端实现。
 
@@ -63,18 +63,18 @@ iOS 真实实现
   -> Android 运行验证
   -> 把 Android 暴露的问题回写契约
   -> Android 对齐修正后的契约
-  -> Web / 后续端按已验证契约生成
+  -> HarmonyOS NEXT / Web / 后续端按已验证契约生成
 ```
 
 规则：
 
 - iOS 是参考实现，用来提炼领域、use case、UI state、layout 和 fixtures。
-- 不要先完整生成 Android，再事后把契约写成说明书；那样 Web 仍会踩同样的问题。
+- 不要先完整生成 Android，再事后把契约写成说明书；那样 HarmonyOS NEXT / Web 仍会踩同样的问题。
 - 契约草案不要求一次完美，但必须覆盖主链路后再生成 Android。
 - Android 是第一轮验收平台，用来暴露 iOS 没显式表达或跨端不成立的细节。
-- Android 运行中发现的问题，如果影响 Web / 后续端，必须回写契约和 fixtures。
+- Android 运行中发现的问题，如果影响 HarmonyOS NEXT / Web / 后续端，必须回写契约和 fixtures。
 - 回写契约不是返工，而是把契约从草案升级为已验证源事实。
-- Web / 鸿蒙 / 其它端只能从修正后的契约生成，不能从 Android 页面再次反推。
+- HarmonyOS NEXT / Web / 其它端只能从修正后的契约生成，不能从 Android 页面再次反推。
 
 ---
 
@@ -97,6 +97,7 @@ iOS 真实实现
 目标端模块映射文档：
 
 - Android：`app-android/docs/android-module-mapping-checklist.md`
+- HarmonyOS NEXT：优先读取 `docs/architecture/platform-adaptation-strategy.md` 中的 HarmonyOS / OpenHarmony 章节；正式建工程后补充 `app-harmony/docs/*`
 - Android / Web 脚手架：`docs/architecture/android-web-scaffold-design.md`
 - 总体蓝图：`docs/architecture/cross-platform-blueprint.md`
 - 端侧优先级和技术栈：`docs/architecture/platform-adaptation-strategy.md`
@@ -171,7 +172,7 @@ AI 不应该手写这些生成模型。
 - Android 映射到 Compose 需要的 state / model
 - Web 映射到 React state / hook result
 - iOS 映射到 UIKit view data
-- 鸿蒙映射到 ArkUI 页面状态
+- HarmonyOS NEXT 映射到 ArkUI 页面状态
 - Desktop 映射到本端 native UI model
 
 ### 6. UI Implementation
@@ -381,7 +382,37 @@ FunctionName -> FunctionArguments kind -> /chart/{FunctionName.rawValue} -> Char
 - Repository 不依赖 Compose
 - 生成模型来自 `ContractModels.kt`
 
+### HarmonyOS NEXT
+
+当前优先级：
+
+- Android 完成后，HarmonyOS NEXT 优先于 Web。
+- HarmonyOS NEXT 实现必须从已验证契约生成，不从 iOS UIKit、Android Compose 或 Web React 页面反推。
+
+优先生成顺序：
+
+1. contract models / ArkTS types
+2. mapper tests / golden fixtures
+3. data service / repository
+4. application usecase
+5. page state
+6. ArkUI page
+7. route / Ability integration
+
+规则：
+
+- 使用 ArkTS + ArkUI + DevEco Studio
+- 先生成 contract models 和 mapper，再生成 ArkUI 页面
+- 没有真机时，必须明确说明设备能力、性能和发布链路未验证
+- ArkTS 不是 TypeScript，不能直接复制 Web 代码
+- ArkUI 状态、生命周期、路由和权限必须按 HarmonyOS NEXT 官方能力实现
+
 ### Web
+
+当前优先级：
+
+- Web 排在 HarmonyOS NEXT 之后。
+- 已有 TypeScript contract models 可以保留，但完整 Web 工程不早于 HarmonyOS NEXT 主链路。
 
 优先生成顺序：
 
@@ -467,16 +498,6 @@ struct DefaultAIChatRepository: AIChatRepository {
 }
 ```
 
-### 鸿蒙 HarmonyOS / OpenHarmony
-
-规则：
-
-- 暂不作为前三端同阶段目标
-- 若启动，优先使用 ArkTS + ArkUI + DevEco Studio
-- 先生成 contract models 和 mapper，再生成 ArkUI 页面
-- 没有真机时，必须明确说明设备能力、性能和发布链路未验证
-- 不从 iOS UIKit、Android Compose 或 Web React 页面反推鸿蒙模型
-
 ### macOS / Windows 等候选桌面端
 
 规则：
@@ -533,7 +554,7 @@ AI 最终回复必须说明：
 请严格按 `docs/ai-generation-guide.md` 生成代码。
 
 目标端：
-- Android / Web / iOS / 鸿蒙 / 其它候选端
+- iOS / Android / HarmonyOS NEXT / Web / 其它候选端
 
 目标功能：
 - 在这里描述功能
