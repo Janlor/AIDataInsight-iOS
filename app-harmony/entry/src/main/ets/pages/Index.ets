@@ -5,6 +5,7 @@ import { AIDataInsightGradientBackground } from '../core/ui/components/AIDataIns
 import { AppColors, AppTypography } from '../core/ui/theme/AppTheme'
 import { LoginPage } from '../feature/login/pages/LoginPage'
 import { PrivacyPage } from '../feature/privacy/pages/PrivacyPage'
+import { SettingPage } from '../feature/setting/pages/SettingPage'
 
 @Entry
 @Component
@@ -35,11 +36,21 @@ struct Index {
         .height('100%')
         .justifyContent(FlexAlign.Center)
       } else if (this.current === AppDestination.AIHome) {
-        AIHomePage()
+        AIHomePage({
+          onOpenSettings: () => {
+            this.current = AppDestination.Setting
+          }
+        })
       } else if (this.current === AppDestination.Privacy) {
         PrivacyPage({
           onBack: () => {
             this.current = AppDestination.Login
+          }
+        })
+      } else if (this.current === AppDestination.Setting) {
+        SettingPage({
+          onBack: () => {
+            this.current = AppDestination.AIHome
           }
         })
       } else {
