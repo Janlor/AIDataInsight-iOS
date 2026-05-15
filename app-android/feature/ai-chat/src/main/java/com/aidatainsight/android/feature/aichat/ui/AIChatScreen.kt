@@ -2,6 +2,8 @@ package com.aidatainsight.android.feature.aichat.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,11 +14,13 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -34,14 +38,23 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.aidatainsight.android.core.model.contract.ChartPayload
+import com.aidatainsight.android.core.model.contract.ChartSeries
+import com.aidatainsight.android.core.model.contract.ChartUnit
+import com.aidatainsight.android.core.model.contract.FeedbackState
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.aidatainsight.android.core.ui.theme.AIDataInsightThemeTokens
+import com.aidatainsight.android.feature.aichat.R
 import com.aidatainsight.android.feature.aichat.presentation.AIChatMessageContentKindUi
 import com.aidatainsight.android.feature.aichat.presentation.AIChatMessageRoleUi
 import com.aidatainsight.android.feature.aichat.presentation.AIChatMessageUiModel
@@ -99,7 +112,14 @@ fun AIChatScreen(
                 }
 
                 items(uiState.messages, key = { it.id }) { message ->
-                    MessageBubble(message)
+                    MessageBubble(
+                        message = message,
+                        onFeedback = viewModel::sendFeedback,
+                    )
+                }
+
+                item(key = "chat-bottom-anchor") {
+                    Spacer(modifier = Modifier.height(1.dp))
                 }
             }
 
@@ -136,9 +156,14 @@ fun AIChatScreen(
 
     LaunchedEffect(uiState.templateQuestions.size, uiState.messages.size) {
         val welcomeCount = if (uiState.templateQuestions.isNotEmpty()) 1 else 0
-        val lastIndex = welcomeCount + uiState.messages.size - 1
-        if (lastIndex >= 0) {
-            lazyListState.animateScrollToItem(lastIndex)
+        val loadingCount = if (
+            uiState.messages.isEmpty() &&
+            uiState.templateQuestions.isEmpty() &&
+            uiState.isLoadingTemplate
+        ) 1 else 0
+        val contentCount = welcomeCount + loadingCount + uiState.messages.size
+        if (contentCount > 0) {
+            lazyListState.animateScrollToItem(contentCount)
         }
     }
 }
@@ -241,15 +266,23 @@ private fun QueryExampleRow(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun MessageBubble(message: AIChatMessageUiModel) {
+private fun MessageBubble(
+    message: AIChatMessageUiModel,
+    onFeedback: (String, Int?, FeedbackState) -> Unit,
+) {
     val isUser = message.role == AIChatMessageRoleUi.User
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start,
-    ) {
-        if (isUser) {
+    if (isUser) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
+        ) {
             UserBubble(text = message.text)
-        } else {
+        }
+    } else {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.Start,
+        ) {
             AssistantBubble {
                 if (message.contentKind == AIChatMessageContentKindUi.Chart) {
                     Text(
@@ -263,8 +296,217 @@ private fun MessageBubble(message: AIChatMessageUiModel) {
                     style = MaterialTheme.typography.bodyMedium,
                     color = AIDataInsightThemeTokens.colors.label.primary,
                 )
+                message.chartPayload?.let { payload ->
+                    ChartPayloadView(
+                        payload = payload,
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                }
+            }
+            if (message.contentKind == AIChatMessageContentKindUi.Chart && message.historyDetailId != null) {
+                FeedbackControl(
+                    feedback = message.feedback,
+                    onLike = { onFeedback(message.id, message.historyDetailId, FeedbackState.Liked) },
+                    onDislike = { onFeedback(message.id, message.historyDetailId, FeedbackState.Disliked) },
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .widthIn(max = 180.dp),
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun ChartPayloadView(
+    payload: ChartPayload,
+    modifier: Modifier = Modifier,
+) {
+    val colors = AIDataInsightThemeTokens.colors
+    if (payload.series.isEmpty()) {
+        Text(
+            text = payload.emptyMessage ?: "数据分析还在测试阶段，很快就能上线，敬请期待！",
+            style = MaterialTheme.typography.bodyMedium,
+            color = colors.label.primary,
+        )
+        return
+    }
+    val unitText = when (payload.unit) {
+        ChartUnit.Currency -> "万元"
+        ChartUnit.Ton -> "万吨"
+    }
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Text(
+            text = "单位：$unitText",
+            style = MaterialTheme.typography.labelSmall,
+            color = colors.label.tertiary,
+        )
+        SimpleBarChart(
+            payload = payload,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(205.dp),
+        )
+        ChartLegend(payload = payload)
+    }
+}
+
+@Composable
+private fun SimpleBarChart(
+    payload: ChartPayload,
+    modifier: Modifier = Modifier,
+) {
+    val colors = AIDataInsightThemeTokens.colors
+    val palettes = colors.chart.orderedPalettes.map { it.first() }
+    val labelColor = colors.label.tertiary
+    val axisColor = colors.separator
+    val series = payload.series.take(7)
+    val maxTotal = series.maxOfOrNull { it.values.sum().coerceAtLeast(0.0) }?.takeIf { it > 0.0 } ?: 1.0
+
+    Column(modifier = modifier) {
+        Canvas(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+        ) {
+            val chartBottom = size.height - 1.dp.toPx()
+            drawLine(
+                color = axisColor,
+                start = Offset(0f, chartBottom),
+                end = Offset(size.width, chartBottom),
+                strokeWidth = 1.dp.toPx(),
+            )
+            val slotWidth = size.width / series.size.coerceAtLeast(1)
+            val barWidth = (slotWidth * 0.42f).coerceAtMost(30.dp.toPx())
+            series.forEachIndexed { index, item ->
+                val left = index * slotWidth + (slotWidth - barWidth) / 2f
+                var bottom = chartBottom
+                item.values.forEachIndexed { valueIndex, rawValue ->
+                    val height = ((rawValue.coerceAtLeast(0.0) / maxTotal) * (size.height - 12.dp.toPx())).toFloat()
+                    val top = bottom - height
+                    drawRect(
+                        color = palettes[valueIndex % palettes.size],
+                        topLeft = Offset(left, top),
+                        size = Size(barWidth, height),
+                    )
+                    bottom = top
+                }
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround,
+        ) {
+            series.forEach { item ->
+                Text(
+                    text = item.xAxis,
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = labelColor,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ChartLegend(payload: ChartPayload) {
+    val colors = AIDataInsightThemeTokens.colors
+    val first = payload.series.firstOrNull() ?: return
+    val labels = first.labels.ifEmpty { payload.series.map { it.xAxis } }
+    val palettes = colors.chart.orderedPalettes.map { it.first() }
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        labels.forEachIndexed { index, label ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(palettes[index % palettes.size]),
+                )
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = colors.label.secondary,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FeedbackControl(
+    feedback: FeedbackState,
+    onLike: () -> Unit,
+    onDislike: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = AIDataInsightThemeTokens.colors
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(15.dp))
+            .background(colors.groupedBackground.secondary)
+            .border(1.dp, colors.separator, RoundedCornerShape(15.dp)),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        FeedbackButton(
+            contentDescription = "有用",
+            selected = feedback == FeedbackState.Liked,
+            normalResource = R.drawable.like_normal,
+            selectedResource = R.drawable.like_selected,
+            onClick = onLike,
+            modifier = Modifier.weight(1f),
+        )
+        Box(
+            modifier = Modifier
+                .height(20.dp)
+                .widthIn(min = 1.dp)
+                .background(colors.separator),
+        )
+        FeedbackButton(
+            contentDescription = "无用",
+            selected = feedback == FeedbackState.Disliked,
+            normalResource = R.drawable.unlike_normal,
+            selectedResource = R.drawable.unlike_selected,
+            onClick = onDislike,
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+@Composable
+private fun FeedbackButton(
+    contentDescription: String,
+    selected: Boolean,
+    normalResource: Int,
+    selectedResource: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .defaultMinSize(minHeight = 30.dp, minWidth = 54.dp)
+            .clickable(enabled = !selected, onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 7.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Image(
+            painter = painterResource(id = if (selected) selectedResource else normalResource),
+            contentDescription = contentDescription,
+            modifier = Modifier.size(18.dp),
+        )
     }
 }
 
@@ -365,7 +607,13 @@ private fun ChatComposer(
             onClick = onSend,
             enabled = canSend,
         ) {
-            Text("发送")
+            Image(
+                painter = painterResource(id = R.drawable.send),
+                contentDescription = "发送",
+                modifier = Modifier
+                    .size(22.dp)
+                    .alpha(if (canSend) 1f else 0.2f),
+            )
         }
     }
 }

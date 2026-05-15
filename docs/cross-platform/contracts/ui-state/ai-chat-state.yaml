@@ -67,11 +67,15 @@ rules:
   - Function analysis chart request stores historyId before loading chart data.
   - Chart success replaces the loading message with an assistant chart message whose text is displayText.chartTitle.
   - Chart failure or empty chart replaces the loading message with an assistant text/error message using displayText.chartFallback unless a contract failure message exists.
+  - Chart UI renders from ChartPayload only; UI must not parse or display raw API chart JSON.
+  - Chart values are displayed in ten-thousand units, matching the unit label 万元 or 万吨.
   - Streaming output appends chunks to the current assistant streaming message in order.
   - Stream failure replaces the current streaming/loading message with displayText.genericError unless a concrete message exists.
   - Clear conversation removes messages, clears historyId, clears inputText, resets sending/streaming flags, and disables clear.
   - Feedback can only be sent for chart messages with historyDetailId.
   - Liked and disliked are mutually exclusive; selecting one replaces the previous feedback state.
+  - Feedback request uses string semantics where "1" means liked and "0" means disliked.
+  - Feedback request failure restores the previous message feedback state.
   - Template questions are displayed inside an assistant welcome bubble, not as a generic card or marketing panel.
   - AIChat embedded in AIHome must not duplicate the AIHome navigation title.
 platformNotes:

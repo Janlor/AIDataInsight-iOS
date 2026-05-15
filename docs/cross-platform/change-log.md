@@ -656,6 +656,32 @@ Android 验证后回写契约不是返工，而是契约从草案变成已验证
 - Notes:
   - iOS 的 UIKit cell、图片按钮和 SF Symbols 不是跨端源事实；跨端源事实是 AIChat 的背景语义、消息布局、欢迎内容、输入行为和错误兜底。
 
+## 2026-05-15 - AIChat Chart and Feedback Contract
+
+- Source:
+  - primary platform: `iOS`
+  - validation platform: `Android`
+  - reference files:
+    - `app-ios/Packages/module-ai/Sources/ModuleAI/Presentation/AIChat/Views/AIChatChartCell.swift`
+    - `app-ios/Packages/module-ai/Sources/ModuleAI/Presentation/AIChat/Views/AIChatLegendChartCell.swift`
+    - `app-ios/Packages/module-ai/Sources/ModuleAI/Presentation/AIChat/Views/AIChatFeedbackView.swift`
+    - `app-android/feature/ai-chat/src/main/java/com/aidatainsight/android/feature/aichat/ui/AIChatScreen.kt`
+- Change type:
+  - `UI Layout Contract Change`
+  - `UI State Contract Change`
+  - `Android Implementation Change`
+- Impact:
+  - Chart message 必须从 `ChartPayload` 渲染，不允许 UI 解析或显示 raw API JSON。
+  - 普通图表渲染为柱状图，多值图表渲染为堆叠柱状图，单位按“万”展示。
+  - 图表生成后必须滚动到 transcript 底部锚点，确保图表和反馈区可见。
+  - 反馈只在 chart message 有 `historyDetailId` 时显示；请求值固定为 `"1"` / `"0"`，失败回滚。
+  - `UIImage.imageNamed` 是可跨端同步的项目资产；`UIImage(systemName:)` / SF Symbols 是 iOS 平台装饰。
+- Synced:
+  - [x] iOS reference inspected
+  - [x] Android
+  - [ ] Web
+  - [ ] 鸿蒙
+
 ---
 
 ## 7. 给 AI 的执行规则

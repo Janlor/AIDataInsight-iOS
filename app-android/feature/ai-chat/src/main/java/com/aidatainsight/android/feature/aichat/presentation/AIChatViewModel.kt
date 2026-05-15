@@ -12,6 +12,7 @@ import com.aidatainsight.android.feature.aichat.application.usecase.LoadChartDat
 import com.aidatainsight.android.feature.aichat.application.usecase.LoadHistoryDetailUseCase
 import com.aidatainsight.android.feature.aichat.application.usecase.LoadTemplateUseCase
 import com.aidatainsight.android.feature.aichat.application.usecase.SendFunctionMessageUseCase
+import com.aidatainsight.android.feature.aichat.application.usecase.SendLikeFeedbackUseCase
 import com.aidatainsight.android.feature.aichat.data.DefaultAIChatRepository
 import com.aidatainsight.android.feature.aichat.domain.AIChatRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +27,7 @@ class AIChatViewModel(
     private val loadHistoryDetailUseCase = LoadHistoryDetailUseCase(repository)
     private val sendFunctionMessageUseCase = SendFunctionMessageUseCase(repository)
     private val loadChartDataUseCase = LoadChartDataUseCase(repository)
+    private val sendLikeFeedbackUseCase = SendLikeFeedbackUseCase(repository)
 
     private val _uiState = MutableStateFlow(AIChatUiState())
     val uiState: StateFlow<AIChatUiState> = _uiState.asStateFlow()
@@ -220,6 +222,31 @@ class AIChatViewModel(
 
     fun dismissError() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
+    }
+
+    fun sendFeedback(messageId: String, historyDetailId: Int?, feedback: FeedbackState) {
+        val detailId = historyDetailId ?: return
+        val like = when (feedback) {
+            FeedbackState.Liked -> "1"
+            FeedbackState.Disliked -> "0"
+            else -> return
+        }
+        val previousMessages = _uiState.value.messages
+        _uiState.value = _uiState.value.copy(
+            messages = previousMessages.map { message ->
+                if (message.id == messageId) message.copy(feedback = feedback) else message
+            },
+            errorMessage = null,
+        )
+        viewModelScope.launch {
+            sendLikeFeedbackUseCase(detailId, like)
+                .onFailure { error ->
+                    _uiState.value = _uiState.value.copy(
+                        messages = previousMessages,
+                        errorMessage = error.message ?: "操作失败",
+                    )
+                }
+        }
     }
 
     fun loadHistory(messages: List<com.aidatainsight.android.core.model.contract.ConversationMessage>) {

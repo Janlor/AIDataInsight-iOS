@@ -303,7 +303,12 @@ AIChat 页面必须读取：
 - 发送后清空输入，追加用户消息和 AI thinking/streaming 消息，并滚动到底部。
 - AI 思考或流式返回时发送按钮禁用。
 - 图表 fallback 文案固定为 `数据分析还在测试阶段，很快就能上线，敬请期待！`，不能显示接口原始 JSON。
-- iOS 的图片资源和 SF Symbols 只是平台实现；Android/Web 没有匹配图标时使用文字命令或省略图标，不能伪造图标。
+- 图表 UI 只能消费 `ChartPayload`，不能在 UI 解析接口 JSON；`chartCommonVoList` 显示为单值柱状图，`accountAgeGroupVoList` 显示为堆叠柱状图。
+- 图表数值按“万”为单位展示，单位文案使用 `单位：万元` 或 `单位：万吨`。
+- 生成图表后必须滚动到聊天列表底部锚点，让新图表和反馈区可见；不要只滚到 chart message 顶部。
+- 反馈入口只在 chart message 有 `historyDetailId` 时显示；点赞请求值固定为 `"1"`，点踩请求值固定为 `"0"`，二者互斥，失败后回滚 UI 状态。
+- `UIImage(systemName:)` / SF Symbols 是 iOS 平台装饰；Android/Web 没有明确平替时省略。
+- `UIImage.imageNamed` 加载的是项目资产，跨端生成时应优先复制或导出到目标端资源目录；不能直接使用时，要求人处理后放到指定位置，不要擅自用文字伪造。
 
 #### AI Chat Template 解析规则
 

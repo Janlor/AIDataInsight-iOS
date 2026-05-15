@@ -1,3 +1,5 @@
+package com.aidatainsight.android.app
+
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity

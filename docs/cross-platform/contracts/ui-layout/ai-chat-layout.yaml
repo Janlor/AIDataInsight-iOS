@@ -30,6 +30,7 @@ transcript:
   scrollBehavior:
     - Message list fills available space above composer.
     - Sending, receiving stream chunks, loading history, or replacing thinking message scrolls to bottom unless the user is actively dragging.
+    - After a chart message is generated, scroll to the transcript bottom anchor so the newly rendered chart and feedback area can be inspected without a manual extra swipe.
   welcome:
     kind: assistantBubble
     introText: "你好，我是你的AI数据分析助手。我能根据业绩、库存、代采、应收、帐龄等领域的问题生成相应的智能图表。"
@@ -62,6 +63,34 @@ transcript:
     alignment: leading
     title: "根据您的查询，以下是分析结果:"
     fallback: "数据分析还在测试阶段，很快就能上线，敬请期待！"
+    chart:
+      unitPrefix: "单位："
+      valueScale: tenThousand
+      maxVisibleGroups: 7
+      style: barOrStackedBar
+      legend:
+        showWhen: labelsAvailable
+        placement: belowChartOrAboveSelection
+      rules:
+        - chartCommonVoList renders as single-value bars.
+        - accountAgeGroupVoList renders as stacked bars with labels as stack legend.
+        - Target platforms may use native chart libraries or lightweight custom drawing, but must consume ChartPayload instead of raw API JSON.
+        - If chart payload is empty, show the contract fallback text instead of raw JSON.
+    feedback:
+      placement: belowChartBubbleTrailing
+      actions:
+        like:
+          requestValue: "1"
+        dislike:
+          requestValue: "0"
+      rules:
+        - Feedback is shown only for chart messages with historyDetailId.
+        - Like and dislike are mutually exclusive.
+        - Tapping an already selected feedback action is ignored.
+        - On request failure, revert to the previous feedback state and show a lightweight error.
+        - iOS named assets loaded through UIImage.imageNamed are cross-platform asset candidates and should be copied or exported for target platforms when possible.
+        - SF Symbols loaded through UIImage(systemName:) are iOS platform decorations; Android/Web may use native equivalents or omit them.
+        - If a named asset cannot be consumed directly by the target platform, ask the human to export it and place it under the target feature asset directory.
 
 composer:
   placement: bottom
@@ -81,6 +110,6 @@ composer:
     - While AI is thinking/streaming, send is disabled and visually muted.
 
 iconRules:
-  - iOS may use bundled send/history/new-chat images or SF Symbols.
-  - Android/Web must use a matching native/icon-library icon only when available.
-  - If no matching icon exists, use a text button for the command; do not use fake text icons.
+  - UIImage(systemName:) / SF Symbols are iOS platform decorations; Android/Web use a native/icon-library equivalent only when clearly available, otherwise omit the icon.
+  - UIImage.imageNamed assets are bundled product assets; target platforms should copy or export them into the corresponding feature asset directory when possible.
+  - If a named asset cannot be reused directly, stop and ask the human to provide an exported PNG/SVG/WebP at the target path instead of replacing it with a fake text icon.
