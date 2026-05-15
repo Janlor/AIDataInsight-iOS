@@ -130,6 +130,49 @@ export enum FunctionName {
   QueryPerformanceType = "queryPerformanceType"
 }
 
+export function functionNameFromRawValue(rawValue?: string | null): FunctionName | null {
+  switch (rawValue) {
+    case "queryArGroupByOrg":
+      return FunctionName.QueryArGroupByOrg
+    case "queryArGroupByCustomer":
+      return FunctionName.QueryArGroupByCustomer
+    case "querySalesGroupByOrgAndGoodsType":
+      return FunctionName.QuerySalesGroupByOrgAndGoodsType
+    case "querySalesGroupByMonth":
+      return FunctionName.QuerySalesGroupByMonth
+    case "querySalesGroupByCustomer":
+      return FunctionName.QuerySalesGroupByCustomer
+    case "queryPurchaseGroupByOrg":
+      return FunctionName.QueryPurchaseGroupByOrg
+    case "queryPurchaseGroupByMonth":
+      return FunctionName.QueryPurchaseGroupByMonth
+    case "queryPurchaseGroupByCustomer":
+      return FunctionName.QueryPurchaseGroupByCustomer
+    case "queryStockGroupByOrg":
+      return FunctionName.QueryStockGroupByOrg
+    case "queryStockGroupByWarehouse":
+      return FunctionName.QueryStockGroupByWarehouse
+    case "queryInventoryGroupByOrg":
+      return FunctionName.QueryInventoryGroupByOrg
+    case "queryInventoryGroupByWarehouse":
+      return FunctionName.QueryInventoryGroupByWarehouse
+    case "queryProcurementGroupByOrg":
+      return FunctionName.QueryProcurementGroupByOrg
+    case "queryProcurementGroupByCustomer":
+      return FunctionName.QueryProcurementGroupByCustomer
+    case "queryAccountAgeGroupByOrg":
+      return FunctionName.QueryAccountAgeGroupByOrg
+    case "queryAccountAgeGroupByCustomer":
+      return FunctionName.QueryAccountAgeGroupByCustomer
+    case "queryAccountGroupByAge":
+      return FunctionName.QueryAccountGroupByAge
+    case "queryPerformanceType":
+      return FunctionName.QueryPerformanceType
+    default:
+      return null
+  }
+}
+
 export enum FunctionArgumentKind {
   Basic = 'basic',
   TimeRange = 'timeRange',

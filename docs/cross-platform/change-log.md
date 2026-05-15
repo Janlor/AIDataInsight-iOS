@@ -150,6 +150,35 @@ HarmonyOS NEXT 进入阶段 2：从跨端契约生成 ArkTS contract models。
 
 ---
 
+## 2026-05-15 - HarmonyOS NEXT Stage 3 Mapper Tests
+
+### Context
+
+HarmonyOS NEXT 进入阶段 3：基于 golden fixtures 补最小 mapper tests。
+
+### Scope
+
+- 新增 `app-harmony/entry/src/main/ets/contracts/mappers/ContractFixtureMappers.ets`。
+- 新增 `app-harmony/entry/src/test/ContractMapper.test.ets`。
+- `app-harmony/entry/src/test/List.test.ets` 接入 contract mapper test suite。
+- ArkTS generated models 增加 `functionNameFromRawValue`，用于把接口原始字符串映射回 `FunctionName`。
+
+### Coverage
+
+- 登录接口 snake_case token 字段归一化到 `AccountSession`。
+- `/chat/template` 返回字符串 JSON 时归一化到 `TemplateQuestionSet`。
+- History 文本详情映射到用户/助手文本消息。
+- History 图表详情映射到图表消息、反馈状态和 `ChartPayload`。
+- Chart payload 映射到 `ChartSeries`，并保留空图表 fallback 文案。
+
+### Rule
+
+- HarmonyOS NEXT mapper 必须以 `docs/cross-platform/contracts/fixtures` 的语义为准。
+- 测试可以内联 fixture 的最小必要字段，但字段含义必须对应 golden fixtures。
+- 生成模型不手改；需要 helper 时更新 generator 后重新生成。
+
+---
+
 ## 2. 变更分类
 
 任何改动先归类，不能直接开始“翻译到其它端”。

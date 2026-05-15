@@ -678,6 +678,22 @@ def arkts_function_argument_kind_switch(names)
   ARKTS
 end
 
+def arkts_function_name_from_raw_switch(names)
+  cases = names.map do |name|
+    "    case #{JSON.generate(name)}:\n      return FunctionName.#{enum_case(name)}"
+  end.join("\n")
+
+  <<~ARKTS
+    export function functionNameFromRawValue(rawValue?: string | null): FunctionName | null {
+      switch (rawValue) {
+    #{cases}
+        default:
+          return null
+      }
+    }
+  ARKTS
+end
+
 def arkts_models
   names = function_names
 
@@ -793,6 +809,8 @@ def arkts_models
     }
 
     #{arkts_enum("FunctionName", names).rstrip}
+
+    #{arkts_function_name_from_raw_switch(names).rstrip}
 
     export enum FunctionArgumentKind {
       Basic = 'basic',
