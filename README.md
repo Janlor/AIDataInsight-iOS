@@ -297,6 +297,7 @@ AI 生成端侧代码时必须遵守固定协议：
 - iOS 端说明：[app-ios/README.md](app-ios/README.md)
 - iOS 专属文档：[app-ios/docs](app-ios/docs)
 - 多端适配建议：[docs/architecture/platform-adaptation-strategy.md](docs/architecture/platform-adaptation-strategy.md)
+- HarmonyOS NEXT 适配清单：[docs/architecture/harmonyos-next-implementation-plan.md](docs/architecture/harmonyos-next-implementation-plan.md)
 - AI 生成协议：[docs/ai-generation-guide.md](docs/ai-generation-guide.md)
 - 跨平台蓝图：[docs/architecture/cross-platform-blueprint.md](docs/architecture/cross-platform-blueprint.md)
 - 领域模型说明：[docs/cross-platform/domain-models.md](docs/cross-platform/domain-models.md)
