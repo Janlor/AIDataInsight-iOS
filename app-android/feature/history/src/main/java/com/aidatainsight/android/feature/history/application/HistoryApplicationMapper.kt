@@ -66,7 +66,7 @@ object HistoryApplicationMapper {
         return when {
             date == today -> "今天"
             YearMonth.from(date) == YearMonth.from(today) -> "本月"
-            else -> "更早"
+            else -> "其它"
         }
     }
 
@@ -79,4 +79,3 @@ object HistoryApplicationMapper {
         }
     }
 }
-

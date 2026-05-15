@@ -14,6 +14,10 @@
       "enum": ["1", "2"],
       "x-enumNames": ["ai", "chart"]
     },
+    "HistorySectionKind": {
+      "type": "string",
+      "enum": ["today", "thisMonth", "other"]
+    },
     "HistoryDetail": {
       "type": "object",
       "additionalProperties": false,
@@ -67,4 +71,3 @@
     }
   }
 }
-

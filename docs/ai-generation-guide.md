@@ -259,6 +259,29 @@ AI 不应该手写这些生成模型。
 - 不允许用文字占位伪造图标，例如 `人`、`盾`、`i`。
 - 布局必须遵守 grouped list、readable width、safe area 和小屏/横屏可滚动规则。
 
+#### History / 历史会话生成规则
+
+历史会话页必须读取：
+
+- `docs/cross-platform/contracts/domain/history.schema.json`
+- `docs/cross-platform/contracts/usecases/history.usecases.yaml`
+- `docs/cross-platform/contracts/ui-state/history-state.yaml`
+- `docs/cross-platform/contracts/ui-layout/history-layout.yaml`
+- `docs/cross-platform/contracts/fixtures/ui/history-*.json`
+
+生成要求：
+
+- 标题固定为 `历史会话`，不要写成 `历史记录`。
+- 分组标题固定为 `今天` / `本月` / `其它`。
+- 行内容是会话名称 + 时间；今天显示 `HH:mm`，本月显示 `MM-dd`，其它显示 `yyyy-MM-dd`。
+- History 是 AI Home 的辅助面板/页面；选择历史后必须让现有 AI Chat 加载该 `historyId`，不能 push 第二个 Chat。
+- 当前参考 UI 的顶部只保留设置入口；不要把刷新、清空全部作为常驻主按钮生成出来。
+- 单条删除通过长按或 secondary action 暴露 `删除` 菜单，不能默认在每一行右侧放一个明显的删除按钮。
+- deleteAllHistory 仍是领域能力，但当前 History UI 不把它作为主操作展示。
+- 有数据时的刷新必须无感，不要把已有列表替换为整屏 loading。
+- 背景可以穿透系统栏/浏览器安全区；标题、设置入口、分组标题和列表行必须避开 safe area。
+- iOS 的图片资源和 UIKit 菜单只是平台实现，不是跨端源事实；Android/Web 没有匹配图标时直接使用文字命令或省略图标。
+
 #### AI Chat Template 解析规则
 
 `/chat/template` 的领域输出固定为 `TemplateQuestionSet`：

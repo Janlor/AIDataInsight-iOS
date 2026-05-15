@@ -3,7 +3,15 @@ feature: history
 state:
   name: HistoryUiState
   fields:
+    title: "历史会话"
     groups: HistoryRecordGroup[]
+    sections:
+      - kind: "today | thisMonth | other"
+        title: "\"今天\" | \"本月\" | \"其它\""
+        items:
+          - id: string
+            title: string
+            displayTime: string
     currentPage: integer
     pageSize: integer
     total: integer?
@@ -11,12 +19,34 @@ state:
     isLoading: boolean
     isRefreshing: boolean
     isDeleting: boolean
+    selectedMenuHistoryId: string?
     errorMessage: string?
 events:
   - loadFirstPage
   - loadNextPage
   - refresh
+  - openSettings
   - deleteHistory(historyId)
   - deleteAllHistory
   - openHistory(historyId)
+  - showDeleteMenu(historyId)
+  - dismissDeleteMenu
 
+displayText:
+  title: "历史会话"
+  sectionToday: "今天"
+  sectionThisMonth: "本月"
+  sectionOther: "其它"
+  unnamedConversation: "未命名会话"
+  delete: "删除"
+  empty: "暂无历史记录"
+
+rules:
+  - History is an authenticated AI Home auxiliary panel or page.
+  - The visible title is "历史会话".
+  - The settings entry is allowed in the top bar; target platforms may use a matching native settings icon or text command.
+  - Refresh and delete-all controls are not visible in the current iOS reference UI.
+  - Rows are selectable and open the selected history conversation in the existing AI Chat surface.
+  - Deleting one row is exposed by long press or secondary action, not as an always-visible inline delete button.
+  - deleteAllHistory remains a use case for future/global actions, but is not shown as a primary visible button in the current History UI.
+  - When sections already contain data, background refresh should not replace the list with a blocking spinner.

@@ -27,7 +27,11 @@ usecases:
     rules:
       - Page 1 replaces existing records.
       - Page greater than 1 appends to existing records.
-      - Records are grouped by date label in presentation-neutral groups.
+      - Records are grouped by date kind in presentation-neutral groups.
+      - Section kinds are today, thisMonth, and other.
+      - Section display titles are "今天", "本月", and "其它".
+      - The grouping date source is updateTime, with createTime allowed only as a target-platform fallback when updateTime is absent.
+      - Records with unparsable date strings are skipped instead of being shown in an incorrect section.
       - Do not return platform table/list section objects.
   - name: DeleteHistoryUseCase
     input:
@@ -39,15 +43,27 @@ usecases:
     rules:
       - Remove the deleted record locally after repository success.
       - Empty groups must be removed.
+      - Output deletedHistoryId so AI Home can reset Chat only when the deleted id equals selectedHistoryId.
   - name: DeleteAllHistoryUseCase
     input: {}
     output:
       groups: HistoryRecordGroup[]
     rules:
       - Output groups must be empty after success.
+      - AI Home must reset Chat to new conversation after deleteAllHistory succeeds.
 domainOutputs:
   HistoryRecordGroup:
     fields:
+      kind: today | thisMonth | other
       title: string
       records: HistoryRecord[]
-
+  HistoryListItem:
+    fields:
+      id: integer?
+      title: string
+      displayTime: string
+    rules:
+      - title is record.name, empty title may display as "未命名会话".
+      - today items display HH:mm from updateTime.
+      - thisMonth items display MM-dd from updateTime.
+      - other items display yyyy-MM-dd from updateTime.

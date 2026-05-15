@@ -331,7 +331,7 @@ https://m1.apifoxmock.com/m1/3174267-1700689-default
 
 ## 5. History Domain
 
-### 4.1 RecordPage
+### 5.1 RecordPage
 
 来源：
 
@@ -354,7 +354,7 @@ RecordPage
 - 当前 iOS 名称是 `RecordPageModel`
 - 跨端母版统一称为 `RecordPage`
 
-### 4.2 HistoryRecord
+### 5.2 HistoryRecord
 
 来源：
 
@@ -375,7 +375,7 @@ HistoryRecord
   detailList: [HistoryDetail]?
 ```
 
-### 4.3 HistoryDetail
+### 5.3 HistoryDetail
 
 来源：
 
@@ -400,7 +400,7 @@ HistoryDetail
 - 当前 `isLike` 仍是字符串语义
 - 在后端契约未稳定前，不要擅自改成 `Bool`
 
-### 4.4 HistoryDetailType
+### 5.4 HistoryDetailType
 
 来源：
 
@@ -414,7 +414,7 @@ HistoryDetailType
   answer = "2"
 ```
 
-### 4.5 HistoryContentType
+### 5.5 HistoryContentType
 
 来源：
 
@@ -428,11 +428,39 @@ HistoryContentType
   chart = "2"
 ```
 
+### 5.6 History 页面语义
+
+来源：
+
+- `Packages/module-ai/Sources/ModuleAI/Presentation/History/ViewControllers/HistoryViewController.swift`
+- `Packages/module-ai/Sources/ModuleAI/Presentation/History/ViewData/HistoryListViewData.swift`
+- `app-android/feature/history/src/main/java/com/aidatainsight/android/feature/history/ui/HistoryScreen.kt`
+
+跨端页面结构：
+
+```text
+History
+  title: 历史会话
+  sections:
+    today: 今天
+    thisMonth: 本月
+    other: 其它
+```
+
+跨端要求：
+
+- History 是 AI Home 的历史辅助面板/页面，不是独立替换 Chat 的新根页面。
+- 选择历史会话后，必须让现有 AI Chat 加载该 `historyId`。
+- 行内容展示会话名称和时间；今天显示 `HH:mm`，本月显示 `MM-dd`，其它显示 `yyyy-MM-dd`。
+- 当前参考 UI 顶部只保留设置入口；刷新和清空全部不能作为常驻主按钮展示。
+- 单条删除通过长按或 secondary action 暴露 `删除` 菜单，不能默认在每行放行内删除按钮。
+- 有数据时刷新必须无感，不能用整屏 loading 覆盖已有列表。
+
 ---
 
 ## 6. AI Chat Domain
 
-### 5.0 AIChatEndpoint
+### 6.0 AIChatEndpoint
 
 来源：
 
@@ -452,7 +480,7 @@ AIChatEndpoint
 - AI Chat SSE URL 由平台网络层使用 `baseUrl + AIChatEndpoint.streamPath` 组合得到。
 - Repository 只能调用端侧 API descriptor / remote service，不能硬编码完整 URL。
 
-### 5.1 TemplateQuestionSet
+### 6.1 TemplateQuestionSet
 
 来源：
 
@@ -473,7 +501,7 @@ TemplateQuestionSet
 - 如果接口外壳 `data` 返回的是内嵌 JSON 字符串，端侧网络层或 AI Chat remote service 必须先解码字符串，再映射为 `TemplateQuestionSet`。
 - Repository / UseCase / Presentation 不应把 `String data` 继续向上传递，也不应让 UI 直接解析接口字符串。
 
-### 5.2 FunctionModel
+### 6.2 FunctionModel
 
 来源：
 
@@ -490,7 +518,7 @@ FunctionModel
   arguments: FunctionArguments?
 ```
 
-### 5.3 FunctionName
+### 6.3 FunctionName
 
 来源：
 
@@ -524,7 +552,7 @@ queryPerformanceType
 - `FunctionName.rawValue` 是跨端稳定契约
 - 不允许某一端私自重命名
 
-### 5.4 FunctionArguments
+### 6.4 FunctionArguments
 
 来源：
 
@@ -542,7 +570,7 @@ FunctionArguments
   performanceType(PerformanceTypeQuery)
 ```
 
-### 5.5 BasicQuery
+### 6.5 BasicQuery
 
 Canonical Model:
 
@@ -555,7 +583,7 @@ BasicQuery
   value: Double?
 ```
 
-### 5.6 TimeRangeQuery
+### 6.6 TimeRangeQuery
 
 Canonical Model:
 
@@ -571,7 +599,7 @@ TimeRangeQuery
   value: Double?
 ```
 
-### 5.7 WarehouseQuery
+### 6.7 WarehouseQuery
 
 Canonical Model:
 
@@ -585,7 +613,7 @@ WarehouseQuery
   value: Double?
 ```
 
-### 5.8 AccountAgeQuery
+### 6.8 AccountAgeQuery
 
 Canonical Model:
 
@@ -597,7 +625,7 @@ AccountAgeQuery
   valueArray: [String]?
 ```
 
-### 5.9 PerformanceTypeQuery
+### 6.9 PerformanceTypeQuery
 
 Canonical Model:
 
@@ -606,7 +634,7 @@ PerformanceTypeQuery
   indexType: String?
 ```
 
-### 5.10 HistoryChartDetail
+### 6.10 HistoryChartDetail
 
 来源：
 
@@ -621,7 +649,7 @@ HistoryChartDetail
   accountAgeGroupVoList: [AccountAgeGroupItem]?
 ```
 
-### 5.11 ChartCommonItem
+### 6.11 ChartCommonItem
 
 Canonical Model:
 
@@ -632,7 +660,7 @@ ChartCommonItem
   value: Double?
 ```
 
-### 5.12 AccountAgeGroupItem
+### 6.12 AccountAgeGroupItem
 
 Canonical Model:
 
@@ -656,7 +684,7 @@ AccountAgeGroupItem
 
 这些对象不是最底层 domain entity，但属于跨端共享的 use case 语义。
 
-### 6.1 UseCaseFailure
+### 7.1 UseCaseFailure
 
 来源：
 
@@ -669,7 +697,7 @@ UseCaseFailure
   message: String?
 ```
 
-### 6.2 LoadTemplateOutput
+### 7.2 LoadTemplateOutput
 
 Canonical Model:
 
@@ -678,7 +706,7 @@ LoadTemplateOutput
   questions: [String]
 ```
 
-### 6.3 SendFunctionMessageOutput
+### 7.3 SendFunctionMessageOutput
 
 Canonical Union:
 
@@ -697,7 +725,7 @@ SendFunctionMessageOutput
 
 ## 8. Naming Rules
 
-### 7.1 Canonical Names
+### 8.1 Canonical Names
 
 跨端新增实现时优先使用以下名字：
 
@@ -712,7 +740,7 @@ SendFunctionMessageOutput
 - `FunctionArguments`
 - `FunctionName`
 
-### 7.2 Legacy Names
+### 8.2 Legacy Names
 
 以下名称视为 iOS 当前实现遗留，不应继续扩散：
 

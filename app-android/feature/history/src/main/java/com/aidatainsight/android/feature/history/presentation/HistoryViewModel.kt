@@ -91,16 +91,21 @@ class HistoryViewModel(
     fun delete(id: String) {
         val historyId = id.toIntOrNull() ?: return
         viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isDeleting = true, errorMessage = null)
             runCatching {
                 deleteHistory(historyId = historyId, existingGroups = recordGroups)
             }.onSuccess { output ->
                 recordGroups = output.state.groups
                 _uiState.value = _uiState.value.copy(
                     sections = HistoryListBuilder.makeSections(recordGroups),
+                    isDeleting = false,
                     errorMessage = null,
                 )
             }.onFailure { error ->
-                _uiState.value = _uiState.value.copy(errorMessage = error.message ?: "删除失败")
+                _uiState.value = _uiState.value.copy(
+                    isDeleting = false,
+                    errorMessage = error.message ?: "删除失败",
+                )
             }
         }
     }

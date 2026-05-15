@@ -587,6 +587,44 @@ Android 验证后回写契约不是返工，而是契约从草案变成已验证
 - Notes:
   - 本次沉淀的源事实是 Setting 的领域快照、行语义、动作和布局意图，不是 UITableView、Compose LazyColumn 或某个平台的图标系统。
 
+## 2026-05-15 - History Screen Contract and Android Validation
+
+- Source:
+  - primary platform: `iOS`
+  - validation platform: `Android`
+  - reference files:
+    - `app-ios/Packages/module-ai/Sources/ModuleAI/Presentation/History/ViewControllers/HistoryViewController.swift`
+    - `app-ios/Packages/module-ai/Sources/ModuleAI/Presentation/History/ViewData/HistoryListViewData.swift`
+    - `app-android/feature/history/src/main/java/com/aidatainsight/android/feature/history/ui/HistoryScreen.kt`
+- Change type:
+  - `Domain Change`
+  - `UseCase Contract Change`
+  - `UI State Contract Change`
+  - `UI Layout Contract Change`
+  - `Contract Fixture Change`
+  - `Android Implementation Change`
+- Affected source of truth:
+  - `docs/cross-platform/contracts/domain/history.schema.json`
+  - `docs/cross-platform/contracts/usecases/history.usecases.yaml`
+  - `docs/cross-platform/contracts/ui-state/history-state.yaml`
+  - `docs/cross-platform/contracts/ui-layout/history-layout.yaml`
+  - `docs/cross-platform/contracts/fixtures/ui/history-initial.json`
+  - `docs/cross-platform/domain-models.md`
+  - `docs/ai-generation-guide.md`
+- Impact:
+  - History 标题固定为 `历史会话`。
+  - 分组标题固定为 `今天` / `本月` / `其它`。
+  - 行展示会话名称和时间，删除入口改为长按/secondary action。
+  - 当前参考 UI 不暴露刷新和清空全部作为顶部常驻按钮。
+  - Android 已按契约还原为气泡式历史会话列表。
+- Synced:
+  - [x] iOS reference inspected
+  - [x] Android
+  - [ ] Web
+  - [ ] 鸿蒙
+- Notes:
+  - iOS 的 UITableView、MenuViewController 和图片资源不是跨端源事实；跨端源事实是历史分组、行语义、时间显示和交互动作。
+
 ---
 
 ## 7. 给 AI 的执行规则

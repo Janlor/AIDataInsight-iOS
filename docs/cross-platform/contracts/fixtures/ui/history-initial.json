@@ -1,0 +1,52 @@
+{
+  "description": "History list rendered from grouped records.",
+  "state": {
+    "title": "历史会话",
+    "isLoading": false,
+    "isRefreshing": false,
+    "isDeleting": false,
+    "selectedMenuHistoryId": null,
+    "errorMessage": null,
+    "sections": [
+      {
+        "kind": "today",
+        "title": "今天",
+        "items": [
+          {
+            "id": "1001",
+            "title": "查看今年销售情况",
+            "displayTime": "09:30"
+          }
+        ]
+      },
+      {
+        "kind": "thisMonth",
+        "title": "本月",
+        "items": [
+          {
+            "id": "1002",
+            "title": "煤炭库存分析",
+            "displayTime": "05-12"
+          }
+        ]
+      },
+      {
+        "kind": "other",
+        "title": "其它",
+        "items": [
+          {
+            "id": "1003",
+            "title": "年度经营指标",
+            "displayTime": "2025-12-30"
+          }
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "title": "历史会话",
+    "visibleTopLevelActions": ["settings"],
+    "hiddenTopLevelActions": ["refresh", "deleteAll"],
+    "rowDeleteTrigger": "longPressOrSecondaryAction"
+  }
+}

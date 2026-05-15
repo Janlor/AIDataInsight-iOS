@@ -1,0 +1,62 @@
+version: 0.1.0
+feature: history
+
+layoutIntent:
+  screenRole: aiHomeHistoryPanel
+  presentation: slideOverPanelOrPage
+  background: sharedGradientGroupedBackground
+  contentStyle: groupedConversationList
+
+structure:
+  navigationBar:
+    title: "历史会话"
+    trailingAction:
+      semantic: settings
+      behavior: routeIntent.openSettings
+      icon: optionalPlatformNativeIcon
+  content:
+    scrollable: true
+    readableWidth: true
+    safeArea:
+      backgroundExtendsBehindSystemBars: true
+      contentAvoidsSafeArea: true
+    sections:
+      - kind: today
+        title: "今天"
+      - kind: thisMonth
+        title: "本月"
+      - kind: other
+        title: "其它"
+
+rowRules:
+  shape: capsuleOrLargeRoundedBubble
+  background: tertiaryGroupedBackground
+  horizontalPadding: 16
+  verticalPadding: 8
+  interRowSpacing: 8
+  titleText:
+    color: secondaryLabel
+    maxLines: platformReasonableWrap
+  timeText:
+    color: tertiaryLabel
+    placement: inlineAfterTitle
+  selection:
+    action: openHistory(historyId)
+  delete:
+    trigger: longPressOrSecondaryAction
+    menuTitle: "删除"
+    inlineButtonVisible: false
+
+topBarRules:
+  - Title must be "历史会话", not "历史记录".
+  - The current reference UI exposes settings in the top bar.
+  - Refresh and clear-all are not visible top-level buttons in the current reference UI.
+  - If the target platform has no matching settings icon, use a text command such as "设置"; do not use fake text icons.
+
+loadingRules:
+  - Initial empty load may show a centered loading indicator.
+  - If records are already visible, refresh must be non-blocking and must not replace the list with a full-screen spinner.
+
+emptyRules:
+  - Empty state text may display "暂无历史记录".
+  - Error state should keep the user on History and surface the error message.
