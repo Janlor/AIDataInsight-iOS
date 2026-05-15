@@ -43,6 +43,7 @@ ruby scripts/validate-cross-platform-contracts.rb
 - 动态函数响应 fixtures 能解析到预期的参数类型和 use case 分支；
 - 图表 fixtures 能映射到预期的 `/chart/{functionName}` 请求和 `ChartPayload`；
 - 历史详情 fixtures 不会把内嵌 JSON 泄漏为用户可见文本；
+- 登录 mock 的 snake_case token 字段能归一化为 `AccountSession`，并支持自动登录；
 - `401` / `402` fixtures 能映射到预期的会话处理动作。
 
 ## Android / Web 生成
@@ -78,6 +79,7 @@ scripts/generate-cross-platform-contracts.sh
 `0.1.0` 版本覆盖：
 
 - Account / Setting 领域模型。
+- Account 自动登录规则：登录响应 token 归一化、session 持久化、启动读取 session、登录/退出/会话失效后的 root route 替换。
 - Environment 领域模型，包含多端默认学习环境使用的 Apifox mock host。
 - AI Home 领域模型，描述登录成功后的 AI 业务主入口、内容切换和辅助面板语义。
 - AI Chat endpoint 领域模型，包含流式接口路径等子域 API 语义。

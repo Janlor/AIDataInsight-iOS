@@ -9,13 +9,19 @@
       "additionalProperties": false,
       "required": ["isLogin"],
       "properties": {
-        "accessToken": { "type": ["string", "null"] },
-        "refreshToken": { "type": ["string", "null"] },
+        "accessToken": {
+          "type": ["string", "null"],
+          "description": "Canonical access token field. Wire/API aliases such as access_token must be normalized before persisting the session."
+        },
+        "refreshToken": {
+          "type": ["string", "null"],
+          "description": "Canonical refresh token field. Wire/API aliases such as refresh_token must be normalized before persisting the session."
+        },
         "orgId": { "type": ["integer", "null"] },
         "username": { "type": ["string", "null"] },
         "isLogin": {
           "type": "boolean",
-          "description": "Derived from usable session content; do not treat as the only persisted truth."
+          "description": "Derived from usable persisted session content, normally a non-blank accessToken; do not persist it as the source of truth."
         }
       }
     },
@@ -52,4 +58,3 @@
     }
   }
 }
-

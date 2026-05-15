@@ -351,11 +351,17 @@ components:
     OAuthModel:
       type: object
       additionalProperties: true
+      description: Canonical account session token payload. Implementations must normalize wire aliases before writing AccountSession.
       properties:
         accessToken:
           type: [string, "null"]
+          x-wire-aliases: [access_token]
         refreshToken:
           type: [string, "null"]
+          x-wire-aliases: [refresh_token]
+        orgId:
+          type: [integer, "null"]
+          x-wire-aliases: [org_id]
     AccountUser:
       $ref: "../domain/account.schema.json#/$defs/AccountUser"
     MenuItem:
@@ -373,6 +379,11 @@ components:
     HistoryChartDetail:
       $ref: "../domain/ai-chat.schema.json#/$defs/HistoryChartDetail"
 x-session-rules:
+  loginSuccess:
+    action: normalizeOAuthModelAndPersistSessionBeforeRouting
+    isLoginSource: persistedSession.accessToken
+  appLaunch:
+    action: readPersistedSessionThenResolveRootRoute
   "401":
     meaning: sessionInvalid
     action: clearSessionAndTriggerReauth

@@ -1,0 +1,26 @@
+{
+  "description": "Login mock response may use snake_case token fields; clients must normalize them into AccountSession accessToken/refreshToken before auto-login routing.",
+  "response": {
+    "code": 200,
+    "msg": "ok",
+    "data": {
+      "access_token": "access-token",
+      "refresh_token": "refresh-token",
+      "expires_in": 1799,
+      "refresh_expires_in": 28799,
+      "client_id": "ai-data-mobile-api",
+      "scope": "ai-data-mobile-api",
+      "openid": null
+    },
+    "trace": null,
+    "tid": null
+  },
+  "expected": {
+    "session": {
+      "accessToken": "access-token",
+      "refreshToken": "refresh-token",
+      "isLogin": true
+    },
+    "routeIntent": "openAIHome"
+  }
+}

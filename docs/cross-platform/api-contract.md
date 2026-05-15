@@ -156,6 +156,10 @@ Response:
 
 - 当前 iOS 在 repository 层负责密码加密与会话更新
 - 跨端必须保持参数名 `name` / `pwd`
+- 登录成功后必须把 `OAuthModel` 归一化为 `AccountSession` 并持久化，再触发进入 AI Home
+- `OAuthModel` 的领域字段是 `accessToken` / `refreshToken` / `orgId`
+- API DTO 必须兼容 `access_token` / `refresh_token` / `org_id`，这些字段名不能泄漏到领域层或 UI 层
+- 自动登录依赖持久化后的 `accessToken`，不能只依赖“登录接口成功”这个事件
 
 ### 2.2 Refresh Token
 

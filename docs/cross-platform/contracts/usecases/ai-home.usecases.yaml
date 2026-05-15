@@ -32,10 +32,13 @@ usecases:
       routeIntent: openAIHome | openLogin
       reason: string?
     rules:
+      - On appLaunch, read the persisted AccountSession before choosing the root/main app surface.
       - If session.isLogin is true, output routeIntent openAIHome.
       - If session.isLogin is false, output routeIntent openLogin.
+      - session.isLogin is derived from normalized persisted session content, normally a non-blank accessToken; never rely on a separate persisted boolean as the source of truth.
       - loginSucceeded must not push AI home on top of login; it replaces the root/main app surface.
       - logoutSucceeded or sessionExpired must clear protected AI module UI and replace the root/main app surface with login.
+      - logoutSucceeded or sessionExpired must remove persisted tokens before resolving the next root/main app surface.
       - UseCase output is a route intent, not UIKit rootViewController, Compose NavController, or React router code.
 
   - name: BuildAIHomeStateUseCase

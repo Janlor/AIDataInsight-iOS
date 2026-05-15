@@ -505,6 +505,39 @@
   - Android 的 `ModalNavigationDrawer`、`ModalDrawerSheet`、`windowInsets` 只是发现问题的实现细节，不是跨端契约。
   - Web 生成时应映射为 CSS 层级：viewport 背景/overlay fixed 全屏，panel background full-height，panel content 使用 safe-area env padding。
 
+## 2026-05-15 - Account Auto Login Contract
+
+- Source:
+  - primary platform: `Android`
+  - reference behavior: 登录成功后持久化 token，杀死重启或重新运行时直接进入 AI Home
+  - reference API: `POST /oauth2/login`
+- Change type:
+  - `Domain Change`
+  - `API Contract Change`
+  - `UseCase Contract Change`
+  - `Contract Fixture Change`
+  - `AI Generation Rule Change`
+- Affected source of truth:
+  - `docs/cross-platform/contracts/domain/account.schema.json`
+  - `docs/cross-platform/contracts/api/openapi.yaml`
+  - `docs/cross-platform/contracts/usecases/ai-home.usecases.yaml`
+  - `docs/cross-platform/contracts/fixtures/api/login-response-snake-case.json`
+  - `docs/cross-platform/domain-models.md`
+  - `docs/cross-platform/api-contract.md`
+  - `docs/ai-generation-guide.md`
+- Impact:
+  - 登录响应必须先归一化为 `AccountSession`，再持久化并触发进入 AI Home。
+  - API DTO / remote service 必须兼容 `access_token` / `refresh_token` / `org_id`，领域层仍统一使用 `accessToken` / `refreshToken` / `orgId`。
+  - 自动登录由启动时读取持久化 session 驱动，`isLogin` 由 `accessToken` 等可用 session 内容推导。
+  - 登录成功、退出登录、会话失效都必须替换 root/main app surface，不能保留受保护页面的返回栈。
+- Synced:
+  - [x] Android
+  - [ ] iOS reference already has equivalent behavior
+  - [ ] Web
+  - [ ] 鸿蒙
+- Notes:
+  - 本次问题证明“登录接口返回 200”不足以支撑自动登录；token 字段解析、session store 和启动路由必须作为一条主链路一起生成。
+
 ---
 
 ## 7. 给 AI 的执行规则

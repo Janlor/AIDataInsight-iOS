@@ -92,6 +92,23 @@ AccountSession
 
 - 四端都必须提供等价 session 读取能力
 - `isLogin` 应由 session 内容推导，而不是单独长期持久化为真值
+- 登录接口返回后，必须先把接口字段归一化为 `AccountSession`，再写入 session store
+- 自动登录必须在应用启动时读取已持久化 session，并通过 route intent 决定进入 Login 或 AI Home
+- 退出登录、401 会话失效、402 刷新失败时必须清除持久化 session，再回到 Login
+
+字段归一化规则：
+
+- 领域层统一使用 `accessToken` / `refreshToken` / `orgId`
+- 接口层需要兼容 mock 或后端返回的 `access_token` / `refresh_token` / `org_id`
+- snake_case 只能停留在 API DTO / remote service 归一化边界内，不能泄漏到 Repository、UseCase 或 UI
+
+自动登录规则：
+
+1. 启动阶段先读取本地 session store。
+2. `accessToken` 非空时，`isLogin = true`，输出 `openAIHome`。
+3. `accessToken` 为空时，`isLogin = false`，输出 `openLogin`。
+4. 登录成功后必须先持久化归一化后的 token，再替换主页面为 AI Home。
+5. 退出登录必须先清除 token，再替换主页面为 Login。
 
 ### 2.2 AccountUser
 

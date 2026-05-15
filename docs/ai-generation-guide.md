@@ -167,6 +167,25 @@ AI 不应该手写这些生成模型。
 - 表单类页面应使用 readable content width，而不是在宽屏上贴边铺满
 - 图标类 toggle 的点击反馈不能出现与图标形状不匹配的默认方块高亮；反馈应限定在图标形状内，或使用无可见反馈/本端原生触感反馈
 
+#### Account / 自动登录生成规则
+
+自动登录必须读取：
+
+- `docs/cross-platform/contracts/domain/account.schema.json`
+- `docs/cross-platform/contracts/api/openapi.yaml`
+- `docs/cross-platform/contracts/usecases/ai-home.usecases.yaml`
+- `docs/cross-platform/contracts/fixtures/api/login-response-snake-case.json`
+
+生成要求：
+
+- 登录接口成功不等于已登录；必须确认 token 已归一化并写入 session store。
+- API DTO / remote service 必须兼容 `access_token` / `refresh_token` / `org_id`，领域层统一输出 `accessToken` / `refreshToken` / `orgId`。
+- snake_case 字段只能停在网络边界，不能进入 Repository、UseCase、UI state 或页面代码。
+- `isLogin` 由持久化 session 内容推导，通常是 `accessToken` 非空；不能把一个单独的 `isLogin=true` 当作长期真值保存。
+- App 启动时必须先读取持久化 session，再解析 root route：已登录进入 AI Home，未登录进入 Login。
+- 登录成功进入 AI Home、退出登录回 Login、会话失效回 Login，都必须替换 root/main app surface，不能在旧页面上继续 push。
+- 退出登录、401 会话失效、402 刷新失败时，必须先清除持久化 token，再触发回 Login。
+
 #### AI Home / 主入口生成规则
 
 登录成功后的 AI 业务主入口必须读取：

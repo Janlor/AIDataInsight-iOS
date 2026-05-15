@@ -188,8 +188,28 @@ rescue JSON::ParserError => e
 end
 
 def validate_api_fixture(path, fixture)
-  code = fixture.fetch("response").fetch("code")
+  response = fixture.fetch("response")
   expected = fixture.fetch("expected")
+  if expected.key?("session")
+    assert_equal(200, response.fetch("code"), "#{relative(path)} login fixture must be a success response")
+    data = response.fetch("data")
+    expected_session = expected.fetch("session")
+    assert_equal(
+      expected_session.fetch("accessToken"),
+      data["accessToken"] || data["access_token"],
+      "#{relative(path)} access token normalization mismatch"
+    )
+    assert_equal(
+      expected_session.fetch("refreshToken"),
+      data["refreshToken"] || data["refresh_token"],
+      "#{relative(path)} refresh token normalization mismatch"
+    )
+    assert_equal(true, expected_session.fetch("isLogin"), "#{relative(path)} expected session must be logged in")
+    assert_equal("openAIHome", expected.fetch("routeIntent"), "#{relative(path)} login route intent mismatch")
+    return
+  end
+
+  code = response.fetch("code")
   assert_equal(code, expected.fetch("code"), "#{relative(path)} expected code mismatch")
 
   expected_action = case code
@@ -201,7 +221,7 @@ def validate_api_fixture(path, fixture)
 
   return unless expected.key?("templateQuestions")
 
-  data = fixture.fetch("response").fetch("data")
+  data = response.fetch("data")
   template_payload = data.is_a?(String) ? read_inline_json(data, path) : data
   assert_equal(
     expected.fetch("templateQuestions"),
