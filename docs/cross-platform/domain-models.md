@@ -501,6 +501,39 @@ TemplateQuestionSet
 - 如果接口外壳 `data` 返回的是内嵌 JSON 字符串，端侧网络层或 AI Chat remote service 必须先解码字符串，再映射为 `TemplateQuestionSet`。
 - Repository / UseCase / Presentation 不应把 `String data` 继续向上传递，也不应让 UI 直接解析接口字符串。
 
+### 6.1.1 AIChat 页面语义
+
+来源：
+
+- `Packages/module-ai/Sources/ModuleAI/Presentation/AIChat/ViewControllers/AIChatViewController.swift`
+- `Packages/module-ai/Sources/ModuleAI/Presentation/AIChat/Views/AIChatBottomView.swift`
+- `app-android/feature/ai-chat/src/main/java/com/aidatainsight/android/feature/aichat/ui/AIChatScreen.kt`
+
+跨端页面结构：
+
+```text
+AIChat
+  background: background_vc
+  welcome:
+    intro: AI 助手介绍
+    questions: TemplateQuestionSet.questions
+    example: 时间范围 / 指标名称 / 过滤条件 / 分组维度
+  messages:
+    user: right aligned gradient bubble
+    assistant: left aligned grouped bubble
+  composer:
+    placeholder: 请输入您的数据分析查询。
+```
+
+跨端要求：
+
+- AIChat 是 AI Home 的主内容；嵌入 AI Home 时，标题、历史入口和新会话入口由 AI Home shell 管理。
+- 模板问题必须显示在 AI 欢迎气泡内，不能生成普通推荐卡片或营销区块。
+- 点击推荐问题等价于发送该问题，不能只填充输入框后等待用户再次点击发送。
+- 用户消息靠右，AI 消息靠左；图表结果仍按 AI 消息承载，并使用固定 fallback 文案兜底。
+- 输入区是底部胶囊 composer，思考或流式返回期间禁用发送。
+- iOS 的背景图、图片按钮和 SF Symbols 是平台实现；跨端源事实是背景语义、消息布局、欢迎内容、输入行为和错误兜底。
+
 ### 6.2 FunctionModel
 
 来源：

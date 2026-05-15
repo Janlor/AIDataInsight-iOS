@@ -1,0 +1,86 @@
+version: 0.1.0
+feature: ai-chat
+sourceState: docs/cross-platform/contracts/ui-state/ai-chat-state.yaml
+
+layoutIntent:
+  screenRole: aiHomeChatSurface
+  presentation: primaryConversation
+  background: moduleImageBackground
+  contentStyle: chatTranscriptWithComposer
+
+background:
+  assetSemantic: background_vc
+  rules:
+    - AI Chat uses the module-specific background image when the asset exists.
+    - Background extends behind system bars; content avoids safe area through the AI Home shell.
+    - Do not replace the image background with the grouped gradient used by Setting/History.
+
+navigation:
+  ownedBy: ai-home-shell
+  title: "AI数据分析助手"
+  leadingAction:
+    semantic: openHistory
+  trailingAction:
+    semantic: startNewConversation
+  rules:
+    - AIChat content surface does not duplicate the shell title when embedded in AI Home.
+    - Standalone/debug rendering may show the title for inspection only.
+
+transcript:
+  scrollBehavior:
+    - Message list fills available space above composer.
+    - Sending, receiving stream chunks, loading history, or replacing thinking message scrolls to bottom unless the user is actively dragging.
+  welcome:
+    kind: assistantBubble
+    introText: "你好，我是你的AI数据分析助手。我能根据业绩、库存、代采、应收、帐龄等领域的问题生成相应的智能图表。"
+    promptText: "你也可以尝试点击以下推荐问题："
+    exampleIntro: "我能精准识别问题中的指标名称、时间范围、分组维度和过滤条件，例如："
+    exampleSegments:
+      - top: "今年第一季度"
+        bottom: "时间范围"
+      - top: "销售额"
+        bottom: "指标名称"
+      - top: "大于5000万"
+        bottom: "过滤条件"
+      - top: "的"
+        bottom: ""
+      - top: "公司。"
+        bottom: "分组维度"
+    questionRows:
+      action: sendMessage(question)
+      style: accentTextWithDividers
+  assistantMessage:
+    alignment: leading
+    shape: leadingChatBubble
+    background: secondaryGroupedBackground
+    border: separator
+  userMessage:
+    alignment: trailing
+    shape: trailingChatBubble
+    background: lightBlueGradient
+  chartMessage:
+    alignment: leading
+    title: "根据您的查询，以下是分析结果:"
+    fallback: "数据分析还在测试阶段，很快就能上线，敬请期待！"
+
+composer:
+  placement: bottom
+  shape: capsule
+  background: secondaryGroupedBackground
+  border: separator
+  placeholder: "请输入您的数据分析查询。"
+  minHeight: 42
+  maxInputLines: 5
+  sendAction:
+    semantic: send
+    enabledWhen: canSend
+  rules:
+    - Pressing return/enter may send when the target platform supports it.
+    - Composer stays above keyboard/IME.
+    - Sending clears the input.
+    - While AI is thinking/streaming, send is disabled and visually muted.
+
+iconRules:
+  - iOS may use bundled send/history/new-chat images or SF Symbols.
+  - Android/Web must use a matching native/icon-library icon only when available.
+  - If no matching icon exists, use a text button for the command; do not use fake text icons.

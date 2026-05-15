@@ -625,6 +625,37 @@ Android 验证后回写契约不是返工，而是契约从草案变成已验证
 - Notes:
   - iOS 的 UITableView、MenuViewController 和图片资源不是跨端源事实；跨端源事实是历史分组、行语义、时间显示和交互动作。
 
+## 2026-05-15 - AIChat Screen Contract and Android Validation
+
+- Source:
+  - primary platform: `iOS`
+  - validation platform: `Android`
+  - reference files:
+    - `app-ios/Packages/module-ai/Sources/ModuleAI/Presentation/AIChat/ViewControllers/AIChatViewController.swift`
+    - `app-ios/Packages/module-ai/Sources/ModuleAI/Presentation/AIChat/Views/AIChatBottomView.swift`
+    - `app-android/feature/ai-chat/src/main/java/com/aidatainsight/android/feature/aichat/ui/AIChatScreen.kt`
+- Change type:
+  - `UI State Contract Change`
+  - `UI Layout Contract Change`
+  - `Android Implementation Change`
+- Affected source of truth:
+  - `docs/cross-platform/contracts/ui-state/ai-chat-state.yaml`
+  - `docs/cross-platform/contracts/ui-layout/ai-chat-layout.yaml`
+  - `docs/cross-platform/domain-models.md`
+  - `docs/ai-generation-guide.md`
+- Impact:
+  - AIChat 使用 `background_vc` 语义背景图。
+  - 模板问题显示为 AI 欢迎气泡，并包含推荐问题和问题拆解示例。
+  - Android 已按契约还原用户/AI 气泡、底部胶囊输入区和推荐问题点击发送行为。
+  - 图表 fallback 文案继续固定为 `数据分析还在测试阶段，很快就能上线，敬请期待！`。
+- Synced:
+  - [x] iOS reference inspected
+  - [x] Android
+  - [ ] Web
+  - [ ] 鸿蒙
+- Notes:
+  - iOS 的 UIKit cell、图片按钮和 SF Symbols 不是跨端源事实；跨端源事实是 AIChat 的背景语义、消息布局、欢迎内容、输入行为和错误兜底。
+
 ---
 
 ## 7. 给 AI 的执行规则

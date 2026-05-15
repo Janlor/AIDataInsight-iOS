@@ -29,6 +29,11 @@ message:
     templateQuestions: string[]
     isStreaming: boolean
 displayText:
+  title: "AI数据分析助手"
+  inputPlaceholder: "请输入您的数据分析查询。"
+  welcomeIntro: "你好，我是你的AI数据分析助手。我能根据业绩、库存、代采、应收、帐龄等领域的问题生成相应的智能图表。"
+  welcomePrompt: "你也可以尝试点击以下推荐问题："
+  welcomeExampleIntro: "我能精准识别问题中的指标名称、时间范围、分组维度和过滤条件，例如："
   thinking: "智能引擎全力运转，您的答案即将揭晓。"
   timeout: "非常抱歉，回答您的问题超出了预期时间。可能是由于系统繁忙。请稍后再试或重新提问。"
   genericError: "这个问题目前无法回答。请尝试以不同的方式重新表述您的问题。"
@@ -67,6 +72,8 @@ rules:
   - Clear conversation removes messages, clears historyId, clears inputText, resets sending/streaming flags, and disables clear.
   - Feedback can only be sent for chart messages with historyDetailId.
   - Liked and disliked are mutually exclusive; selecting one replaces the previous feedback state.
+  - Template questions are displayed inside an assistant welcome bubble, not as a generic card or marketing panel.
+  - AIChat embedded in AIHome must not duplicate the AIHome navigation title.
 platformNotes:
   ios: UIKit maps AIChatMessageUi to AIChat cells and ChartPayload to AIBarChartData in Presentation only.
   android: Compose may expose the state as StateFlow.

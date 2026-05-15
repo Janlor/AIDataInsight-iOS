@@ -105,6 +105,7 @@ scripts/generate-cross-platform-contracts.sh
 - Login UI layout 契约，用于约束沉浸式背景、安全区、竖屏单列、横屏双列、readable width、滚动和协议勾选反馈。
 - Setting UI layout 契约，用于约束分组列表、readable width、安全区、退出确认和无合适图标时省略图标。
 - AI Home UI layout 契约，用于约束登录成功后的主入口、聊天主内容、历史辅助面板、设置入口、安全区、键盘避让、背景/蒙层/面板全屏穿透和响应式分栏。
+- AI Chat UI layout 契约，用于约束背景图、欢迎气泡、消息气泡、底部输入 composer、流式/思考状态和图标降级策略。
 - History UI layout 契约，用于约束历史会话标题、分组、气泡行、长按删除、设置入口和非阻塞刷新。
 - AI Chat golden UI fixtures，用于约束初始、模板、发送、意图、图表、fallback 和流式状态。
 - AI Home golden UI fixtures，用于约束登录后进入 AI 主入口、打开历史面板、选择历史会话和开始新会话。

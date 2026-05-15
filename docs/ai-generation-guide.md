@@ -282,6 +282,29 @@ AI 不应该手写这些生成模型。
 - 背景可以穿透系统栏/浏览器安全区；标题、设置入口、分组标题和列表行必须避开 safe area。
 - iOS 的图片资源和 UIKit 菜单只是平台实现，不是跨端源事实；Android/Web 没有匹配图标时直接使用文字命令或省略图标。
 
+#### AIChat / 聊天页生成规则
+
+AIChat 页面必须读取：
+
+- `docs/cross-platform/contracts/domain/ai-chat.schema.json`
+- `docs/cross-platform/contracts/usecases/ai-chat.usecases.yaml`
+- `docs/cross-platform/contracts/ui-state/ai-chat-state.yaml`
+- `docs/cross-platform/contracts/ui-layout/ai-chat-layout.yaml`
+- `docs/cross-platform/contracts/fixtures/ui/ai-chat-*.json`
+
+生成要求：
+
+- AIChat 使用 `background_vc` 语义背景图；不要改成 Setting/History 的 grouped gradient。
+- AIChat 嵌在 AIHome 时，不重复绘制标题；标题和历史/新会话按钮由 AIHome shell 管理。
+- 模板问题加载成功后显示为 AI 欢迎气泡，不是普通卡片或营销区块。
+- 欢迎气泡必须包含 AI 助手介绍、推荐问题列表，以及“时间范围/指标名称/过滤条件/分组维度”的示例拆解。
+- 用户消息靠右，使用浅蓝渐变气泡；AI 消息靠左，使用 secondary grouped 背景和细边框。
+- 底部输入区是胶囊 composer，placeholder 固定为 `请输入您的数据分析查询。`。
+- 发送后清空输入，追加用户消息和 AI thinking/streaming 消息，并滚动到底部。
+- AI 思考或流式返回时发送按钮禁用。
+- 图表 fallback 文案固定为 `数据分析还在测试阶段，很快就能上线，敬请期待！`，不能显示接口原始 JSON。
+- iOS 的图片资源和 SF Symbols 只是平台实现；Android/Web 没有匹配图标时使用文字命令或省略图标，不能伪造图标。
+
 #### AI Chat Template 解析规则
 
 `/chat/template` 的领域输出固定为 `TemplateQuestionSet`：
