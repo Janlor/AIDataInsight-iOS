@@ -28,7 +28,7 @@ class HistoryUseCaseTest {
             currentPage = 1,
             pageSize = 20,
             existingGroups = listOf(
-                HistoryRecordGroup(title = "更早", records = listOf(record(id = 99))),
+                HistoryRecordGroup(title = "其它", records = listOf(record(id = 99))),
             ),
         )
 
@@ -51,7 +51,7 @@ class HistoryUseCaseTest {
             currentPage = 2,
             pageSize = 20,
             existingGroups = listOf(
-                HistoryRecordGroup(title = "更早", records = listOf(record(id = 1, updateTime = "2026-01-02 09:00:00"))),
+                HistoryRecordGroup(title = "其它", records = listOf(record(id = 1, updateTime = "2026-01-02 09:00:00"))),
             ),
         )
 
@@ -68,7 +68,7 @@ class HistoryUseCaseTest {
             historyId = 1,
             existingGroups = listOf(
                 HistoryRecordGroup(title = "今天", records = listOf(record(id = 1))),
-                HistoryRecordGroup(title = "更早", records = listOf(record(id = 2))),
+                HistoryRecordGroup(title = "其它", records = listOf(record(id = 2))),
             ),
         )
 
@@ -122,4 +122,3 @@ private fun record(
         updateTime = updateTime,
     )
 }
-
