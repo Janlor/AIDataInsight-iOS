@@ -192,6 +192,7 @@ export interface AccountAgeGroupItem {
 }
 
 export interface HistoryChartDetail {
+  historyDetailId?: number | null;
   funcType?: FunctionName | null;
   chartCommonVoList?: ChartCommonItem[] | null;
   accountAgeGroupVoList?: AccountAgeGroupItem[] | null;

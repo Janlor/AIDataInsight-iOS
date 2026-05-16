@@ -323,6 +323,7 @@ data class AccountAgeGroupItem(
 
 @Serializable
 data class HistoryChartDetail(
+    val historyDetailId: Int? = null,
     val funcType: FunctionName? = null,
     val chartCommonVoList: List<ChartCommonItem>? = null,
     val accountAgeGroupVoList: List<AccountAgeGroupItem>? = null,

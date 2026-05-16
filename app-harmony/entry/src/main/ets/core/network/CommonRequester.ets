@@ -35,6 +35,21 @@ export class CommonRequester {
   }
 
   async request<T>(request: ApiRequest): Promise<T> {
+    let responseText = await this.requestRaw(request)
+
+    let envelope = this.decodeEnvelope<T>(responseText)
+    this.throwIfEnvelopeError(envelope)
+
+    return requireEnvelopeData(envelope)
+  }
+
+  async requestEmpty(request: ApiRequest): Promise<void> {
+    let responseText = await this.requestRaw(request)
+    let envelope = this.decodeEnvelope<null>(responseText)
+    this.throwIfEnvelopeError(envelope)
+  }
+
+  async requestRaw(request: ApiRequest): Promise<string> {
     let resolvedRequest: ResolvedApiRequest = {
       path: request.path,
       method: request.method,
@@ -42,15 +57,7 @@ export class CommonRequester {
       body: request.body,
       url: this.environmentProvider.resolve(request.path)
     }
-    let responseText = await this.transport.send(resolvedRequest)
-
-    let envelope = this.decodeEnvelope<T>(responseText)
-    let error = apiErrorFromCode(envelope.code, envelope.msg)
-    if (error !== null) {
-      throw error
-    }
-
-    return requireEnvelopeData(envelope)
+    return this.transport.send(resolvedRequest)
   }
 
   private decodeEnvelope<T>(responseText: string): ApiEnvelope<T> {
@@ -58,6 +65,13 @@ export class CommonRequester {
       return JSON.parse(responseText) as ApiEnvelope<T>
     } catch (error) {
       throw new ApiError(ApiErrorKind.Decode, `接口响应解析失败: ${JSON.stringify(error)}`)
+    }
+  }
+
+  private throwIfEnvelopeError<T>(envelope: ApiEnvelope<T>): void {
+    let error = apiErrorFromCode(envelope.code, envelope.msg)
+    if (error !== null) {
+      throw error
     }
   }
 }

@@ -12,6 +12,7 @@ import {
   LoadHistoryDetailUseCase,
   LoadTemplateUseCase,
   MockAIChatRepository,
+  RemoteAIChatRepository,
   SendFunctionMessageUseCase,
   SendFunctionResultKind,
   SendLikeFeedbackUseCase,
@@ -32,6 +33,7 @@ import {
   replaceLastMessage,
   updateMessageFeedback
 } from './AIChatState'
+import { appRequester } from '../../../app/services/AppServices'
 
 export class AIChatRuntimeStore {
   private loadTemplateUseCase: LoadTemplateUseCase
@@ -131,7 +133,7 @@ export class AIChatRuntimeStore {
       if (chartResult.kind === LoadChartResultKind.Chart && chartResult.payload !== null && chartResult.payload !== undefined) {
         this.state = buildAIChatUiState(
           result.historyId,
-          replaceLastMessage(this.state.messages, this.makeChartMessage(chartResult.payload, result.name)),
+          replaceLastMessage(this.state.messages, this.makeChartMessage(chartResult.payload, result.name, chartResult.historyDetailId ?? null)),
           this.state.templateQuestions,
           '',
           false,
@@ -261,7 +263,7 @@ export class AIChatRuntimeStore {
     }
   }
 
-  private makeChartMessage(payload: ChartPayload, functionName: FunctionName): AIChatMessageUiModel {
+  private makeChartMessage(payload: ChartPayload, functionName: FunctionName, historyDetailId: number | null): AIChatMessageUiModel {
     return {
       id: this.nextId('local-assistant-chart'),
       role: ConversationRole.Assistant,
@@ -269,7 +271,7 @@ export class AIChatRuntimeStore {
       text: aiChatChartTitle,
       chartPayload: payload,
       feedback: FeedbackState.None,
-      historyDetailId: 2002,
+      historyDetailId: historyDetailId,
       functionName: functionName,
       templateQuestions: new Array<string>(),
       isStreaming: false
@@ -319,4 +321,4 @@ export class AIChatRuntimeStore {
   }
 }
 
-export const aiChatRuntimeStore = new AIChatRuntimeStore()
+export const aiChatRuntimeStore = new AIChatRuntimeStore(new RemoteAIChatRepository(appRequester))

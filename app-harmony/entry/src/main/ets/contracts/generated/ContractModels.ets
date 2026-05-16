@@ -308,6 +308,7 @@ export interface AccountAgeGroupItem {
 }
 
 export interface HistoryChartDetail {
+  historyDetailId?: number | null
   funcType?: FunctionName | null
   chartCommonVoList?: Array<ChartCommonItem> | null
   accountAgeGroupVoList?: Array<AccountAgeGroupItem> | null

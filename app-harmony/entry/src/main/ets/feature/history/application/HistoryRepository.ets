@@ -1,7 +1,24 @@
-import { HistoryRecord } from '../../../core/model/ContractModelExports'
+import { HistoryRecord, RecordPage } from '../../../core/model/ContractModelExports'
+import { CommonRequester, HttpMethod } from '../../../core/network/CommonRequester'
 
 export interface HistoryRepository {
   loadHistoryPage(currentPage: number, pageSize: number): Promise<Array<HistoryRecord>>
+}
+
+export class RemoteHistoryRepository implements HistoryRepository {
+  private requester: CommonRequester
+
+  constructor(requester: CommonRequester) {
+    this.requester = requester
+  }
+
+  async loadHistoryPage(currentPage: number, pageSize: number): Promise<Array<HistoryRecord>> {
+    let page = await this.requester.request<RecordPage>({
+      path: `/history/page?currentPage=${currentPage}&pageSize=${pageSize}`,
+      method: HttpMethod.Get
+    })
+    return page.records ?? new Array<HistoryRecord>()
+  }
 }
 
 export class MockHistoryRepository implements HistoryRepository {

@@ -1,6 +1,6 @@
 {
   "generator": "scripts/generate-cross-platform-contracts.rb",
-  "sourceHash": "9708e22bcda28ede858488a855c4ba910ca1aed28397e9e6253530dc87fa9f8a",
+  "sourceHash": "379966f1c346b436d6847156e0dfeb8e11dc317ae0b129b123d7112756b568c3",
   "outputs": [
     "app-android/core/model/src/main/java/com/aidatainsight/android/core/model/contract/ContractModels.kt",
     "app-web/src/contracts/generated/models.ts",
@@ -21,7 +21,7 @@
     },
     {
       "path": "docs/cross-platform/contracts/domain/ai-chat.schema.json",
-      "sha256": "a291affbc6f699dd10890d0496de95e3c78325d3dfc14c8a5ada07de06e0a9a7"
+      "sha256": "895f5119acff9ef9ca34d0438540118192b8f486319ab56746291efa336db3c2"
     },
     {
       "path": "docs/cross-platform/contracts/domain/ai-home.schema.json",
@@ -41,7 +41,7 @@
     },
     {
       "path": "docs/cross-platform/contracts/fixtures/api/chat-template-string-payload.json",
-      "sha256": "b38cd10c51ee33bf46c4a57b2c18b3bdb3fc720dff7acb8fc5dbddc4500d2160"
+      "sha256": "2ea9b1a30eca1644c4f1b0f870a44654020a8809cb3a884ac77f7a90f4d797df"
     },
     {
       "path": "docs/cross-platform/contracts/fixtures/api/login-response-snake-case.json",
@@ -105,7 +105,7 @@
     },
     {
       "path": "docs/cross-platform/contracts/fixtures/ui/ai-chat-template-loaded.json",
-      "sha256": "a8fb784611ffe423a7a6672abc678b60b7f48d8a8eae5f574867fbce50bac49a"
+      "sha256": "734520011efd6cdd81691c5961564b6f757fad85ca98056a26c46a5df53e0776"
     },
     {
       "path": "docs/cross-platform/contracts/fixtures/ui/ai-chat-time-intent.json",
@@ -161,11 +161,11 @@
     },
     {
       "path": "docs/cross-platform/contracts/ui-layout/ai-chat-layout.yaml",
-      "sha256": "0bfbc1b50a36692252f76d0574f25b868bc80186e33b91ebdacf8b743b1a94c9"
+      "sha256": "02e9b8a724367e0326f7613319ebc819e8bd8a682064221d8dfab99ddc289bae"
     },
     {
       "path": "docs/cross-platform/contracts/ui-layout/ai-home-layout.yaml",
-      "sha256": "84a33dee64f2a1bd998f74f1015f01e8b24406e53a8c7204b1ed1657a93c1e3b"
+      "sha256": "9efab6b4ad216cd7c23e649c9e7b517d2b46452e222d14817ca52a47ff16527f"
     },
     {
       "path": "docs/cross-platform/contracts/ui-layout/history-layout.yaml",
@@ -173,7 +173,7 @@
     },
     {
       "path": "docs/cross-platform/contracts/ui-layout/login-layout.yaml",
-      "sha256": "8bd3fd8426e3691832db7744d24b4e348c6a76b81897d0810681bfda3a7a571f"
+      "sha256": "c50e33619b80d4802ad8c814240a1d3a2b8427d3335ba7fa42a9c46662fd8a45"
     },
     {
       "path": "docs/cross-platform/contracts/ui-layout/setting-layout.yaml",

@@ -378,6 +378,7 @@ def kotlin_models
 
     @Serializable
     data class HistoryChartDetail(
+        val historyDetailId: Int? = null,
         val funcType: FunctionName? = null,
         val chartCommonVoList: List<ChartCommonItem>? = null,
         val accountAgeGroupVoList: List<AccountAgeGroupItem>? = null,
@@ -615,6 +616,7 @@ def typescript_models
     }
 
     export interface HistoryChartDetail {
+      historyDetailId?: number | null;
       funcType?: FunctionName | null;
       chartCommonVoList?: ChartCommonItem[] | null;
       accountAgeGroupVoList?: AccountAgeGroupItem[] | null;
@@ -906,6 +908,7 @@ def arkts_models
     }
 
     export interface HistoryChartDetail {
+      historyDetailId?: number | null
       funcType?: FunctionName | null
       chartCommonVoList?: Array<ChartCommonItem> | null
       accountAgeGroupVoList?: Array<AccountAgeGroupItem> | null

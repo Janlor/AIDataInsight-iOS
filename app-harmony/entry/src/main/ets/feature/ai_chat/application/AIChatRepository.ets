@@ -1,5 +1,7 @@
 import {
   AIChatIntentType,
+  AccountAgeQuery,
+  BasicQuery,
   ChartCommonItem,
   ChartPayload,
   ChartSeries,
@@ -17,9 +19,15 @@ import {
   HistoryDetailType,
   HistoryRecord,
   HistoryDetail,
-  TemplateQuestionSet
+  PerformanceTypeQuery,
+  TemplateQuestionSet,
+  TimeRangeQuery,
+  WarehouseQuery,
+  functionArgumentKindForName,
+  functionNameFromRawValue
 } from '../../../core/model/ContractModelExports'
-import { mapChartPayload, mapHistoryDetailsToMessages } from '../../../contracts/mappers/ContractFixtureMappers'
+import { CommonRequester, HttpMethod } from '../../../core/network/CommonRequester'
+import { mapChartPayload, mapHistoryDetailsToMessages, normalizeTemplateQuestionSet } from '../../../contracts/mappers/ContractFixtureMappers'
 
 export interface AIChatRepository {
   loadTemplate(): Promise<TemplateQuestionSet>
@@ -28,6 +36,162 @@ export interface AIChatRepository {
   loadChartData(name: FunctionName, historyId: number, argumentsValue: FunctionArguments): Promise<HistoryChartDetail>
   sendLikeFeedback(historyDetailId: number, like: string): Promise<void>
   streamMessage(text: string): Promise<Array<string>>
+}
+
+interface RawFunctionModel {
+  historyId?: number | null
+  hasTool?: boolean | null
+  name?: string | FunctionName | null
+  msg?: string | null
+  arguments?: Object | null
+}
+
+interface ParsedStreamFrame {
+  chunks: Array<string>
+}
+
+interface LikeHistoryDetailRequest {
+  historyDetailId: number
+  like: string
+}
+
+export class RemoteAIChatRepository implements AIChatRepository {
+  private requester: CommonRequester
+
+  constructor(requester: CommonRequester) {
+    this.requester = requester
+  }
+
+  async loadTemplate(): Promise<TemplateQuestionSet> {
+    let data = await this.requester.request<string | TemplateQuestionSet>({
+      path: '/chat/template',
+      method: HttpMethod.Get
+    })
+    return normalizeTemplateQuestionSet(data)
+  }
+
+  async loadHistoryDetail(historyId: number): Promise<HistoryRecord> {
+    return this.requester.request<HistoryRecord>({
+      path: `/history/detail?historyId=${historyId}`,
+      method: HttpMethod.Get
+    })
+  }
+
+  async sendFunctionMessage(text: string, historyId?: number | null): Promise<FunctionModel> {
+    let query = `/chat/function?question=${encodeURIComponent(text)}${historyId !== null && historyId !== undefined ? `&historyId=${historyId}` : ''}`
+    let data = await this.requester.request<RawFunctionModel>({
+      path: query,
+      method: HttpMethod.Get
+    })
+    return this.normalizeFunctionModel(data)
+  }
+
+  async loadChartData(name: FunctionName, historyId: number, argumentsValue: FunctionArguments): Promise<HistoryChartDetail> {
+    return this.requester.request<HistoryChartDetail>({
+      path: `/chart/${name}?historyId=${historyId}`,
+      method: HttpMethod.Get
+    })
+  }
+
+  async sendLikeFeedback(historyDetailId: number, like: string): Promise<void> {
+    let body: LikeHistoryDetailRequest = {
+      historyDetailId: historyDetailId,
+      like: like
+    }
+    await this.requester.requestEmpty({
+      path: '/history/like',
+      method: HttpMethod.Post,
+      body: body
+    })
+  }
+
+  async streamMessage(text: string): Promise<Array<string>> {
+    let responseText = await this.requester.requestRaw({
+      path: `/stream?question=${encodeURIComponent(text)}`,
+      method: HttpMethod.Get
+    })
+    return this.parseStreamChunks(responseText)
+  }
+
+  private normalizeFunctionModel(model: RawFunctionModel): FunctionModel {
+    let name = typeof model.name === 'string' ? functionNameFromRawValue(model.name) : model.name ?? null
+    return {
+      historyId: model.historyId ?? null,
+      hasTool: model.hasTool ?? null,
+      name: name,
+      msg: model.msg ?? null,
+      arguments: this.normalizeFunctionArguments(name, model.arguments ?? null)
+    }
+  }
+
+  private normalizeFunctionArguments(name: FunctionName | null, rawArguments: Object | null): FunctionArguments | null {
+    if (name === null || rawArguments === null) {
+      return null
+    }
+    let kind = functionArgumentKindForName(name)
+    if (kind === FunctionArgumentKind.TimeRange) {
+      return {
+        kind: kind,
+        timeRange: rawArguments as TimeRangeQuery
+      }
+    }
+    if (kind === FunctionArgumentKind.Warehouse) {
+      return {
+        kind: kind,
+        warehouse: rawArguments as WarehouseQuery
+      }
+    }
+    if (kind === FunctionArgumentKind.AccountAge) {
+      return {
+        kind: kind,
+        accountAge: rawArguments as AccountAgeQuery
+      }
+    }
+    if (kind === FunctionArgumentKind.PerformanceType) {
+      return {
+        kind: kind,
+        performanceType: rawArguments as PerformanceTypeQuery
+      }
+    }
+    return {
+      kind: kind,
+      basic: rawArguments as BasicQuery
+    }
+  }
+
+  private parseStreamChunks(responseText: string): Array<string> {
+    let chunks = new Array<string>()
+    let lines = responseText.split('\n')
+    for (let index = 0; index < lines.length; index++) {
+      let line = lines[index].trim()
+      if (line.length === 0 || !line.startsWith('data:')) {
+        continue
+      }
+      let payload = line.substring(5).trim()
+      if (payload.length === 0 || payload === '[DONE]') {
+        continue
+      }
+      this.appendStreamPayload(chunks, payload)
+    }
+    if (chunks.length === 0 && responseText.trim().length > 0) {
+      this.appendStreamPayload(chunks, responseText.trim())
+    }
+    return chunks
+  }
+
+  private appendStreamPayload(chunks: Array<string>, payload: string): void {
+    try {
+      let parsed = JSON.parse(payload) as ParsedStreamFrame
+      if (parsed.chunks !== undefined && parsed.chunks.length > 0) {
+        for (let index = 0; index < parsed.chunks.length; index++) {
+          chunks.push(parsed.chunks[index])
+        }
+        return
+      }
+    } catch (error) {
+    }
+    chunks.push(payload)
+  }
 }
 
 export enum SendFunctionResultKind {
@@ -54,6 +218,7 @@ export enum LoadChartResultKind {
 export interface LoadChartResult {
   kind: LoadChartResultKind
   payload?: ChartPayload | null
+  historyDetailId?: number | null
   message?: string | null
 }
 
@@ -296,7 +461,7 @@ export class LoadChartDataUseCase {
     if (payload.series.length === 0) {
       return { kind: LoadChartResultKind.Failure, message: payload.emptyMessage ?? null }
     }
-    return { kind: LoadChartResultKind.Chart, payload: payload }
+    return { kind: LoadChartResultKind.Chart, payload: payload, historyDetailId: detail.historyDetailId ?? null }
   }
 }
 

@@ -195,6 +195,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "historyDetailId": { "type": ["integer", "null"] },
         "funcType": { "anyOf": [{ "$ref": "#/$defs/FunctionName" }, { "type": "null" }] },
         "chartCommonVoList": {
           "type": ["array", "null"],

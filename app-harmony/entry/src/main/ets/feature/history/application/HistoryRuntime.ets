@@ -1,5 +1,6 @@
 import { HistoryRecord } from '../../../core/model/ContractModelExports'
-import { HistoryRepository, MockHistoryRepository } from './HistoryRepository'
+import { appRequester } from '../../../app/services/AppServices'
+import { HistoryRepository, MockHistoryRepository, RemoteHistoryRepository } from './HistoryRepository'
 import { HistoryUiState, initialHistoryUiState, makeHistoryUiState } from './HistoryState'
 
 export class HistoryRuntimeStore {
@@ -29,4 +30,4 @@ export class HistoryRuntimeStore {
   }
 }
 
-export const historyRuntimeStore = new HistoryRuntimeStore()
+export const historyRuntimeStore = new HistoryRuntimeStore(new RemoteHistoryRepository(appRequester))
