@@ -4,7 +4,7 @@ AIDataInsight 是一个 AI 驱动的数据分析多端应用项目。
 
 项目的核心目标不是“手写多套互相漂移的端侧代码”，而是先设计一套稳定的领域模型、API 契约、业务用例和设计规则，再让 AI 基于这套契约辅助生成 iOS、Android、HarmonyOS NEXT、Web 以及未来候选端实现。
 
-当前 iOS 和 Android 已完成主要功能开发，并逐步沉淀为参考实现与契约验收端；HarmonyOS NEXT 正在按同一契约推进原生实现；Web 排在 HarmonyOS NEXT 主链路之后；macOS、Windows 等端暂作为后续候选方向评估。
+当前 iOS、Android 和 HarmonyOS NEXT 已完成主要功能开发，并逐步沉淀为参考实现、契约验收端和 ArkUI 原生实现端；Web 排在 HarmonyOS NEXT 之后；macOS、Windows 等端暂作为后续候选方向评估。
 
 ## 项目理念
 
@@ -34,8 +34,8 @@ iOS 当前是参考实现，但不是其它端照抄的来源。Android / Harmon
 ```text
 P0 iOS：已完成主要功能，继续稳定和契约化
 P1 Android：已完成主要功能，继续作为契约验收端
-P2 HarmonyOS NEXT：进行中，已建立 DevEco / ArkTS / ArkUI 原生链路
-P3 Web：HarmonyOS NEXT 主链路后再推进，先保留 contract models
+P2 HarmonyOS NEXT：已完成主要功能开发，后续以 bugfix 和体验优化为主
+P3 Web：HarmonyOS NEXT 完成后再推进，先保留 contract models
 P4 macOS：短期靠 iPadOS 兼容模式，SwiftUI 化后再看
 P5 Windows：暂不规划，未来优先 Web / PWA
 ```
@@ -80,7 +80,7 @@ P5 Windows：暂不规划，未来优先 Web / PWA
 -> 对话气泡增量展示
 ```
 
-iOS 端当前已落地流式响应和打字机式渲染，Android 已按同一 use case 语义映射到 `Flow`；后续 HarmonyOS NEXT 应映射到 ArkTS 可维护的异步流/状态更新机制，Web 再映射到 `ReadableStream` / async iterator。
+iOS 端当前已落地流式响应和打字机式渲染，Android 已按同一 use case 语义映射到 `Flow`；HarmonyOS NEXT 当前按完整响应解析 `/stream` 的 `data:` 内容并一次性展示，实时 SSE / 打字机可作为后续体验优化；Web 后续再映射到 `ReadableStream` / async iterator。
 
 ## 架构分层
 
@@ -205,7 +205,7 @@ app-android
 
 ## HarmonyOS NEXT 当前状态
 
-HarmonyOS NEXT 是当前正在推进的原生实现端。工程已接入 DevEco Studio / ArkTS / ArkUI，并按阶段从契约生成和主链路开始落地。
+HarmonyOS NEXT 已完成主要功能开发。工程已接入 DevEco Studio / ArkTS / ArkUI，并按契约生成、core 基础层和 feature 链路落地。
 
 当前已完成：
 
@@ -217,10 +217,8 @@ HarmonyOS NEXT 是当前正在推进的原生实现端。工程已接入 DevEco 
 - AIHome 壳层：AIChat 主 surface、History 面板、Setting route
 - Setting / Privacy 链路：账户信息、隐私政策、退出登录
 - History mock 列表链路：今天 / 本月 / 其它分组、无感刷新、选择会话
-
-当前待补：
-
-- AIChat 链路：模板问题、输入发送、流式 mock、图表 fallback 和反馈状态
+- AIChat Apifox mock 链路：模板问题、输入发送、`/stream` 返回文本展示、图表 fallback 和反馈状态
+- 阶段 10 收尾：端侧 README、执行清单、AI 生成指南、change log 和工程卫生
 
 推荐技术栈：
 
@@ -230,7 +228,7 @@ HarmonyOS NEXT 是当前正在推进的原生实现端。工程已接入 DevEco 
 - 官方网络能力或项目统一网络封装
 - DevEco Studio 单元测试 / UI 测试 / 模拟器验证
 
-没有 HarmonyOS NEXT 真机时，先以编译、模拟器、contract fixtures 和官方文档对照为主；真机能力、性能和发布链路需要单独标记为未验证。
+当前开源版本默认使用 Apifox mock 环境；后续 HarmonyOS 工作以 bugfix、UI 细节和 SSE 体验优化为主。
 
 ## Web 当前状态
 
@@ -327,6 +325,6 @@ AI 生成端侧代码时必须遵守固定协议：
 
 - 当前仓库以 AI 数据分析 Demo、多端架构设计和契约驱动生成实践为主
 - iOS 已经具备完整参考实现
-- iOS / Android 已完成主要功能，HarmonyOS NEXT 正在实现中，之后再推进 Web
-- 部分接口和流式数据仍可能使用 mock
+- iOS / Android / HarmonyOS NEXT 已完成主要功能开发，之后再推进 Web
+- 当前默认环境使用 Apifox mock；HarmonyOS NEXT 的 `/stream` 当前一次性展示解析结果，实时 SSE 可作为后续体验优化
 - macOS、Windows 暂不作为当前阶段强目标

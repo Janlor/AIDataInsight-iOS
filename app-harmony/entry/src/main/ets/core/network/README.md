@@ -16,4 +16,4 @@
 - feature repository 不能自己拼 baseURL。
 - mock URL 来自契约生成模型，不写死在子模块。
 - 生产代码默认使用 `HarmonyHttpTransport`，测试代码可显式注入 `MockHttpTransport`。
-- AIChat `/stream` 当前通过普通 HTTP 获取完整 SSE 文本后解析 `data:` 内容；实时 `requestInStream` / `dataReceive` 未作为第一版已验证能力保留。
+- AIChat `/stream` 当前通过普通 HTTP 获取完整 SSE 文本后解析 `data:` 内容；实时 SSE / 打字机效果可作为后续体验优化。

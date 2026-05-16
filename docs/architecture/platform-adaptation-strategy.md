@@ -76,16 +76,14 @@ UI：Jetpack Compose
 
 当前状态：
 
-- 尚未开始实现
-- 没有 HarmonyOS NEXT 真机
-- 需要额外学习 DevEco Studio、ArkTS、ArkUI、Ability、路由、包结构、签名和调试流程
+- 已完成主要功能开发
+- 已建立 DevEco Studio / ArkTS / ArkUI 原生工程
+- 已接入 Apifox mock 环境，覆盖 Login、自动登录、AIHome、History、Setting、Privacy、AIChat、图表 fallback 和反馈状态
 
 建议：
 
-- HarmonyOS NEXT 是 Android 完成后的下一优先级
-- 先从“契约模型 + mapper tests + mock 页面”开始，不直接追求完整产品体验
+- HarmonyOS NEXT 已进入维护阶段，后续以 bugfix、UI 细节和 SSE 体验优化为主
 - 页面 UI 不从 iOS UIKit 或 Android Compose 页面照抄，只实现契约里的 UI state / layout 语义
-- 没有真机时，必须明确说明设备能力、性能和发布链路未验证
 - AI 可以辅助生成 HarmonyOS NEXT 代码，但需要更严格的人工审核和官方文档对照
 
 技术栈：
@@ -106,7 +104,7 @@ AI 生成 HarmonyOS NEXT 代码的主要风险：
 - ArkTS 和 TypeScript 相似但不等同，AI 容易写出“像 TS 但不能编译”的代码
 - ArkUI 装饰器、状态管理、生命周期和 React / SwiftUI / Compose 不完全等价
 - HarmonyOS NEXT 生态变化快，生成前必须优先查官方文档或本项目已沉淀规则
-- 缺少真机时，传感器、权限、性能、发布和厂商服务能力都不能算已验证
+- 当前开源版本默认使用 Apifox mock 环境；如需接入其它环境，应先更新跨端契约和网络配置
 
 ### P3：Web
 
@@ -119,7 +117,7 @@ AI 生成 HarmonyOS NEXT 代码的主要风险：
 
 - Web 排在 HarmonyOS NEXT 之后
 - 先保留契约生成的 TypeScript models
-- HarmonyOS NEXT 主链路验证后，再搭 Next.js 工程
+- HarmonyOS NEXT 主要功能完成后，再搭 Next.js 工程
 - 页面 UI 不从 iOS / Android / HarmonyOS NEXT 页面照抄，先保证业务链路和 contract tests
 
 推荐技术栈：
@@ -133,9 +131,9 @@ AI 生成 HarmonyOS NEXT 代码的主要风险：
 测试：Vitest + Testing Library + Playwright 可选
 生成模型：app-web/src/contracts/generated/models.ts
 ```
-- 工程配置、模块配置、权限、签名、依赖声明容易漏
+- 工程配置、模块配置、权限和依赖声明容易漏
 - 官方 API 版本变化会影响可用性
-- 没有真机时，设备能力、系统服务、性能和发布链路都只能低置信度判断
+- 当前开源版本以 Apifox mock 和现有端侧构建验证为准
 
 适配策略：
 
@@ -143,7 +141,7 @@ AI 生成 HarmonyOS NEXT 代码的主要风险：
 2. 用 fixtures 做纯函数 mapper 测试
 3. 做 AI Chat / History 的静态页面
 4. 再接 repository 和网络
-5. 最后接登录、token refresh、SSE / streaming、设备能力和发布链路
+5. 最后接登录、token refresh 和必要体验优化
 
 ### P4：macOS
 
@@ -219,13 +217,13 @@ AI 生成 HarmonyOS NEXT 代码的主要风险：
 - 实现 repository / usecase / UI state
 - AI Chat 和 History 可用
 - 图表基于 `ChartPayload`
+- 当前已完成主要功能开发
 
 进入条件：
 
 - iOS / Android 主链路完成
 - contract tests 稳定
 - 有 DevEco Studio 环境
-- 最好能获得至少一台 HarmonyOS NEXT 真机；没有真机时，必须标记真机能力未验证
 
 先做：
 
@@ -238,8 +236,8 @@ AI 生成 HarmonyOS NEXT 代码的主要风险：
 
 - 登录
 - token refresh
-- SSE / streaming
-- 发布和真机能力
+- SSE / streaming 体验优化
+- bugfix 和 UI 细节
 
 ### 阶段 4：Web 跑通主链路
 
@@ -265,7 +263,7 @@ AI 生成 HarmonyOS NEXT 代码的主要风险：
 
 ---
 
-## 三、没有真机时的验证策略
+## 三、端侧验证策略
 
 ### Android
 
@@ -276,7 +274,7 @@ AI 生成 HarmonyOS NEXT 代码的主要风险：
 - Android 模拟器
 - contract fixtures
 
-需要真机再确认：
+可后续补充：
 
 - 性能
 - 输入法
@@ -286,20 +284,18 @@ AI 生成 HarmonyOS NEXT 代码的主要风险：
 
 ### HarmonyOS NEXT
 
-可以先依赖：
+当前开源版本以以下验证为准：
 
 - DevEco Studio 编译
 - DevEco 模拟器
 - ArkTS 单元测试
 - contract fixtures
 
-需要真机再确认：
+后续维护重点：
 
-- 系统权限
-- 网络安全策略
-- 性能和内存
-- 多设备能力
-- 发布、签名、审核链路
+- bugfix
+- UI 细节
+- SSE / streaming 体验优化
 
 ### Windows
 
@@ -337,8 +333,8 @@ contracts -> generated models -> repository -> usecase -> UI state mapper -> UI
 ```text
 P0 iOS：继续稳定和契约化
 P1 Android：已完成主要功能，继续作为契约验收端
-P2 HarmonyOS NEXT：Android 后的下一优先级，按契约启动 ArkTS / ArkUI 原生实现
-P3 Web：HarmonyOS NEXT 主链路后再推进，先保留 contract models
+P2 HarmonyOS NEXT：已完成主要功能开发，后续以 bugfix 和体验优化为主
+P3 Web：HarmonyOS NEXT 完成后再推进，先保留 contract models
 P4 macOS：短期靠 iPadOS 兼容模式，SwiftUI 化后再看
 P5 Windows：暂不规划，未来优先 Web / PWA
 ```
@@ -346,10 +342,9 @@ P5 Windows：暂不规划，未来优先 Web / PWA
 这条路线最符合当前约束：
 
 - 你使用 Mac 开发
-- iOS 和 Android 已经可用
-- HarmonyOS NEXT 成为下一阶段明确目标
+- iOS、Android 和 HarmonyOS NEXT 已经可用
+- HarmonyOS NEXT 已完成主要功能开发
 - Web 仍是明确目标，但排在 HarmonyOS NEXT 之后
-- HarmonyOS NEXT 和 Windows 暂无真机，HarmonyOS NEXT 需先以模拟器/编译/契约测试验证
 - token 和时间预算有限
 - 项目已经进入“契约驱动多端生成”的路线
 

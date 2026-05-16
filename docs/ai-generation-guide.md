@@ -386,7 +386,7 @@ FunctionName -> FunctionArguments kind -> /chart/{FunctionName.rawValue} -> Char
 
 当前优先级：
 
-- HarmonyOS NEXT 第一版主链路已完成，Web 排在 HarmonyOS NEXT 收尾之后。
+- HarmonyOS NEXT 已完成主要功能开发，Web 排在 HarmonyOS NEXT 之后。
 - HarmonyOS NEXT 实现必须从已验证契约生成，不从 iOS UIKit、Android Compose 或 Web React 页面反推。
 
 优先生成顺序：
@@ -403,11 +403,11 @@ FunctionName -> FunctionArguments kind -> /chart/{FunctionName.rawValue} -> Char
 
 - 使用 ArkTS + ArkUI + DevEco Studio
 - 先生成 contract models 和 mapper，再生成 ArkUI 页面
-- 没有真机时，必须明确说明设备能力、性能和发布链路未验证
+- 当前开源版本以 Apifox mock 和 DevEco 构建验证为准
 - ArkTS 不是 TypeScript，不能直接复制 Web 代码
 - ArkUI 状态、生命周期、路由和权限必须按 HarmonyOS NEXT 官方能力实现
 - 当前工程路径为 `app-harmony`，工程说明位于 `app-harmony/README.md`，模块边界位于 `app-harmony/docs/module-boundaries.md`
-- AIChat `/stream` 当前按完整响应解析 `data:` 内容并一次性展示；不要把 HarmonyOS NetworkKit 实时 SSE / `dataReceive` 当作已验证能力复用到 Web 或其它端
+- AIChat `/stream` 当前按完整响应解析 `data:` 内容并一次性展示；实时 SSE / 打字机效果可作为后续体验优化，不影响主要功能完成状态
 
 ### Web
 

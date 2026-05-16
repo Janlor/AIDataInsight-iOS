@@ -23,7 +23,7 @@
 
 - 负责 Apifox mock baseURL、真实 HTTP transport、请求、响应外壳和错误处理。
 - 子模块 path 放在对应 feature 的 repository / API descriptor 语义中。
-- 不把未验证的平台流式能力作为公共能力暴露；AIChat `/stream` 当前按完整响应解析。
+- AIChat `/stream` 当前按完整响应解析；实时 SSE / 打字机效果可作为后续体验优化。
 
 ## core/account
 
