@@ -69,6 +69,27 @@ content:
         compact: 19
         androidReference: 16
       rule: "App icon is displayed as a rounded square image; do not render it as a sharp-corner bitmap."
+  form:
+    fields:
+      style: underlined
+      height: 45
+      text:
+        fontSize: 16
+        fontWeight: bold
+      separator:
+        height: 1
+        colorSemantic: separator
+      rules:
+        - Username and password fields are not card inputs; render them as transparent fields with a bottom separator.
+        - Placeholder text uses a quaternary/low-emphasis label color.
+    loginButton:
+      height: 52
+      cornerRadius: 12
+      textSize: 17
+      fontWeight: semibold
+      rules:
+        - Button should read as the primary action, with a filled accent background.
+        - Disabled state keeps white text and uses a muted blue-gray filled background.
 
 breakpoints:
   compactPortrait:
