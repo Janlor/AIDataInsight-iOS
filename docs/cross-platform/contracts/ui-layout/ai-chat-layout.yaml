@@ -33,9 +33,59 @@ transcript:
     - After a chart message is generated, scroll to the transcript bottom anchor so the newly rendered chart and feedback area can be inspected without a manual extra swipe.
   welcome:
     kind: assistantBubble
+    iosReference:
+      cell: AIChatWelcomeCell
+      baseCell: AIChatCell
+      richText: AIChatRichText
+    visualMetrics:
+      cellTopSpacing: 8
+      bubbleContentInsets:
+        top: 11.5
+        left: 16
+        bottom: 11.5
+        right: 16
+      bubbleCornerRadius:
+        topLeading: 21
+        topTrailing: 21
+        bottomLeading: 4
+        bottomTrailing: 21
+      bubbleBorderWidth: 0.5
+      questionRow:
+        textTopPadding: 12
+        textBottomPadding: 9
+        separatorHeight: 1
+      exampleIntroTopSpacing: 16
+      exampleRowTopSpacing: 12
+      exampleSegmentSpacing: 4
+    typography:
+      body:
+        semantic: iOS UIFont.theme.subhead
+        approximateSize: 15
+        color: theme.label
+      bold:
+        semantic: iOS UIFont.theme.title31
+        color: theme.label
+      question:
+        semantic: iOS UIFont.theme.subhead
+        color: aiAccent
+        highlightColor: aiAccent 40% alpha
+      exampleTop:
+        size: 12
+        weight: semibold
+        color: theme.label
+      exampleBottom:
+        size: 10
+        color: theme.tertiaryLabel
+    background:
+      color: theme.secondaryGroupedBackground
+      borderColor: aiSeparator
     introText: "你好，我是你的AI数据分析助手。我能根据业绩、库存、代采、应收、帐龄等领域的问题生成相应的智能图表。"
+    boldIntroText:
+      - "业绩、库存、代采、应收、帐龄"
     promptText: "你也可以尝试点击以下推荐问题："
     exampleIntro: "我能精准识别问题中的指标名称、时间范围、分组维度和过滤条件，例如："
+    boldExampleIntroText:
+      - "指标名称、时间范围、分组维度和过滤条件"
     exampleSegments:
       - top: "今年第一季度"
         bottom: "时间范围"
@@ -50,6 +100,11 @@ transcript:
     questionRows:
       action: sendMessage(question)
       style: accentTextWithDividers
+      dataSource: TemplateQuestionSet.questions from loadTemplate
+      rules:
+        - Render every question returned by the template API in order.
+        - Do not invent local fallback questions while the shared mock API is available.
+        - The template API may return five or more questions; the welcome bubble must grow and scroll with the transcript instead of clipping or overflowing horizontally.
   assistantMessage:
     alignment: leading
     shape: leadingChatBubble

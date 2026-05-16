@@ -1,6 +1,6 @@
 import { AIChatPage } from '../../feature/ai_chat/pages/AIChatPage'
 import { HistoryPage } from '../../feature/history/pages/HistoryPage'
-import { AppColors, AppSpacing, AppTypography } from '../../core/ui/theme/AppTheme'
+import { AppColors, AppTypography } from '../../core/ui/theme/AppTheme'
 
 @Component
 export struct AIHomePage {
@@ -158,7 +158,6 @@ export struct AIHomePage {
     .width('100%')
     .height(56)
     .alignItems(VerticalAlign.Center)
-    .margin({ bottom: AppSpacing.itemGap })
   }
 
   private openHistoryPanel(): void {

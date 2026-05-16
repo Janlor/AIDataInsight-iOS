@@ -115,7 +115,7 @@ export class AIChatRuntimeStore {
       this.state = buildAIChatUiState(
         activeHistoryId,
         replaceLastMessage(this.state.messages, this.makeIntentMessage(result.text ?? '需要补充查询条件', result.intentType ?? AIChatIntentType.Time)),
-        new Array<string>(),
+        this.state.templateQuestions,
         '',
         false,
         false,
@@ -132,7 +132,7 @@ export class AIChatRuntimeStore {
         this.state = buildAIChatUiState(
           result.historyId,
           replaceLastMessage(this.state.messages, this.makeChartMessage(chartResult.payload, result.name)),
-          new Array<string>(),
+          this.state.templateQuestions,
           '',
           false,
           false,
@@ -145,7 +145,7 @@ export class AIChatRuntimeStore {
       this.state = buildAIChatUiState(
         result.historyId,
         replaceLastMessage(this.state.messages, this.makeErrorMessage(chartResult.message ?? aiChatChartFallbackText, result.name)),
-        new Array<string>(),
+        this.state.templateQuestions,
         '',
         false,
         false,
@@ -197,7 +197,7 @@ export class AIChatRuntimeStore {
     this.state = buildAIChatUiState(
       this.state.historyId ?? null,
       replaceLastMessage(this.state.messages, streamMessage),
-      new Array<string>(),
+      this.state.templateQuestions,
       '',
       false,
       false,
@@ -213,7 +213,7 @@ export class AIChatRuntimeStore {
         this.state = buildAIChatUiState(
           this.state.historyId ?? null,
           replaceLastMessage(this.state.messages, this.makeStreamingMessage(currentText)),
-          new Array<string>(),
+          this.state.templateQuestions,
           '',
           false,
           false,
@@ -225,7 +225,7 @@ export class AIChatRuntimeStore {
       this.state = buildAIChatUiState(
         this.state.historyId ?? null,
         replaceLastMessage(this.state.messages, this.makeTextMessage(currentText)),
-        new Array<string>(),
+        this.state.templateQuestions,
         '',
         false,
         false,
@@ -237,7 +237,7 @@ export class AIChatRuntimeStore {
       this.state = buildAIChatUiState(
         this.state.historyId ?? null,
         replaceLastMessage(this.state.messages, this.makeErrorMessage(aiChatGenericErrorText, null)),
-        new Array<string>(),
+        this.state.templateQuestions,
         '',
         false,
         false,

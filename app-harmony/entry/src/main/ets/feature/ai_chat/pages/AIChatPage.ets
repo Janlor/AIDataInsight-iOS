@@ -52,7 +52,7 @@ export struct AIChatPage {
           Column() {
             if (this.uiState.isLoadingTemplate) {
               this.loadingBubble('正在加载推荐问题')
-            } else if (this.uiState.messages.length === 0 && this.uiState.templateQuestions.length > 0) {
+            } else if (this.uiState.templateQuestions.length > 0) {
               this.messageBubble(makeWelcomeMessage(this.uiState.templateQuestions))
             }
 
@@ -61,7 +61,7 @@ export struct AIChatPage {
             })
           }
           .width('100%')
-          .padding({ top: 8, bottom: 12 })
+          .padding({ top: 0, bottom: 12 })
         }
         .layoutWeight(1)
         .scrollBar(BarState.Off)
@@ -140,8 +140,8 @@ export struct AIChatPage {
             this.textContent(message)
           }
         }
-        .constraintSize({ maxWidth: '88%' })
-        .padding({ left: 16, right: 16, top: 12, bottom: 12 })
+        .width('88%')
+        .padding({ left: 16, right: 16, top: message.contentKind === AIChatMessageContentKind.Welcome ? 8 : 12, bottom: 12 })
         .backgroundColor('#F8FFFFFF')
         .border({ width: 1, color: '#DDE6F0' })
         .borderRadius({ topLeft: 21, topRight: 21, bottomLeft: 4, bottomRight: 21 })
@@ -158,16 +158,21 @@ export struct AIChatPage {
 
   @Builder
   private welcomeContent(message: AIChatMessageUiModel) {
-    Text(message.text ?? '')
-      .fontSize(15)
-      .fontColor(AppColors.textPrimary)
-      .lineHeight(23)
+    Text() {
+      Span('你好，我是你的AI数据分析助手。我能根据')
+      Span('业绩、库存、代采、应收、帐龄')
+        .fontWeight(FontWeight.Bold)
+      Span('等领域的问题生成相应的智能图表。')
+    }
+    .fontSize(15)
+    .fontColor(AppColors.textPrimary)
+    .lineHeight(23)
 
     Text(aiChatWelcomePrompt)
       .fontSize(15)
       .fontColor(AppColors.textPrimary)
       .lineHeight(23)
-      .margin({ top: 4, bottom: 2 })
+      .margin({ top: 2, bottom: 2 })
 
     ForEach(message.templateQuestions, (question: string, index: number) => {
       Text(question)
@@ -175,18 +180,23 @@ export struct AIChatPage {
         .fontColor(AppColors.accent)
         .lineHeight(22)
         .width('100%')
-        .padding({ top: 10, bottom: 10 })
+        .padding({ top: 10, bottom: 10, left: 0, right: 0 })
         .border({ width: { top: index === 0 ? 0 : 1 }, color: '#E1E7EF' })
         .onClick(() => {
           this.sendText(question)
         })
     })
 
-    Text('我能精准识别问题中的指标名称、时间范围、分组维度和过滤条件，例如：')
-      .fontSize(15)
-      .fontColor(AppColors.textPrimary)
-      .lineHeight(22)
-      .margin({ top: 10 })
+    Text() {
+      Span('我能精准识别问题中的')
+      Span('指标名称、时间范围、分组维度和过滤条件')
+        .fontWeight(FontWeight.Bold)
+      Span('，例如：')
+    }
+    .fontSize(15)
+    .fontColor(AppColors.textPrimary)
+    .lineHeight(22)
+    .margin({ top: 10 })
 
     Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.Start, alignItems: ItemAlign.Center }) {
       ForEach(this.exampleSegments, (segment: QueryExampleSegment) => {

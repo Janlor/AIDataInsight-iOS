@@ -16,7 +16,9 @@ export default function aiChatStateTest() {
       let runtime = new AIChatRuntimeStore(new MockAIChatRepository())
       let state = await runtime.loadTemplate()
 
-      expect(state.templateQuestions.length).assertEqual(3)
+      expect(state.templateQuestions.length).assertEqual(5)
+      expect(state.templateQuestions[0]).assertEqual('今年第三季度销售额大于2亿的公司有哪些？')
+      expect(state.templateQuestions[4]).assertEqual('查看各公司账龄超过180天的金额。')
       expect(state.messages.length).assertEqual(0)
       expect(state.isLoadingTemplate).assertFalse()
       expect(state.canClear).assertFalse()
