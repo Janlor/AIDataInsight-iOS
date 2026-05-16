@@ -1,5 +1,6 @@
 import {
   AccountSession,
+  AccountAgeGroupItem,
   AIHomeCommand,
   ChartCommonItem,
   ChartPayload,
@@ -110,6 +111,15 @@ export function mapChartPayload(detail: HistoryChartDetail): ChartPayload {
       values: [item.value ?? 0]
     }
   })
+  if (series.length === 0) {
+    series = (detail.accountAgeGroupVoList ?? []).map((item: AccountAgeGroupItem): ChartSeries => {
+      return {
+        xAxis: item.name ?? '',
+        labels: item.labelList ?? new Array<string>(),
+        values: item.valueList ?? new Array<number>()
+      }
+    })
+  }
 
   return {
     functionName: functionName,
