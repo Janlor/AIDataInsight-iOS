@@ -17,12 +17,18 @@ export struct AIHomePage {
 
   build() {
     Stack({ alignContent: Alignment.Start }) {
+      Image($r('app.media.background_vc'))
+        .width('100%')
+        .height('100%')
+        .objectFit(ImageFit.Cover)
+
       Column() {
         this.navigationBar()
 
         AIChatPage({
           selectedHistoryId: this.selectedHistoryId,
-          conversationVersion: this.conversationVersion
+          conversationVersion: this.conversationVersion,
+          drawBackground: false
         })
           .layoutWeight(1)
       }

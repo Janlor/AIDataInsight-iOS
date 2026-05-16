@@ -21,6 +21,7 @@ interface QueryExampleSegment {
 export struct AIChatPage {
   @Prop @Watch('onConversationInputChanged') selectedHistoryId: number | null = null
   @Prop @Watch('onConversationInputChanged') conversationVersion: number = 0
+  @Prop drawBackground: boolean = true
 
   @State uiState: AIChatUiState = initialAIChatUiState()
 
@@ -39,10 +40,12 @@ export struct AIChatPage {
 
   build() {
     Stack() {
-      Image($r('app.media.background_vc'))
-        .width('100%')
-        .height('100%')
-        .objectFit(ImageFit.Cover)
+      if (this.drawBackground) {
+        Image($r('app.media.background_vc'))
+          .width('100%')
+          .height('100%')
+          .objectFit(ImageFit.Cover)
+      }
 
       Column() {
         Scroll() {
