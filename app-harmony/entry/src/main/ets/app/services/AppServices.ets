@@ -1,5 +1,6 @@
 import { AccountAuthService } from '../../core/account/AccountAuthService'
-import { MemoryAccountSessionStore } from '../../core/account/AccountSessionStore'
+import { common } from '@kit.AbilityKit'
+import { PreferencesAccountSessionStore } from '../../core/account/AccountSessionStore'
 import { CommonRequester } from '../../core/network/CommonRequester'
 import { MockHttpTransport } from '../../core/network/MockHttpTransport'
 
@@ -9,7 +10,11 @@ mockResponses.set(
   '{"code":200,"msg":"ok","data":{"access_token":"mock-access-token","refresh_token":"mock-refresh-token","orgId":1},"trace":null,"tid":null}'
 )
 
-export const appSessionStore = new MemoryAccountSessionStore()
+export const appSessionStore = new PreferencesAccountSessionStore()
 export const appHttpTransport = new MockHttpTransport(mockResponses)
 export const appRequester = new CommonRequester(appHttpTransport)
 export const accountAuthService = new AccountAuthService(appRequester, appSessionStore)
+
+export function configureAppServices(context: common.UIAbilityContext): void {
+  appSessionStore.configure(context)
+}
