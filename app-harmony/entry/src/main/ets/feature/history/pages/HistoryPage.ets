@@ -111,20 +111,21 @@ export struct HistoryPage {
 
   @Builder
   private historyRow(item: HistoryItemUiModel) {
-    Row() {
-      Text(item.title)
+    Text() {
+      Span(item.title)
         .fontSize(14)
         .fontColor(AppColors.textSecondary)
-        .maxLines(2)
-        .textOverflow({ overflow: TextOverflow.Ellipsis })
 
       if (item.displayTime.length > 0) {
-        Text(` ${item.displayTime}`)
+        Span(`  ${item.displayTime}`)
           .fontSize(12)
           .fontColor('#9AA5B5')
-          .maxLines(1)
       }
     }
+    .width('100%')
+    .lineHeight(22)
+    .maxLines(2)
+    .textOverflow({ overflow: TextOverflow.Ellipsis })
     .padding({ left: 16, right: 16, top: 9, bottom: 9 })
     .backgroundColor(AppColors.surface)
     .borderRadius(AppRadius.panel)
