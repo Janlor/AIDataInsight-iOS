@@ -35,6 +35,8 @@ import {
 } from './AIChatState'
 import { appRequester } from '../../../app/services/AppServices'
 
+export type AIChatStateListener = (state: AIChatUiState) => void
+
 export class AIChatRuntimeStore {
   private loadTemplateUseCase: LoadTemplateUseCase
   private loadHistoryDetailUseCase: LoadHistoryDetailUseCase
@@ -44,6 +46,7 @@ export class AIChatRuntimeStore {
   private streamAIResponseUseCase: StreamAIResponseUseCase
   private state: AIChatUiState = initialAIChatUiState()
   private messageCounter: number = 0
+  private listeners: Array<AIChatStateListener> = new Array<AIChatStateListener>()
 
   constructor(repository: AIChatRepository = new MockAIChatRepository()) {
     this.loadTemplateUseCase = new LoadTemplateUseCase(repository)
@@ -58,8 +61,15 @@ export class AIChatRuntimeStore {
     return this.state
   }
 
+  subscribe(listener: AIChatStateListener): () => void {
+    this.listeners.push(listener)
+    return (): void => {
+      this.listeners = this.listeners.filter((item: AIChatStateListener): boolean => item !== listener)
+    }
+  }
+
   updateInput(text: string): AIChatUiState {
-    this.state = buildAIChatUiState(
+    this.setState(buildAIChatUiState(
       this.state.historyId ?? null,
       this.state.messages,
       this.state.templateQuestions,
@@ -69,7 +79,7 @@ export class AIChatRuntimeStore {
       this.state.isStreaming,
       null,
       false
-    )
+    ))
     return this.state
   }
 
@@ -110,11 +120,11 @@ export class AIChatRuntimeStore {
     let loadingMessage = makeLoadingMessage(this.nextId('local-assistant-loading'))
     let messages = this.state.messages.concat([userMessage, loadingMessage])
     let activeHistoryId = this.state.historyId ?? null
-    this.state = buildAIChatUiState(activeHistoryId, messages, this.state.templateQuestions, '', false, true, false, null, true)
+    this.setState(buildAIChatUiState(activeHistoryId, messages, this.state.templateQuestions, '', false, true, false, null, true))
 
     let result = await this.sendFunctionMessageUseCase.execute(trimmed, activeHistoryId)
     if (result.kind === SendFunctionResultKind.Intent) {
-      this.state = buildAIChatUiState(
+      this.setState(buildAIChatUiState(
         activeHistoryId,
         replaceLastMessage(this.state.messages, this.makeIntentMessage(result.text ?? '需要补充查询条件', result.intentType ?? AIChatIntentType.Time)),
         this.state.templateQuestions,
@@ -124,14 +134,14 @@ export class AIChatRuntimeStore {
         false,
         null,
         true
-      )
+      ))
       return this.state
     }
 
     if (result.kind === SendFunctionResultKind.ChartRequest && result.name !== null && result.name !== undefined && result.historyId !== null && result.historyId !== undefined && result.argumentsValue !== null && result.argumentsValue !== undefined) {
       let chartResult = await this.loadChartDataUseCase.execute(result.name, result.historyId, result.argumentsValue)
       if (chartResult.kind === LoadChartResultKind.Chart && chartResult.payload !== null && chartResult.payload !== undefined) {
-        this.state = buildAIChatUiState(
+        this.setState(buildAIChatUiState(
           result.historyId,
           replaceLastMessage(this.state.messages, this.makeChartMessage(chartResult.payload, result.name, chartResult.historyDetailId ?? null)),
           this.state.templateQuestions,
@@ -141,10 +151,10 @@ export class AIChatRuntimeStore {
           false,
           null,
           true
-        )
+        ))
         return this.state
       }
-      this.state = buildAIChatUiState(
+      this.setState(buildAIChatUiState(
         result.historyId,
         replaceLastMessage(this.state.messages, this.makeErrorMessage(chartResult.message ?? aiChatChartFallbackText, result.name)),
         this.state.templateQuestions,
@@ -154,7 +164,7 @@ export class AIChatRuntimeStore {
         false,
         null,
         true
-      )
+      ))
       return this.state
     }
 
@@ -195,38 +205,17 @@ export class AIChatRuntimeStore {
   }
 
   private async streamAnswer(text: string): Promise<void> {
-    let streamMessage = this.makeStreamingMessage('')
-    this.state = buildAIChatUiState(
-      this.state.historyId ?? null,
-      replaceLastMessage(this.state.messages, streamMessage),
-      this.state.templateQuestions,
-      '',
-      false,
-      false,
-      true,
-      null,
-      true
-    )
     try {
-      let chunks = await this.streamAIResponseUseCase.execute(text)
-      let currentText = ''
-      for (let index = 0; index < chunks.length; index++) {
-        currentText += chunks[index]
-        this.state = buildAIChatUiState(
-          this.state.historyId ?? null,
-          replaceLastMessage(this.state.messages, this.makeStreamingMessage(currentText)),
-          this.state.templateQuestions,
-          '',
-          false,
-          false,
-          true,
-          null,
-          true
-        )
+      let responseText = ''
+      await this.streamAIResponseUseCase.execute(text, (chunk: string) => {
+        responseText += chunk
+      })
+      if (responseText.length === 0) {
+        responseText = '已收到您的问题，当前接口未返回可展示内容，请稍后再试或换一种问法。'
       }
-      this.state = buildAIChatUiState(
+      this.setState(buildAIChatUiState(
         this.state.historyId ?? null,
-        replaceLastMessage(this.state.messages, this.makeTextMessage(currentText)),
+        replaceLastMessage(this.state.messages, this.makeTextMessage(responseText)),
         this.state.templateQuestions,
         '',
         false,
@@ -234,9 +223,9 @@ export class AIChatRuntimeStore {
         false,
         null,
         true
-      )
+      ))
     } catch (error) {
-      this.state = buildAIChatUiState(
+      this.setState(buildAIChatUiState(
         this.state.historyId ?? null,
         replaceLastMessage(this.state.messages, this.makeErrorMessage(aiChatGenericErrorText, null)),
         this.state.templateQuestions,
@@ -246,7 +235,18 @@ export class AIChatRuntimeStore {
         false,
         null,
         true
-      )
+      ))
+    }
+  }
+
+  private setState(state: AIChatUiState): void {
+    this.state = state
+    this.notify()
+  }
+
+  private notify(): void {
+    for (let index = 0; index < this.listeners.length; index++) {
+      this.listeners[index](this.state)
     }
   }
 
@@ -278,9 +278,9 @@ export class AIChatRuntimeStore {
     }
   }
 
-  private makeTextMessage(text: string): AIChatMessageUiModel {
+  private makeTextMessage(text: string, id?: string): AIChatMessageUiModel {
     return {
-      id: this.nextId('local-assistant-text'),
+      id: id ?? this.nextId('local-assistant-text'),
       role: ConversationRole.Assistant,
       contentKind: AIChatMessageContentKind.Text,
       text: text,
@@ -290,9 +290,9 @@ export class AIChatRuntimeStore {
     }
   }
 
-  private makeStreamingMessage(text: string): AIChatMessageUiModel {
+  private makeStreamingMessage(text: string, id: string): AIChatMessageUiModel {
     return {
-      id: 'local-assistant-stream-1',
+      id: id,
       role: ConversationRole.Assistant,
       contentKind: AIChatMessageContentKind.Text,
       text: text,
@@ -302,9 +302,9 @@ export class AIChatRuntimeStore {
     }
   }
 
-  private makeErrorMessage(text: string, functionName?: FunctionName | null): AIChatMessageUiModel {
+  private makeErrorMessage(text: string, functionName?: FunctionName | null, id?: string): AIChatMessageUiModel {
     return {
-      id: this.nextId('local-assistant-fallback'),
+      id: id ?? this.nextId('local-assistant-fallback'),
       role: ConversationRole.Assistant,
       contentKind: AIChatMessageContentKind.Error,
       text: text,

@@ -35,7 +35,7 @@ export interface AIChatRepository {
   sendFunctionMessage(text: string, historyId?: number | null): Promise<FunctionModel>
   loadChartData(name: FunctionName, historyId: number, argumentsValue: FunctionArguments): Promise<HistoryChartDetail>
   sendLikeFeedback(historyDetailId: number, like: string): Promise<void>
-  streamMessage(text: string): Promise<Array<string>>
+  streamMessage(text: string, onChunk: (chunk: string) => void): Promise<void>
 }
 
 interface RawFunctionModel {
@@ -105,12 +105,20 @@ export class RemoteAIChatRepository implements AIChatRepository {
     })
   }
 
-  async streamMessage(text: string): Promise<Array<string>> {
+  async streamMessage(text: string, onChunk: (chunk: string) => void): Promise<void> {
+    let headers = new Map<string, string>()
+    headers.set('Accept', 'text/event-stream')
+    headers.set('Cache-Control', 'no-cache')
     let responseText = await this.requester.requestRaw({
       path: `/stream?question=${encodeURIComponent(text)}`,
-      method: HttpMethod.Get
+      method: HttpMethod.Get,
+      headers: headers
     })
-    return this.parseStreamChunks(responseText)
+    let chunks = this.parseStreamChunks(responseText)
+    for (let index = 0; index < chunks.length; index++) {
+      await this.delay(90)
+      onChunk(chunks[index])
+    }
   }
 
   private normalizeFunctionModel(model: RawFunctionModel): FunctionModel {
@@ -179,6 +187,37 @@ export class RemoteAIChatRepository implements AIChatRepository {
     return chunks
   }
 
+  private consumeStreamBuffer(buffer: string, isFinal: boolean, onChunk: (chunk: string) => void): string {
+    let remaining = buffer
+    let lineBreakIndex = remaining.indexOf('\n')
+    while (lineBreakIndex >= 0) {
+      let line = remaining.substring(0, lineBreakIndex).trim()
+      this.emitStreamLine(line, onChunk)
+      remaining = remaining.substring(lineBreakIndex + 1)
+      lineBreakIndex = remaining.indexOf('\n')
+    }
+    if (isFinal && remaining.trim().length > 0) {
+      this.emitStreamLine(remaining.trim(), onChunk)
+      return ''
+    }
+    return remaining
+  }
+
+  private emitStreamLine(line: string, onChunk: (chunk: string) => void): void {
+    if (line.length === 0 || !line.startsWith('data:')) {
+      return
+    }
+    let payload = line.substring(5).trim()
+    if (payload.length === 0 || payload === '[DONE]') {
+      return
+    }
+    let chunks = new Array<string>()
+    this.appendStreamPayload(chunks, payload)
+    for (let index = 0; index < chunks.length; index++) {
+      onChunk(chunks[index])
+    }
+  }
+
   private appendStreamPayload(chunks: Array<string>, payload: string): void {
     try {
       let parsed = JSON.parse(payload) as ParsedStreamFrame
@@ -191,6 +230,12 @@ export class RemoteAIChatRepository implements AIChatRepository {
     } catch (error) {
     }
     chunks.push(payload)
+  }
+
+  private delay(milliseconds: number): Promise<void> {
+    return new Promise<void>((resolve: () => void) => {
+      setTimeout(resolve, milliseconds)
+    })
   }
 }
 
@@ -369,12 +414,22 @@ export class MockAIChatRepository implements AIChatRepository {
     this.liked.set(historyDetailId, like)
   }
 
-  async streamMessage(text: string): Promise<Array<string>> {
-    return [
+  async streamMessage(text: string, onChunk: (chunk: string) => void): Promise<void> {
+    let chunks = [
       '您好，',
       '这是基于 mock 数据生成的经营分析结果。',
       ' 当前链路已支持流式增量展示。'
     ]
+    for (let index = 0; index < chunks.length; index++) {
+      await this.delay(160)
+      onChunk(chunks[index])
+    }
+  }
+
+  private delay(milliseconds: number): Promise<void> {
+    return new Promise<void>((resolve: () => void) => {
+      setTimeout(resolve, milliseconds)
+    })
   }
 }
 
@@ -485,8 +540,8 @@ export class StreamAIResponseUseCase {
     this.repository = repository
   }
 
-  async execute(text: string): Promise<Array<string>> {
-    return this.repository.streamMessage(text)
+  async execute(text: string, onChunk: (chunk: string) => void): Promise<void> {
+    await this.repository.streamMessage(text, onChunk)
   }
 }
 

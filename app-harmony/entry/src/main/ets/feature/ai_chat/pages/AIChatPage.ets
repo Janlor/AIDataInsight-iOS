@@ -26,6 +26,7 @@ export struct AIChatPage {
   @State uiState: AIChatUiState = initialAIChatUiState()
 
   private chatScroller: Scroller = new Scroller()
+  private unsubscribeRuntime: (() => void) | null = null
 
   private readonly exampleSegments: Array<QueryExampleSegment> = [
     { top: '今年第一季度', bottom: '时间范围' },
@@ -36,8 +37,21 @@ export struct AIChatPage {
   ]
 
   aboutToAppear() {
+    this.unsubscribeRuntime = aiChatRuntimeStore.subscribe((state: AIChatUiState) => {
+      this.uiState = state
+      if (state.scrollToBottom) {
+        this.scrollToBottom(true)
+      }
+    })
     this.uiState = aiChatRuntimeStore.snapshot()
     this.syncConversation()
+  }
+
+  aboutToDisappear() {
+    if (this.unsubscribeRuntime !== null) {
+      this.unsubscribeRuntime()
+      this.unsubscribeRuntime = null
+    }
   }
 
   build() {
@@ -60,7 +74,7 @@ export struct AIChatPage {
 
             ForEach(this.uiState.messages, (message: AIChatMessageUiModel) => {
               this.messageBubble(message)
-            })
+            }, (message: AIChatMessageUiModel) => message.id)
           }
           .width('100%')
           .padding({ top: 0, bottom: 12 })
@@ -233,7 +247,7 @@ export struct AIChatPage {
       .fontSize(15)
       .fontColor(message.contentKind === AIChatMessageContentKind.Error ? AppColors.danger : AppColors.textPrimary)
       .lineHeight(23)
-    if (message.isStreaming) {
+    if (this.shouldShowStreamingIndicator(message)) {
       Row() {
         LoadingProgress()
           .width(14)
@@ -247,6 +261,13 @@ export struct AIChatPage {
       .alignItems(VerticalAlign.Center)
       .margin({ top: 8 })
     }
+  }
+
+  private shouldShowStreamingIndicator(message: AIChatMessageUiModel): boolean {
+    if (!message.isStreaming || !this.uiState.isStreaming || this.uiState.messages.length === 0) {
+      return false
+    }
+    return this.uiState.messages[this.uiState.messages.length - 1].id === message.id
   }
 
   @Builder
