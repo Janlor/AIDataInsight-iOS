@@ -31,16 +31,39 @@ export struct SettingPage {
             .fontColor(AppColors.textSecondary)
             .margin({ top: 80 })
         } else {
-          Scroll() {
-            Column() {
-              this.accountSection(this.snapshot)
-              this.aboutSection(this.snapshot)
-              this.logoutSection(this.snapshot)
+          List() {
+            ListItem() {
+              this.sectionHeader('账户')
             }
-            .width('100%')
+            ListItem() {
+              this.settingRow('昵称', displaySettingText(this.snapshot.accountInfo.nickname), false, false, () => {})
+            }
+            ListItem() {
+              this.settingRow('登录名', displaySettingText(this.snapshot.accountInfo.username), false, false, () => {})
+            }
+            ListItem() {
+              this.settingRow('手机号', displaySettingText(this.snapshot.accountInfo.phone), false, false, () => {})
+            }
+            ListItem() {
+              this.sectionHeader('关于')
+            }
+            if (this.snapshot.capability.canOpenPrivacy) {
+              ListItem() {
+                this.settingRow('隐私政策', '', true, false, this.onOpenPrivacy)
+              }
+            }
+            ListItem() {
+              this.settingRow('App版本', this.snapshot.appVersion, false, false, () => {})
+            }
+            if (this.snapshot.capability.canLogout) {
+              ListItem() {
+                this.logoutButton()
+              }
+            }
           }
+          .width('100%')
           .layoutWeight(1)
-          .margin({ top: 18 })
+          .edgeEffect(EdgeEffect.None)
         }
       }
       .width('100%')
@@ -118,45 +141,6 @@ export struct SettingPage {
   }
 
   @Builder
-  private accountSection(snapshot: SettingSnapshot | null) {
-    if (snapshot !== null) {
-      this.sectionHeader('账户')
-      this.settingRow('昵称', displaySettingText(snapshot.accountInfo.nickname), false, false, () => {})
-      this.settingRow('登录名', displaySettingText(snapshot.accountInfo.username), false, false, () => {})
-      this.settingRow('手机号', displaySettingText(snapshot.accountInfo.phone), false, false, () => {})
-    }
-  }
-
-  @Builder
-  private aboutSection(snapshot: SettingSnapshot | null) {
-    if (snapshot !== null) {
-      this.sectionHeader('关于')
-      if (snapshot.capability.canOpenPrivacy) {
-        this.settingRow('隐私政策', '', true, false, this.onOpenPrivacy)
-      }
-      this.settingRow('App版本', snapshot.appVersion, false, false, () => {})
-    }
-  }
-
-  @Builder
-  private logoutSection(snapshot: SettingSnapshot | null) {
-    if (snapshot !== null && snapshot.capability.canLogout) {
-      Text(this.isLoggingOut ? '退出中...' : '退出登录')
-        .fontSize(AppTypography.body)
-        .fontColor(AppColors.danger)
-        .textAlign(TextAlign.Center)
-        .width('100%')
-        .padding({ top: 16, bottom: 16 })
-        .backgroundColor(AppColors.surface)
-        .borderRadius(AppRadius.panel)
-        .margin({ top: 22 })
-        .onClick(() => {
-          this.showLogoutConfirm = true
-        })
-    }
-  }
-
-  @Builder
   private sectionHeader(title: string) {
     Text(title)
       .fontSize(13)
@@ -196,6 +180,22 @@ export struct SettingPage {
         tapAction()
       }
     })
+  }
+
+  @Builder
+  private logoutButton() {
+    Text(this.isLoggingOut ? '退出中...' : '退出登录')
+      .fontSize(AppTypography.body)
+      .fontColor(AppColors.danger)
+      .textAlign(TextAlign.Center)
+      .width('100%')
+      .padding({ top: 16, bottom: 16 })
+      .backgroundColor(AppColors.surface)
+      .borderRadius(AppRadius.panel)
+      .margin({ top: 22 })
+      .onClick(() => {
+        this.showLogoutConfirm = true
+      })
   }
 
   private async loadSnapshot(): Promise<void> {

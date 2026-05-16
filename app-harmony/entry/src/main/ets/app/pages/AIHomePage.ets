@@ -4,6 +4,8 @@ import { AppColors, AppTypography } from '../../core/ui/theme/AppTheme'
 
 @Component
 export struct AIHomePage {
+  @Prop @Watch('onOpenHistoryVersionChanged') openHistoryVersion: number = 0
+
   onOpenSettings: () => void = () => {}
 
   @State isHistoryMounted: boolean = false
@@ -14,6 +16,18 @@ export struct AIHomePage {
   @State conversationVersion: number = 0
   @State pageWidth: number = 0
   @State pageHeight: number = 0
+
+  aboutToAppear() {
+    if (this.openHistoryVersion > 0) {
+      this.openHistoryPanel()
+    }
+  }
+
+  private onOpenHistoryVersionChanged(): void {
+    if (this.openHistoryVersion > 0) {
+      this.openHistoryPanel()
+    }
+  }
 
   build() {
     Stack({ alignContent: Alignment.Start }) {

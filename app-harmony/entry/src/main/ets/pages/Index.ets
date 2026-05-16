@@ -11,7 +11,9 @@ import { SettingPage } from '../feature/setting/pages/SettingPage'
 @Component
 struct Index {
   @State current: AppDestination = AppDestination.Login
+  @State privacyBackDestination: AppDestination = AppDestination.Login
   @State isResolvingSession: boolean = true
+  @State historyOpenRequestVersion: number = 0
 
   aboutToAppear() {
     this.resolveInitialDestination()
@@ -37,6 +39,7 @@ struct Index {
         .justifyContent(FlexAlign.Center)
       } else if (this.current === AppDestination.AIHome) {
         AIHomePage({
+          openHistoryVersion: this.historyOpenRequestVersion,
           onOpenSettings: () => {
             this.current = AppDestination.Setting
           }
@@ -44,15 +47,17 @@ struct Index {
       } else if (this.current === AppDestination.Privacy) {
         PrivacyPage({
           onBack: () => {
-            this.current = AppDestination.Login
+            this.current = this.privacyBackDestination
           }
         })
       } else if (this.current === AppDestination.Setting) {
         SettingPage({
           onBack: () => {
+            this.historyOpenRequestVersion += 1
             this.current = AppDestination.AIHome
           },
           onOpenPrivacy: () => {
+            this.privacyBackDestination = AppDestination.Setting
             this.current = AppDestination.Privacy
           },
           onLogoutSucceeded: () => {
@@ -65,6 +70,7 @@ struct Index {
             this.current = AppDestination.AIHome
           },
           onOpenPrivacy: () => {
+            this.privacyBackDestination = AppDestination.Login
             this.current = AppDestination.Privacy
           }
         })

@@ -30,21 +30,22 @@ export struct PrivacyPage {
         .width('100%')
         .alignItems(VerticalAlign.Center)
 
-        Scroll() {
-          Column() {
-            ForEach(privacyPolicySections, (section: string) => {
+        List() {
+          ForEach(privacyPolicySections, (section: string) => {
+            ListItem() {
               Text(section)
                 .fontSize(AppTypography.body)
                 .fontColor(AppColors.textPrimary)
                 .lineHeight(24)
                 .width('100%')
                 .margin({ bottom: 16 })
-            })
-          }
-          .width('100%')
-          .padding({ top: 28, bottom: 24 })
+            }
+          })
         }
+        .width('100%')
         .layoutWeight(1)
+        .edgeEffect(EdgeEffect.None)
+        .margin({ top: 12 })
       }
       .width('100%')
       .height('100%')

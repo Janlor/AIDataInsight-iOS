@@ -54,21 +54,25 @@ export struct HistoryPage {
         .layoutWeight(1)
         .justifyContent(FlexAlign.Center)
       } else {
-        Scroll() {
-          Column() {
+        List() {
+          ListItem() {
             if (this.uiState.sections.length === 0) {
               Text('暂无历史记录')
                 .fontSize(AppTypography.body)
                 .fontColor(AppColors.textSecondary)
                 .width('100%')
                 .textAlign(TextAlign.Center)
-                .padding({ top: 42, bottom: 42 })
+                .padding({ top: 16, bottom: 42 })
             }
+          }
 
-            ForEach(this.uiState.sections, (section: HistorySectionUiModel) => {
+          ForEach(this.uiState.sections, (section: HistorySectionUiModel) => {
+            ListItem() {
               this.historySection(section)
-            })
+            }
+          })
 
+          ListItem() {
             if (this.uiState.isRefreshing) {
               Text('正在刷新')
                 .fontSize(12)
@@ -78,10 +82,11 @@ export struct HistoryPage {
                 .padding({ top: 12, bottom: 12 })
             }
           }
-          .width('100%')
-          .padding({ left: 20, right: 20, bottom: 24 })
         }
+        .width('100%')
         .layoutWeight(1)
+        .padding({ left: 20, right: 20, bottom: 24 })
+        .edgeEffect(EdgeEffect.None)
       }
     }
     .width('100%')
