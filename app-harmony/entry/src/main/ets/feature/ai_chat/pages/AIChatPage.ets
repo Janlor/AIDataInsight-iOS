@@ -25,6 +25,8 @@ export struct AIChatPage {
 
   @State uiState: AIChatUiState = initialAIChatUiState()
 
+  private chatScroller: Scroller = new Scroller()
+
   private readonly exampleSegments: Array<QueryExampleSegment> = [
     { top: '今年第一季度', bottom: '时间范围' },
     { top: '销售额', bottom: '指标名称' },
@@ -48,7 +50,7 @@ export struct AIChatPage {
       }
 
       Column() {
-        Scroll() {
+        Scroll(this.chatScroller) {
           Column() {
             if (this.uiState.isLoadingTemplate) {
               this.loadingBubble('正在加载推荐问题')
@@ -478,18 +480,34 @@ export struct AIChatPage {
   private async syncConversation(): Promise<void> {
     if (this.selectedHistoryId !== null) {
       this.uiState = await aiChatRuntimeStore.loadHistoryDetail(this.selectedHistoryId)
+      this.scrollToBottom(false)
       return
     }
     this.uiState = await aiChatRuntimeStore.resetConversation()
+    this.scrollToBottom(false)
   }
 
   private async sendText(text: string): Promise<void> {
     this.uiState = aiChatRuntimeStore.updateInput(text)
-    this.uiState = await aiChatRuntimeStore.sendMessage(text)
+    let sendTask = aiChatRuntimeStore.sendMessage(text)
+    this.uiState = aiChatRuntimeStore.snapshot()
+    this.scrollToBottom(true)
+    this.uiState = await sendTask
+    this.scrollToBottom(true)
   }
 
   private async sendFeedback(historyDetailId: number, like: string): Promise<void> {
     this.uiState = await aiChatRuntimeStore.sendFeedback(historyDetailId, like)
+  }
+
+  private scrollToBottom(animated: boolean): void {
+    setTimeout(() => {
+      if (animated) {
+        this.chatScroller.scrollEdge(Edge.Bottom, { velocity: 1200 })
+        return
+      }
+      this.chatScroller.scrollEdge(Edge.Bottom)
+    }, 0)
   }
 
   private maxChartValue(series: Array<ChartSeries>): number {
