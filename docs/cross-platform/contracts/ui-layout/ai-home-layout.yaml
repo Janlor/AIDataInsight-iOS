@@ -79,6 +79,8 @@ panelBehavior:
     refreshPolicy:
       - Reload history whenever the panel transitions from closed to open.
       - Do not reload history on every frame of an open animation.
+      - Implementations may keep the history panel mounted after the first open for smoother close/open interaction.
+      - If the panel remains mounted, use an explicit refresh signal when transitioning from fully closed toward open; do not rely on component creation as the only refresh trigger.
     selectionPolicy:
       - Selecting a history item closes the panel.
       - Selecting a history item commands chat to load that conversation.
@@ -88,11 +90,34 @@ panelBehavior:
       - If chat input was focused before opening, the platform may restore focus after the panel closes.
     gesturePolicy:
       dragDirection: horizontal
+      openGesture:
+        - Allow drag-open from the leading screen edge when the history panel is fully closed.
+        - Leading-edge drag target width should be 24 density-independent pixels in compact overlay mode.
+        - Allow drag-open from the chat surface when the gesture clearly starts at the leading edge.
+      closeGesture:
+        - Allow drag-close by dragging the visible history panel toward the leading edge.
+        - Continue tracking the same normalized panel progress during drag-open and drag-close.
+      progressModel:
+        range: [0, 1]
+        closed: 0
+        open: 1
+        panelTranslation: "translateX = -panelWidth * (1 - progress) for leading-edge panels"
+        scrimOpacity: "opacity follows progress"
       velocityThreshold: 500
       settleThresholdFraction: 0.5
       animationDurationRangeMs: [100, 250]
+      preferredAnimationDurationsMs:
+        open: 180
+        close: 160
+        settle: 160
+      settlePolicy:
+        - Settle open when horizontal release velocity exceeds velocityThreshold toward the open direction.
+        - Settle closed when horizontal release velocity exceeds velocityThreshold toward the close direction.
+        - When release velocity is below threshold, settle open at or above settleThresholdFraction; otherwise settle closed.
     visualLayering:
       - During drag-open and drag-close, dim layer and panel background must move/draw as full-viewport layers.
+      - The dim layer must fade with drawer progress and accept outside taps only while the drawer is visible.
+      - The history panel must slide according to drawer progress instead of appearing/disappearing instantly.
       - Safe-area padding belongs to panel content, not to the panel container or overlay scrim.
       - The visible background behind the status bar should be the same history/grouped-page background used by the panel body, not a default white/black system or component color.
 
