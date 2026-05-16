@@ -4,6 +4,8 @@ import { HistoryItemUiModel, HistorySectionUiModel, HistoryUiState, initialHisto
 
 @Component
 export struct HistoryPage {
+  @Prop @Watch('onRefreshVersionChanged') refreshVersion: number = 0
+
   onClose: () => void = () => {}
   onOpenSettings: () => void = () => {}
   onSelectHistory: (historyId: number) => void = () => {}
@@ -12,6 +14,10 @@ export struct HistoryPage {
 
   aboutToAppear() {
     this.uiState = historyRuntimeStore.snapshot()
+    this.refresh()
+  }
+
+  private onRefreshVersionChanged(): void {
     this.refresh()
   }
 
