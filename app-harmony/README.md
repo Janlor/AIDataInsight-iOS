@@ -12,8 +12,8 @@ AIDataInsight HarmonyOS NEXT 是多端契约的下一阶段实现端。当前目
 - 已补 AIHome 壳层，承接 AIChat 主入口、History 面板和 Setting route。
 - 已补 Setting / Privacy 链路，支持账户信息、隐私政策和退出登录。
 - 已补 History mock 列表链路，支持分组、无感刷新和选择会话。
+- 已补 AIChat mock 链路，支持模板问题、输入发送、流式 mock、图表 fallback 和反馈状态。
 - 已建立 App 路由、Core、Feature 的命名边界。
-- AIChat 目前仍是占位内容，后续按契约补真实业务。
 - 第一版面向学习项目和 mock 环境，不连接真实生产后端。
 
 ## 目录结构
@@ -60,4 +60,4 @@ app-harmony/entry/src/main/ets/contracts/generated/ContractModels.ets
 
 ## 下一步
 
-阶段 9：补 AIChat 链路，接模板问题、输入发送、流式 mock、图表 fallback 和反馈状态。
+阶段 10：补工程说明、契约变更记录和工程卫生；真机能力、性能和发布链路仍待 DevEco / 设备验证。

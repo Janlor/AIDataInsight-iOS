@@ -4,6 +4,7 @@ import loginStateTest from './LoginState.test';
 import settingStateTest from './SettingState.test';
 import coreFoundationTest from './core/CoreFoundation.test';
 import historyStateTest from './history/HistoryState.test';
+import aiChatStateTest from './ai_chat/AIChatState.test';
 
 export default function testsuite() {
   localUnitTest();
@@ -12,4 +13,5 @@ export default function testsuite() {
   settingStateTest();
   coreFoundationTest();
   historyStateTest();
+  aiChatStateTest();
 }
