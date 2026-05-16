@@ -16,7 +16,6 @@ export interface ApiRequest {
 
 export interface HttpTransport {
   send(request: ResolvedApiRequest): Promise<string>
-  sendStream(request: ResolvedApiRequest, onChunk: (chunk: string) => void): Promise<void>
 }
 
 export interface ResolvedApiRequest extends ApiRequest {
@@ -59,17 +58,6 @@ export class CommonRequester {
       url: this.environmentProvider.resolve(request.path)
     }
     return this.transport.send(resolvedRequest)
-  }
-
-  async requestRawStream(request: ApiRequest, onChunk: (chunk: string) => void): Promise<void> {
-    let resolvedRequest: ResolvedApiRequest = {
-      path: request.path,
-      method: request.method,
-      headers: request.headers,
-      body: request.body,
-      url: this.environmentProvider.resolve(request.path)
-    }
-    await this.transport.sendStream(resolvedRequest, onChunk)
   }
 
   private decodeEnvelope<T>(responseText: string): ApiEnvelope<T> {

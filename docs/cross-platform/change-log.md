@@ -911,6 +911,33 @@ HarmonyOS NEXT 进入阶段 8：补 History 列表链路，接 mock 数据、分
 
 ---
 
+## 2026-05-16 - HarmonyOS NEXT Stage 10 Closure
+
+- Source:
+  - implementation platform: `HarmonyOS NEXT`
+  - contract source: `docs/cross-platform/contracts`
+- Change type:
+  - `Platform Implementation Change`
+  - `Documentation Change`
+  - `Engineering Hygiene`
+- Affected source of truth:
+  - `docs/ai-generation-guide.md`
+  - `docs/architecture/harmonyos-next-implementation-plan.md`
+  - `app-harmony/README.md`
+  - `app-harmony/docs/module-boundaries.md`
+  - `app-harmony/entry/src/main/ets/core/network/README.md`
+- Impact:
+  - HarmonyOS NEXT 阶段 1-10 已完成学习项目主链路收尾。
+  - `app-harmony` 当前连接 Apifox mock 环境，主链路覆盖 Login、自动登录、AIHome、History、Setting、Privacy、AIChat、图表 fallback 和反馈状态。
+  - AIChat `/stream` 当前按完整响应解析 `data:` 内容并一次性展示；HarmonyOS NetworkKit 实时 SSE / `dataReceive` 未作为已验证能力保留。
+  - 清理了未使用的实时 stream transport 公共入口，避免后续端误判 HarmonyOS 实时 SSE 已验证。
+  - 真机能力、性能、签名和发布链路仍需单独验证。
+- Synced:
+  - [x] HarmonyOS NEXT
+  - [ ] Web
+- Notes:
+  - 本次是平台收尾，不改变跨端领域契约；后续 Web 端应继续从契约和已记录的 HarmonyOS 边界生成，不从 ArkUI 页面反推。
+
 ## 7. 给 AI 的执行规则
 
 以后让 AI 协助多端同步时，任务描述优先写成：
