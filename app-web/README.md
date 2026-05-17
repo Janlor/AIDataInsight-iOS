@@ -25,6 +25,32 @@ npm run test
 npm run build
 ```
 
+## 本地 Mock API
+
+默认不配置环境变量时，Web 端会使用跨平台契约里的 Apifox mock host。
+
+如需完全使用本地 mock API，复制 `.env.local.example` 为 `.env.local`，然后启动：
+
+```sh
+npm run dev
+```
+
+本地 mock 覆盖了第一阶段主链路：
+
+- `POST /oauth2/login`
+- `GET /oauth2/refresh`
+- `GET /oauth2/logout`
+- `GET /oauth2/getUserInfo`
+- `GET /chat/template`
+- `GET /chat/function`
+- `GET /stream`
+- `GET /chart/querySalesGroupByMonth`
+- `GET /history/page`
+- `GET /history/detail`
+- `POST /history/like`
+- `GET /history/delete`
+- `GET /history/deleteAll`
+
 ## 当前进度
 
 已完成第一批 Web 基线：
@@ -41,5 +67,6 @@ npm run build
 - History page / detail / delete API 封装
 - AI Chat 和 History contract fixtures mapper 测试
 - AI Chat 发送流程和历史详情恢复
+- SSE 流式响应、图表组件和本地 mock API
 
-下一步优先接入 SSE 流式响应、图表组件和 mock server。
+下一步优先接入图表反馈交互、历史删除交互和页面级 E2E。
