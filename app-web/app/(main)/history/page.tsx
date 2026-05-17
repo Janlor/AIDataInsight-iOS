@@ -3,25 +3,37 @@
 import Link from 'next/link';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Trash2 } from 'lucide-react';
+import { useMemo, useState } from 'react';
 import { PageHeader } from '@/components/page-header';
 import { StatusPanel } from '@/components/status-panel';
 import { deleteAllHistory, deleteHistory } from '@/features/history/history-api';
+import type { HistorySection } from '@/features/history/history-types';
 import { useHistoryPage } from '@/features/history/use-history-page';
 
 export default function HistoryPage() {
   const historyQuery = useHistoryPage();
   const queryClient = useQueryClient();
-  const sections = historyQuery.data ?? [];
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(() => new Set());
+  const sections = useMemo(
+    () => removeDeletedItems(historyQuery.data ?? [], deletedIds),
+    [deletedIds, historyQuery.data],
+  );
   const refreshHistory = () => {
     void queryClient.invalidateQueries({ queryKey: ['history'] });
   };
   const deleteOneMutation = useMutation({
     mutationFn: deleteHistory,
-    onSuccess: refreshHistory,
+    onSuccess: (_, historyId) => {
+      setDeletedIds((current) => new Set(current).add(String(historyId)));
+      refreshHistory();
+    },
   });
   const deleteAllMutation = useMutation({
     mutationFn: deleteAllHistory,
-    onSuccess: refreshHistory,
+    onSuccess: () => {
+      setDeletedIds(new Set(sections.flatMap((section) => section.items.map((item) => item.id))));
+      refreshHistory();
+    },
   });
 
   return (
@@ -96,4 +108,13 @@ export default function HistoryPage() {
       </div>
     </>
   );
+}
+
+function removeDeletedItems(sections: HistorySection[], deletedIds: Set<string>) {
+  return sections
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => !deletedIds.has(item.id)),
+    }))
+    .filter((section) => section.items.length > 0);
 }

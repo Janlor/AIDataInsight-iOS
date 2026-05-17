@@ -96,3 +96,5 @@ app-web/.next/
 app-web/out/
 app-web/tsconfig.tsbuildinfo
 app-web/.env*.local
+app-web/test-results/
+app-web/playwright-report/
