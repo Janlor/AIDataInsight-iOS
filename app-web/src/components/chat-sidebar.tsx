@@ -22,7 +22,7 @@ export function ChatSidebar() {
   const initials = getInitials(displayName);
 
   return (
-    <aside className="fixed inset-y-0 left-0 hidden w-72 flex-col border-r border-separator bg-white lg:flex">
+    <aside className="fixed inset-y-0 left-0 hidden w-72 flex-col border-r border-separator bg-surface-primary lg:flex">
       <div className="border-b border-separator p-3">
         <Link
           className="flex h-10 items-center gap-3 rounded-control px-3 text-sm font-medium text-label-primary transition hover:bg-surface-secondary"
@@ -54,7 +54,7 @@ export function ChatSidebar() {
                     className={[
                       'block rounded-control px-3 py-2 text-sm transition',
                       active
-                        ? 'bg-blue-50 text-accent-primary'
+                        ? 'bg-accent-secondary text-accent-primary'
                         : 'text-label-secondary hover:bg-surface-secondary hover:text-label-primary',
                     ].join(' ')}
                     href={`/ai?historyId=${item.id}`}

@@ -45,7 +45,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen bg-surface-secondary">
       <ChatSidebar />
 
-      <header className="sticky top-0 z-10 border-b border-separator bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
+      <header className="sticky top-0 z-10 border-b border-separator bg-surface-primary/95 px-4 py-3 backdrop-blur lg:hidden">
         <div className="flex items-center justify-between">
           <Link className="flex items-center gap-2 text-sm font-semibold text-label-primary" href="/ai">
             <Bot aria-hidden="true" size={20} />
@@ -61,7 +61,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   aria-label={item.label}
                   className={[
                     'flex h-9 w-9 items-center justify-center rounded-control',
-                    active ? 'bg-blue-50 text-accent-primary' : 'text-label-secondary',
+                    active ? 'bg-accent-secondary text-accent-primary' : 'text-label-secondary',
                   ].join(' ')}
                   href={item.href}
                 >

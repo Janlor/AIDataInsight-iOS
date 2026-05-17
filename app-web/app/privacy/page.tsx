@@ -19,7 +19,7 @@ export default function PrivacyPage() {
 
   return (
     <main className="min-h-screen bg-surface-secondary px-4 py-8">
-      <article className="mx-auto max-w-3xl rounded-lg border border-separator bg-white p-6 shadow-sm">
+      <article className="mx-auto max-w-3xl rounded-lg border border-separator bg-surface-primary p-6 shadow-sm">
         <h1 className="text-2xl font-semibold text-label-primary">{privacyPolicyContent.title}</h1>
         <p className="mt-2 text-sm text-label-tertiary">更新日期：{privacyPolicyContent.updatedAt}</p>
         <div className="mt-6 space-y-6">

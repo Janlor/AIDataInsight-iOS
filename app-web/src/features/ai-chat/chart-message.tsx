@@ -14,7 +14,7 @@ export function ChartMessage({ payload }: { payload: ChartPayload | null | undef
       {series.map((item) => {
         const maxValue = Math.max(...item.values.map((value) => Math.abs(value)), 1);
         return (
-          <div key={item.xAxis} className="rounded-control bg-white p-3">
+          <div key={item.xAxis} className="rounded-control bg-surface-primary p-3">
             <p className="font-medium text-label-primary">{item.xAxis}</p>
             <div className="mt-3 space-y-2">
               {item.labels.map((label, index) => {

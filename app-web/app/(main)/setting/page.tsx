@@ -16,7 +16,7 @@ export default function SettingPage() {
     <>
       <PageHeader title="设置" description="账户信息、隐私协议和退出登录入口。" />
 
-      <section className="rounded-lg border border-separator bg-white p-5 shadow-sm">
+      <section className="rounded-lg border border-separator bg-surface-primary p-5 shadow-sm">
         <h2 className="text-base font-semibold text-label-primary">账户</h2>
         <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
           <div>
@@ -32,7 +32,7 @@ export default function SettingPage() {
         </dl>
       </section>
 
-      <section className="mt-4 rounded-lg border border-separator bg-white p-5 shadow-sm">
+      <section className="mt-4 rounded-lg border border-separator bg-surface-primary p-5 shadow-sm">
         <h2 className="text-base font-semibold text-label-primary">应用</h2>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link
@@ -42,7 +42,7 @@ export default function SettingPage() {
             隐私协议
           </Link>
           <button
-            className="inline-flex h-10 items-center gap-2 rounded-control bg-label-primary px-4 text-sm font-medium text-white transition hover:bg-slate-700"
+            className="inline-flex h-10 items-center gap-2 rounded-control bg-label-primary px-4 text-sm font-medium text-white transition hover:bg-label-secondary"
             type="button"
             onClick={() => {
               void logout().finally(() => router.replace('/login'));

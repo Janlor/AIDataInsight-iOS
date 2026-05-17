@@ -47,7 +47,7 @@ export default function HistoryPage() {
         action={
           sections.length > 0 ? (
             <button
-              className="inline-flex h-10 items-center gap-2 rounded-control border border-separator bg-white px-4 text-sm font-medium text-label-secondary transition hover:text-label-primary disabled:opacity-50"
+              className="inline-flex h-10 items-center gap-2 rounded-control border border-separator bg-surface-primary px-4 text-sm font-medium text-label-secondary transition hover:text-label-primary disabled:opacity-50"
               type="button"
               disabled={deleteAllMutation.isPending}
               onClick={() => deleteAllMutation.mutate()}
@@ -78,7 +78,7 @@ export default function HistoryPage() {
         {sections.map((section) => (
           <section key={section.kind}>
             <h2 className="mb-2 text-sm font-semibold text-label-secondary">{section.title}</h2>
-            <div className="overflow-hidden rounded-lg border border-separator bg-white shadow-sm">
+            <div className="overflow-hidden rounded-lg border border-separator bg-surface-primary shadow-sm">
               {section.items.map((item) => {
                 const historyId = Number(item.id);
                 return (
@@ -95,7 +95,7 @@ export default function HistoryPage() {
                     <span className="shrink-0 text-label-tertiary">{item.displayTime}</span>
                     <button
                       aria-label="删除历史"
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-control text-label-tertiary transition hover:bg-red-50 hover:text-mark disabled:opacity-50"
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-control text-label-tertiary transition hover:bg-mark-muted hover:text-mark disabled:opacity-50"
                       type="button"
                       disabled={deleteOneMutation.isPending || !Number.isFinite(historyId)}
                       onClick={() => deleteOneMutation.mutate(historyId)}

@@ -41,12 +41,12 @@ function AIWorkspace({ historyId }: { historyId: number | null }) {
   return (
     <div className="flex min-h-[calc(100vh-3rem)] flex-col">
       {chat.errorMessage ? (
-        <div className="mb-4 rounded-control border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <div className="mb-4 rounded-control border border-mark/40 bg-mark-muted px-3 py-2 text-sm text-mark">
           {chat.errorMessage}
         </div>
       ) : null}
 
-      <section className="flex flex-1 flex-col rounded-lg border border-separator bg-white shadow-sm">
+      <section className="flex flex-1 flex-col rounded-lg border border-separator bg-surface-primary shadow-sm">
         <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-6">
           {showSuggestions ? (
             <div className="mx-auto flex min-h-[52vh] max-w-3xl flex-col justify-center">
@@ -61,7 +61,7 @@ function AIWorkspace({ historyId }: { historyId: number | null }) {
                 {templateQuestions.map((question) => (
                   <button
                     key={question}
-                    className="rounded-lg border border-separator bg-white p-4 text-left text-sm text-label-primary shadow-sm transition hover:border-blue-200 hover:bg-blue-50"
+                    className="rounded-lg border border-separator bg-surface-primary p-4 text-left text-sm text-label-primary shadow-sm transition hover:border-accent-primary/40 hover:bg-accent-secondary"
                     type="button"
                     onClick={() => chat.setInput(question)}
                   >
@@ -70,7 +70,7 @@ function AIWorkspace({ historyId }: { historyId: number | null }) {
                 ))}
               </div>
               {templateQuery.isError ? (
-                <p className="mt-3 text-sm text-amber-700">推荐问题加载失败，已显示默认问题。</p>
+                <p className="mt-3 text-sm text-warning">推荐问题加载失败，已显示默认问题。</p>
               ) : null}
             </div>
           ) : null}
@@ -118,7 +118,7 @@ function AIWorkspace({ historyId }: { historyId: number | null }) {
         </div>
 
         <form className="border-t border-separator p-3 sm:p-4" onSubmit={onSubmit}>
-          <div className="flex items-end gap-2 rounded-lg border border-separator bg-white p-2">
+          <div className="flex items-end gap-2 rounded-lg border border-separator bg-surface-primary p-2">
             <textarea
               className="min-h-11 flex-1 resize-none border-0 bg-transparent px-2 py-2 text-sm outline-none"
               rows={1}
@@ -128,7 +128,7 @@ function AIWorkspace({ historyId }: { historyId: number | null }) {
             />
             <button
               aria-label="发送"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-accent-primary text-white transition hover:bg-blue-700 disabled:opacity-50"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-accent-primary text-white transition hover:bg-accent-primary/90 disabled:opacity-50"
               type="submit"
               disabled={!chat.canSend}
             >
@@ -200,8 +200,8 @@ function FeedbackActions({
         className={[
           'flex h-8 w-8 items-center justify-center rounded-control border transition',
           message.feedback === 'liked'
-            ? 'border-accent-primary bg-blue-50 text-accent-primary'
-            : 'border-separator bg-white text-label-tertiary hover:text-label-primary',
+            ? 'border-accent-primary bg-accent-secondary text-accent-primary'
+            : 'border-separator bg-surface-primary text-label-tertiary hover:text-label-primary',
         ].join(' ')}
         type="button"
         onClick={() => onFeedback('liked')}
@@ -213,8 +213,8 @@ function FeedbackActions({
         className={[
           'flex h-8 w-8 items-center justify-center rounded-control border transition',
           message.feedback === 'disliked'
-            ? 'border-mark bg-red-50 text-mark'
-            : 'border-separator bg-white text-label-tertiary hover:text-label-primary',
+            ? 'border-mark bg-mark-muted text-mark'
+            : 'border-separator bg-surface-primary text-label-tertiary hover:text-label-primary',
         ].join(' ')}
         type="button"
         onClick={() => onFeedback('disliked')}

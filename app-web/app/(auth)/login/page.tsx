@@ -56,7 +56,7 @@ export default function LoginPage() {
         </div>
 
         <form
-          className="w-full rounded-lg border border-separator bg-white p-6 shadow-panel"
+          className="w-full rounded-lg border border-separator bg-surface-primary p-6 shadow-panel"
           onSubmit={onSubmit}
         >
           <div>
@@ -67,7 +67,7 @@ export default function LoginPage() {
           <label className="mt-6 block text-sm font-medium text-label-primary" htmlFor="name">
             账号
           </label>
-          <div className="mt-2 flex items-center gap-2 rounded-control border border-separator bg-white px-3">
+          <div className="mt-2 flex items-center gap-2 rounded-control border border-separator bg-surface-primary px-3">
             <UserRound aria-hidden="true" className="text-label-tertiary" size={18} />
             <input
               id="name"
@@ -81,7 +81,7 @@ export default function LoginPage() {
           <label className="mt-4 block text-sm font-medium text-label-primary" htmlFor="pwd">
             密码
           </label>
-          <div className="mt-2 flex items-center gap-2 rounded-control border border-separator bg-white px-3">
+          <div className="mt-2 flex items-center gap-2 rounded-control border border-separator bg-surface-primary px-3">
             <Lock aria-hidden="true" className="text-label-tertiary" size={18} />
             <input
               id="pwd"
@@ -109,13 +109,13 @@ export default function LoginPage() {
           </label>
 
           {error ? (
-            <div className="mt-4 rounded-control border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            <div className="mt-4 rounded-control border border-mark/40 bg-mark-muted px-3 py-2 text-sm text-mark">
               {error}
             </div>
           ) : null}
 
           <button
-            className="mt-6 flex h-11 w-full items-center justify-center gap-2 rounded-control bg-accent-primary px-4 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="mt-6 flex h-11 w-full items-center justify-center gap-2 rounded-control bg-accent-primary px-4 text-sm font-medium text-white transition hover:bg-accent-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
             type="submit"
             disabled={isSubmitting}
           >

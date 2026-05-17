@@ -6,21 +6,26 @@ const config: Config = {
     extend: {
       colors: {
         accent: {
-          primary: '#2F7BFF',
-          secondary: '#1A2F7BFF',
+          primary: 'rgb(var(--color-accent-primary) / <alpha-value>)',
+          secondary: 'rgb(var(--color-accent-secondary))',
         },
         surface: {
-          primary: '#FFFFFF',
-          secondary: '#F4F7FB',
-          tertiary: '#EEF3FA',
+          primary: 'rgb(var(--color-surface-primary) / <alpha-value>)',
+          secondary: 'rgb(var(--color-surface-secondary) / <alpha-value>)',
+          tertiary: 'rgb(var(--color-surface-tertiary) / <alpha-value>)',
         },
         label: {
-          primary: '#111827',
-          secondary: '#5B6475',
-          tertiary: '#8A94A6',
+          primary: 'rgb(var(--color-label-primary) / <alpha-value>)',
+          secondary: 'rgb(var(--color-label-secondary) / <alpha-value>)',
+          tertiary: 'rgb(var(--color-label-tertiary) / <alpha-value>)',
+          quaternary: 'rgb(var(--color-label-quaternary) / <alpha-value>)',
+          quinary: 'rgb(var(--color-label-quinary) / <alpha-value>)',
         },
-        separator: '#E5EAF3',
-        mark: '#FF5A6B',
+        separator: 'rgb(var(--color-separator) / <alpha-value>)',
+        mark: 'rgb(var(--color-mark) / <alpha-value>)',
+        'mark-muted': 'rgb(var(--color-mark-muted))',
+        warning: 'rgb(var(--color-warning) / <alpha-value>)',
+        'warning-muted': 'rgb(var(--color-warning-muted))',
       },
       borderRadius: {
         control: '6px',

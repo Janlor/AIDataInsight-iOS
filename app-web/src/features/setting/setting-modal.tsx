@@ -39,7 +39,7 @@ export function SettingModal({ open, onClose }: { open: boolean; onClose: () => 
       <div
         aria-labelledby="setting-modal-title"
         aria-modal="true"
-        className="max-h-[88vh] w-full overflow-hidden rounded-t-lg border border-separator bg-white shadow-xl sm:max-w-lg sm:rounded-lg"
+        className="max-h-[88vh] w-full overflow-hidden rounded-t-lg border border-separator bg-surface-primary shadow-xl sm:max-w-lg sm:rounded-lg"
         role="dialog"
       >
         <header className="flex h-14 items-center justify-between border-b border-separator px-4">
@@ -63,7 +63,7 @@ export function SettingModal({ open, onClose }: { open: boolean; onClose: () => 
                 {section.title ? (
                   <h3 className="mb-2 px-1 text-xs font-semibold text-label-tertiary">{section.title}</h3>
                 ) : null}
-                <div className="overflow-hidden rounded-lg border border-separator bg-white">
+                <div className="overflow-hidden rounded-lg border border-separator bg-surface-primary">
                   {section.rows.map((row) => (
                     <SettingRowItem
                       key={row.kind}
@@ -82,7 +82,7 @@ export function SettingModal({ open, onClose }: { open: boolean; onClose: () => 
 
       {isConfirmingLogout ? (
         <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/30 p-4">
-          <div className="w-full max-w-sm rounded-lg bg-white p-5 shadow-xl">
+          <div className="w-full max-w-sm rounded-lg bg-surface-primary p-5 shadow-xl">
             <h3 className="text-base font-semibold text-label-primary">
               {settingState.logoutDialog.title}
             </h3>
@@ -96,7 +96,7 @@ export function SettingModal({ open, onClose }: { open: boolean; onClose: () => 
                 {settingState.logoutDialog.cancelTitle}
               </button>
               <button
-                className="inline-flex h-10 items-center gap-2 rounded-control bg-mark px-4 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-60"
+                className="inline-flex h-10 items-center gap-2 rounded-control bg-mark px-4 text-sm font-medium text-white transition hover:bg-mark/90 disabled:opacity-60"
                 type="button"
                 disabled={isLoggingOut}
                 onClick={() => {
