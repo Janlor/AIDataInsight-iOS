@@ -89,3 +89,10 @@ app-harmony/.clang-tidy
 app-harmony/**/.test
 app-harmony/book
 app-harmony/entry/.preview
+
+# Web / Next.js
+app-web/node_modules/
+app-web/.next/
+app-web/out/
+app-web/tsconfig.tsbuildinfo
+app-web/.env*.local
