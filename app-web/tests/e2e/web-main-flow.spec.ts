@@ -29,6 +29,19 @@ test('opens contract-driven settings from the sidebar account entry', async ({ p
   await expect(dialog.getByRole('button', { name: '退出登录' })).toBeVisible();
 });
 
+test('opens privacy policy from settings without returning authenticated users to login', async ({ page }) => {
+  await login(page);
+
+  await page.getByRole('button', { name: /打开设置/ }).click();
+  await page.getByRole('link', { name: /隐私政策/ }).click();
+
+  await expect(page).toHaveURL(/\/privacy/);
+  await expect(page.getByRole('heading', { name: '隐私政策', level: 1 })).toBeVisible();
+  await expect(page.getByText('AIDataInsight Web 端仅在登录')).toBeVisible();
+  await expect(page.getByRole('link', { name: '返回工作台' })).toBeVisible();
+  await expect(page.getByRole('link', { name: '返回登录' })).toHaveCount(0);
+});
+
 test('logs in, sends a chart question, and restores history from the sidebar', async ({ page }) => {
   await login(page);
 

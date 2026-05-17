@@ -69,6 +69,10 @@ def setting_initial_state
   read_json(File.join(CONTRACTS_DIR, "fixtures/ui/setting-initial.json")).fetch("state")
 end
 
+def privacy_policy_content
+  read_yaml(File.join(CONTRACTS_DIR, "ui-state/privacy-policy-state.yaml")).fetch("content")
+end
+
 def mock_environment_properties
   read_json(File.join(CONTRACTS_DIR, "domain/environment.schema.json"))
     .fetch("$defs")
@@ -531,6 +535,19 @@ def typescript_models
     }
 
     export const settingInitialUiState: SettingUiState = #{JSON.pretty_generate(setting_initial_state).gsub("\n", "\n    ")};
+
+    export interface PrivacyPolicySection {
+      heading: string;
+      paragraphs: string[];
+    }
+
+    export interface PrivacyPolicyContent {
+      title: string;
+      updatedAt: string;
+      sections: PrivacyPolicySection[];
+    }
+
+    export const privacyPolicyContent: PrivacyPolicyContent = #{JSON.pretty_generate(privacy_policy_content).gsub("\n", "\n    ")};
 
     export type AIHomeDestination = 'chat' | 'history' | 'settings';
     export type AIHomePanel = 'none' | 'history';
