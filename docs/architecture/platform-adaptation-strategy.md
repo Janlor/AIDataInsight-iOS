@@ -112,6 +112,7 @@ AI 生成 HarmonyOS NEXT 代码的主要风险：
 
 - 已有 `app-web/src/contracts/generated/models.ts`
 - 尚未建立完整 Web 工程
+- 详细执行计划见 `docs/architecture/web-implementation-plan.md`
 
 建议：
 
