@@ -4,7 +4,6 @@ import type { ConversationMessage } from '@/contracts/generated/models';
 import { Loader2, SendHorizonal, ThumbsDown, ThumbsUp } from 'lucide-react';
 import { FormEvent, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { PageHeader } from '@/components/page-header';
 import { ChartMessage } from '@/features/ai-chat/chart-message';
 import { useAIChatController } from '@/features/ai-chat/use-ai-chat-controller';
 import { useTemplateQuestions } from '@/features/ai-chat/use-template-questions';
@@ -32,6 +31,7 @@ function AIWorkspace({ historyId }: { historyId: number | null }) {
     '库存按仓库分布',
     '应收账款账龄分析',
   ];
+  const showSuggestions = !historyId && chat.messages.length <= 1 && !chat.isSending;
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -39,111 +39,109 @@ function AIWorkspace({ historyId }: { historyId: number | null }) {
   }
 
   return (
-    <>
-      <PageHeader
-        title="AI 工作台"
-        description="第一版已接入 Web shell 和会话守卫，后续在这里接入模板、流式响应和图表结果。"
-      />
-
+    <div className="flex min-h-[calc(100vh-3rem)] flex-col">
       {chat.errorMessage ? (
         <div className="mb-4 rounded-control border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
           {chat.errorMessage}
         </div>
       ) : null}
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
-        <section className="flex min-h-[calc(100vh-11rem)] flex-col rounded-lg border border-separator bg-white shadow-sm">
-          <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-6">
-            {chat.isRestoringHistory ? (
-              <div className="flex items-center justify-center gap-2 py-10 text-sm text-label-secondary">
-                <Loader2 aria-hidden="true" className="animate-spin" size={18} />
-                正在恢复历史会话...
+      <section className="flex flex-1 flex-col rounded-lg border border-separator bg-white shadow-sm">
+        <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-6">
+          {showSuggestions ? (
+            <div className="mx-auto flex min-h-[52vh] max-w-3xl flex-col justify-center">
+              <h1 className="text-2xl font-semibold text-label-primary">今天想分析什么？</h1>
+              <p className="mt-2 text-sm text-label-secondary">选择一个推荐问题，或直接输入你的经营分析需求。</p>
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                {templateQuery.isLoading ? (
+                  <div className="rounded-lg border border-separator bg-surface-secondary p-4 text-sm text-label-secondary">
+                    正在加载推荐问题...
+                  </div>
+                ) : null}
+                {templateQuestions.map((question) => (
+                  <button
+                    key={question}
+                    className="rounded-lg border border-separator bg-white p-4 text-left text-sm text-label-primary shadow-sm transition hover:border-blue-200 hover:bg-blue-50"
+                    type="button"
+                    onClick={() => chat.setInput(question)}
+                  >
+                    {question}
+                  </button>
+                ))}
               </div>
-            ) : null}
-            {chat.messages.map((message) => (
-              <div
-                key={message.id}
-                className={message.role === 'user' ? 'flex justify-end' : 'flex justify-start'}
-              >
+              {templateQuery.isError ? (
+                <p className="mt-3 text-sm text-amber-700">推荐问题加载失败，已显示默认问题。</p>
+              ) : null}
+            </div>
+          ) : null}
+
+          {!showSuggestions && chat.isRestoringHistory ? (
+            <div className="flex items-center justify-center gap-2 py-10 text-sm text-label-secondary">
+              <Loader2 aria-hidden="true" className="animate-spin" size={18} />
+              正在恢复历史会话...
+            </div>
+          ) : null}
+          {!showSuggestions
+            ? chat.messages.map((message) => (
                 <div
-                  className={[
-                    'max-w-[min(680px,85%)] rounded-lg px-4 py-3 text-sm leading-6',
-                    message.role === 'user'
-                      ? 'bg-accent-primary text-white'
-                      : 'border border-separator bg-surface-secondary text-label-primary',
-                  ].join(' ')}
+                  key={message.id}
+                  className={message.role === 'user' ? 'flex justify-end' : 'flex justify-start'}
                 >
-                  <MessageContent
-                    message={message}
-                    onFeedback={(feedback) => {
-                      if (message.historyDetailId) {
-                        void chat.sendFeedback(message.id, message.historyDetailId, feedback);
-                      }
-                    }}
-                  />
+                  <div
+                    className={[
+                      'max-w-[min(720px,85%)] rounded-lg px-4 py-3 text-sm leading-6',
+                      message.role === 'user'
+                        ? 'bg-accent-primary text-white'
+                        : 'border border-separator bg-surface-secondary text-label-primary',
+                    ].join(' ')}
+                  >
+                    <MessageContent
+                      message={message}
+                      onFeedback={(feedback) => {
+                        if (message.historyDetailId) {
+                          void chat.sendFeedback(message.id, message.historyDetailId, feedback);
+                        }
+                      }}
+                    />
+                  </div>
                 </div>
+              ))
+            : null}
+          {chat.isSending ? (
+            <div className="flex justify-start">
+              <div className="flex items-center gap-2 rounded-lg border border-separator bg-surface-secondary px-4 py-3 text-sm text-label-secondary">
+                <Loader2 aria-hidden="true" className="animate-spin" size={16} />
+                正在分析...
               </div>
-            ))}
-            {chat.isSending ? (
-              <div className="flex justify-start">
-                <div className="flex items-center gap-2 rounded-lg border border-separator bg-surface-secondary px-4 py-3 text-sm text-label-secondary">
-                  <Loader2 aria-hidden="true" className="animate-spin" size={16} />
-                  正在分析...
-                </div>
-              </div>
-            ) : null}
-          </div>
-
-          <form className="border-t border-separator p-3 sm:p-4" onSubmit={onSubmit}>
-            <div className="flex items-end gap-2 rounded-lg border border-separator bg-white p-2">
-              <textarea
-                className="min-h-11 flex-1 resize-none border-0 bg-transparent px-2 py-2 text-sm outline-none"
-                rows={1}
-                value={chat.input}
-                onChange={(event) => chat.setInput(event.target.value)}
-                placeholder="输入你想分析的问题"
-              />
-              <button
-                aria-label="发送"
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-accent-primary text-white transition hover:bg-blue-700 disabled:opacity-50"
-                type="submit"
-                disabled={!chat.canSend}
-              >
-                {chat.isSending ? (
-                  <Loader2 aria-hidden="true" className="animate-spin" size={18} />
-                ) : (
-                  <SendHorizonal aria-hidden="true" size={18} />
-                )}
-              </button>
-            </div>
-          </form>
-        </section>
-
-        <aside className="space-y-3">
-          <h2 className="text-sm font-semibold text-label-primary">推荐问题</h2>
-          {templateQuery.isLoading ? (
-            <div className="rounded-lg border border-separator bg-white p-4 text-sm text-label-secondary shadow-sm">
-              正在加载模板...
             </div>
           ) : null}
-          {templateQuery.isError ? (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-              模板加载失败，已显示默认问题。
-            </div>
-          ) : null}
-          {templateQuestions.map((question) => (
+        </div>
+
+        <form className="border-t border-separator p-3 sm:p-4" onSubmit={onSubmit}>
+          <div className="flex items-end gap-2 rounded-lg border border-separator bg-white p-2">
+            <textarea
+              className="min-h-11 flex-1 resize-none border-0 bg-transparent px-2 py-2 text-sm outline-none"
+              rows={1}
+              value={chat.input}
+              onChange={(event) => chat.setInput(event.target.value)}
+              placeholder="输入你想分析的问题"
+            />
             <button
-              key={question}
-              className="block w-full rounded-lg border border-separator bg-white p-4 text-left text-sm text-label-primary shadow-sm transition hover:border-blue-200 hover:bg-blue-50"
-              type="button"
-              onClick={() => chat.setInput(question)}
+              aria-label="发送"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-accent-primary text-white transition hover:bg-blue-700 disabled:opacity-50"
+              type="submit"
+              disabled={!chat.canSend}
             >
-              {question}
+              {chat.isSending ? (
+                <Loader2 aria-hidden="true" className="animate-spin" size={18} />
+              ) : (
+                <SendHorizonal aria-hidden="true" size={18} />
+              )}
             </button>
-          ))}
-        </aside>
-      </div>
-    </>
+          </div>
+        </form>
+      </section>
+    </div>
   );
 }
 
