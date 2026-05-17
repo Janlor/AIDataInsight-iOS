@@ -1,35 +1,40 @@
 'use client';
 
-import { SendHorizonal } from 'lucide-react';
-import { FormEvent, useState } from 'react';
+import type { ConversationMessage } from '@/contracts/generated/models';
+import { Loader2, SendHorizonal } from 'lucide-react';
+import { FormEvent, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { PageHeader } from '@/components/page-header';
+import { useAIChatController } from '@/features/ai-chat/use-ai-chat-controller';
 import { useTemplateQuestions } from '@/features/ai-chat/use-template-questions';
 
 export default function AIPage() {
+  return (
+    <Suspense fallback={<div className="text-sm text-label-secondary">正在加载 AI 工作台...</div>}>
+      <AIPageContent />
+    </Suspense>
+  );
+}
+
+function AIPageContent() {
+  const searchParams = useSearchParams();
+  const historyId = parseHistoryId(searchParams.get('historyId'));
+
+  return <AIWorkspace key={historyId ?? 'new'} historyId={historyId} />;
+}
+
+function AIWorkspace({ historyId }: { historyId: number | null }) {
   const templateQuery = useTemplateQuestions();
+  const chat = useAIChatController(historyId);
   const templateQuestions = templateQuery.data ?? [
     '本月销售额按月份汇总',
     '库存按仓库分布',
     '应收账款账龄分析',
   ];
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      text: '你好，我可以帮你查询销售、采购、库存、应收账款等经营数据。',
-    },
-  ]);
-  const [input, setInput] = useState('');
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const text = input.trim();
-    if (!text) return;
-    setMessages((current) => [
-      ...current,
-      { role: 'user', text },
-      { role: 'assistant', text: 'AI Chat 网络用例将在下一阶段接入，目前已完成页面闭环和输入状态。' },
-    ]);
-    setInput('');
+    void chat.send();
   }
 
   return (
@@ -39,12 +44,24 @@ export default function AIPage() {
         description="第一版已接入 Web shell 和会话守卫，后续在这里接入模板、流式响应和图表结果。"
       />
 
+      {chat.errorMessage ? (
+        <div className="mb-4 rounded-control border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          {chat.errorMessage}
+        </div>
+      ) : null}
+
       <div className="grid gap-6 xl:grid-cols-[1fr_320px]">
         <section className="flex min-h-[calc(100vh-11rem)] flex-col rounded-lg border border-separator bg-white shadow-sm">
           <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-6">
-            {messages.map((message, index) => (
+            {chat.isRestoringHistory ? (
+              <div className="flex items-center justify-center gap-2 py-10 text-sm text-label-secondary">
+                <Loader2 aria-hidden="true" className="animate-spin" size={18} />
+                正在恢复历史会话...
+              </div>
+            ) : null}
+            {chat.messages.map((message) => (
               <div
-                key={`${message.role}-${index}`}
+                key={message.id}
                 className={message.role === 'user' ? 'flex justify-end' : 'flex justify-start'}
               >
                 <div
@@ -55,10 +72,18 @@ export default function AIPage() {
                       : 'border border-separator bg-surface-secondary text-label-primary',
                   ].join(' ')}
                 >
-                  {message.text}
+                  <MessageContent message={message} />
                 </div>
               </div>
             ))}
+            {chat.isSending ? (
+              <div className="flex justify-start">
+                <div className="flex items-center gap-2 rounded-lg border border-separator bg-surface-secondary px-4 py-3 text-sm text-label-secondary">
+                  <Loader2 aria-hidden="true" className="animate-spin" size={16} />
+                  正在分析...
+                </div>
+              </div>
+            ) : null}
           </div>
 
           <form className="border-t border-separator p-3 sm:p-4" onSubmit={onSubmit}>
@@ -66,17 +91,21 @@ export default function AIPage() {
               <textarea
                 className="min-h-11 flex-1 resize-none border-0 bg-transparent px-2 py-2 text-sm outline-none"
                 rows={1}
-                value={input}
-                onChange={(event) => setInput(event.target.value)}
+                value={chat.input}
+                onChange={(event) => chat.setInput(event.target.value)}
                 placeholder="输入你想分析的问题"
               />
               <button
                 aria-label="发送"
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-accent-primary text-white transition hover:bg-blue-700 disabled:opacity-50"
                 type="submit"
-                disabled={!input.trim()}
+                disabled={!chat.canSend}
               >
-                <SendHorizonal aria-hidden="true" size={18} />
+                {chat.isSending ? (
+                  <Loader2 aria-hidden="true" className="animate-spin" size={18} />
+                ) : (
+                  <SendHorizonal aria-hidden="true" size={18} />
+                )}
               </button>
             </div>
           </form>
@@ -99,7 +128,7 @@ export default function AIPage() {
               key={question}
               className="block w-full rounded-lg border border-separator bg-white p-4 text-left text-sm text-label-primary shadow-sm transition hover:border-blue-200 hover:bg-blue-50"
               type="button"
-              onClick={() => setInput(question)}
+              onClick={() => chat.setInput(question)}
             >
               {question}
             </button>
@@ -108,4 +137,50 @@ export default function AIPage() {
       </div>
     </>
   );
+}
+
+function MessageContent({ message }: { message: ConversationMessage }) {
+  if (message.contentKind === 'chart') {
+    const series = message.chartPayload?.series ?? [];
+    return (
+      <div>
+        <p className="font-medium">图表结果</p>
+        {series.length === 0 ? (
+          <p className="mt-2 text-label-secondary">{message.chartPayload?.emptyMessage ?? '暂无图表数据'}</p>
+        ) : (
+          <div className="mt-3 space-y-2">
+            {series.map((item) => (
+              <div key={item.xAxis} className="rounded-control bg-white p-3">
+                <p className="font-medium text-label-primary">{item.xAxis}</p>
+                <p className="mt-1 text-label-secondary">
+                  {item.labels.map((label, index) => `${label}: ${item.values[index] ?? 0}`).join(' / ')}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (message.contentKind === 'intent') {
+    return (
+      <div>
+        <p>{message.text ?? '已识别分析意图。'}</p>
+        {message.functionName ? (
+          <p className="mt-2 text-xs text-label-tertiary">Function: {message.functionName}</p>
+        ) : null}
+      </div>
+    );
+  }
+
+  return message.text ?? '';
+}
+
+function parseHistoryId(value: string | null): number | null {
+  if (!value) {
+    return null;
+  }
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
 }

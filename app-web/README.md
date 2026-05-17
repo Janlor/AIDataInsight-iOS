@@ -40,5 +40,6 @@ npm run build
 - AI Chat template / function / chart / feedback API 封装
 - History page / detail / delete API 封装
 - AI Chat 和 History contract fixtures mapper 测试
+- AI Chat 发送流程和历史详情恢复
 
-下一步优先接入 AI Chat 发送流程、历史详情恢复和 mock server。
+下一步优先接入 SSE 流式响应、图表组件和 mock server。

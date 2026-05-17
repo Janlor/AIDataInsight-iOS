@@ -41,6 +41,42 @@ export function mapFunctionModelToMessage(model: FunctionModel, fallbackId = 'as
   };
 }
 
+export function createUserMessage(text: string): ConversationMessage {
+  return {
+    id: `user-${Date.now()}`,
+    role: 'user',
+    contentKind: 'text',
+    text,
+    feedback: 'none',
+  };
+}
+
+export function createWelcomeMessage(): ConversationMessage {
+  return {
+    id: 'welcome',
+    role: 'assistant',
+    contentKind: 'welcome',
+    text: '你好，我可以帮你查询销售、采购、库存、应收账款等经营数据。',
+    feedback: 'none',
+  };
+}
+
+export function mapChartDetailToMessage(
+  detail: HistoryChartDetail,
+  fallbackId = 'chart-current',
+): ConversationMessage {
+  return {
+    id: buildMessageId(fallbackId, detail.historyDetailId),
+    role: 'assistant',
+    contentKind: 'chart',
+    text: null,
+    chartPayload: mapChartDetailToPayload(detail),
+    feedback: 'none',
+    historyDetailId: detail.historyDetailId ?? null,
+    functionName: detail.funcType ?? null,
+  };
+}
+
 export function mapChartDetailToPayload(detail: HistoryChartDetail): ChartPayload {
   const functionName = detail.funcType ?? null;
   const commonItems = detail.chartCommonVoList ?? [];
@@ -49,7 +85,7 @@ export function mapChartDetailToPayload(detail: HistoryChartDetail): ChartPayloa
 
   if (commonItems.length > 0) {
     series.push({
-      xAxis: functionName ?? 'chart',
+      xAxis: commonItems[0]?.name ?? commonItems[0]?.bizId ?? functionName ?? 'chart',
       labels: commonItems.map((item) => item.name ?? item.bizId ?? ''),
       values: commonItems.map((item) => item.value ?? 0),
     });

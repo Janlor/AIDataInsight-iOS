@@ -1,9 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import templateFixture from '../../../../docs/cross-platform/contracts/fixtures/api/chat-template-string-payload.json';
+import chartFixture from '../../../../docs/cross-platform/contracts/fixtures/function-response/chart-query-sales-group-by-month.json';
 import historyChartFixture from '../../../../docs/cross-platform/contracts/fixtures/history/history-detail-with-chart.json';
 import historyTextFixture from '../../../../docs/cross-platform/contracts/fixtures/history/history-detail-with-ai-text.json';
-import type { HistoryRecord } from '@/contracts/generated/models';
-import { mapHistoryRecordToMessages, normalizeTemplateQuestions } from './ai-chat-mappers';
+import type { HistoryChartDetail, HistoryRecord } from '@/contracts/generated/models';
+import {
+  mapChartDetailToPayload,
+  mapHistoryRecordToMessages,
+  normalizeTemplateQuestions,
+} from './ai-chat-mappers';
 
 describe('ai-chat mappers', () => {
   it('normalizes embedded JSON string template payloads from the contract fixture', () => {
@@ -37,5 +42,11 @@ describe('ai-chat mappers', () => {
     expect(chartMessage?.chartPayload?.series).toHaveLength(
       expectedChartMessage?.chartPayload?.seriesCount ?? 0,
     );
+  });
+
+  it('maps chart response fixture into chart payload', () => {
+    const payload = mapChartDetailToPayload(chartFixture.response.data as HistoryChartDetail);
+
+    expect(payload).toEqual(chartFixture.expected.chartPayload);
   });
 });
