@@ -31,6 +31,136 @@ export interface AccountUser {
   phone?: string | null;
 }
 
+export type SettingRowAction = 'none' | 'openPrivacy' | 'confirmLogout' | 'openUpdatePassword';
+
+export interface SettingRow {
+  kind: 'nickname' | 'username' | 'phone' | 'privacy' | 'appVersion' | 'logout';
+  title: string;
+  detail: string | null;
+  action: SettingRowAction;
+  selectable: boolean;
+  destructive: boolean;
+  centered: boolean;
+  showsDisclosure: boolean;
+}
+
+export interface SettingSection {
+  kind: 'account' | 'about' | 'logout';
+  title: string | null;
+  rows: SettingRow[];
+}
+
+export interface SettingLogoutDialogState {
+  visible: boolean;
+  title: string;
+  cancelTitle: string;
+  confirmTitle: string;
+  confirmRole: 'destructive';
+}
+
+export interface SettingUiState {
+  title: string;
+  isLoading: boolean;
+  isLoggingOut: boolean;
+  errorMessage: string | null;
+  sections: SettingSection[];
+  logoutDialog: SettingLogoutDialogState;
+}
+
+export const settingInitialUiState: SettingUiState = {
+      "title": "设置",
+      "isLoading": false,
+      "isLoggingOut": false,
+      "errorMessage": null,
+      "sections": [
+        {
+          "kind": "account",
+          "title": "账户",
+          "rows": [
+            {
+              "kind": "nickname",
+              "title": "昵称",
+              "detail": "未设置",
+              "action": "none",
+              "selectable": false,
+              "destructive": false,
+              "centered": false,
+              "showsDisclosure": false
+            },
+            {
+              "kind": "username",
+              "title": "登录名",
+              "detail": "demo",
+              "action": "none",
+              "selectable": false,
+              "destructive": false,
+              "centered": false,
+              "showsDisclosure": false
+            },
+            {
+              "kind": "phone",
+              "title": "手机号",
+              "detail": "未设置",
+              "action": "none",
+              "selectable": false,
+              "destructive": false,
+              "centered": false,
+              "showsDisclosure": false
+            }
+          ]
+        },
+        {
+          "kind": "about",
+          "title": "关于",
+          "rows": [
+            {
+              "kind": "privacy",
+              "title": "隐私政策",
+              "detail": null,
+              "action": "openPrivacy",
+              "selectable": true,
+              "destructive": false,
+              "centered": false,
+              "showsDisclosure": true
+            },
+            {
+              "kind": "appVersion",
+              "title": "App版本",
+              "detail": "0.1.0 (1)",
+              "action": "none",
+              "selectable": false,
+              "destructive": false,
+              "centered": false,
+              "showsDisclosure": false
+            }
+          ]
+        },
+        {
+          "kind": "logout",
+          "title": null,
+          "rows": [
+            {
+              "kind": "logout",
+              "title": "退出登录",
+              "detail": null,
+              "action": "confirmLogout",
+              "selectable": true,
+              "destructive": true,
+              "centered": true,
+              "showsDisclosure": false
+            }
+          ]
+        }
+      ],
+      "logoutDialog": {
+        "visible": false,
+        "title": "确认注销并退出系统吗？",
+        "cancelTitle": "取消",
+        "confirmTitle": "确定",
+        "confirmRole": "destructive"
+      }
+    };
+
 export type AIHomeDestination = 'chat' | 'history' | 'settings';
 export type AIHomePanel = 'none' | 'history';
 export type AIHomeCommand =

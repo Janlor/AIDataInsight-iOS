@@ -1,19 +1,25 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { LogOut, MessageSquarePlus, Settings } from 'lucide-react';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { MessageSquarePlus } from 'lucide-react';
+import { useState } from 'react';
 import { useAccountStore } from '@/data/account/session-store';
 import { useHistoryPage } from '@/features/history/use-history-page';
+import { getDisplayName, getInitials } from '@/features/setting/setting-contract';
+import { SettingModal } from '@/features/setting/setting-modal';
 
 export function ChatSidebar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const router = useRouter();
-  const logout = useAccountStore((state) => state.logout);
+  const session = useAccountStore((state) => state.session);
+  const user = useAccountStore((state) => state.user);
   const historyQuery = useHistoryPage();
+  const [isSettingOpen, setSettingOpen] = useState(false);
   const activeHistoryId = searchParams.get('historyId');
   const sections = historyQuery.data ?? [];
+  const displayName = getDisplayName(session, user);
+  const initials = getInitials(displayName);
 
   return (
     <aside className="fixed inset-y-0 left-0 hidden w-72 flex-col border-r border-separator bg-white lg:flex">
@@ -67,24 +73,23 @@ export function ChatSidebar() {
       </div>
 
       <div className="border-t border-separator p-3">
-        <Link
-          className="flex h-10 items-center gap-3 rounded-control px-3 text-sm font-medium text-label-secondary transition hover:bg-surface-secondary hover:text-label-primary"
-          href="/setting"
-        >
-          <Settings aria-hidden="true" size={18} />
-          设置
-        </Link>
         <button
-          className="mt-1 flex h-10 w-full items-center gap-3 rounded-control px-3 text-sm font-medium text-label-secondary transition hover:bg-surface-secondary hover:text-label-primary"
+          aria-label={`打开设置：${displayName}`}
+          className="flex w-full items-center gap-3 rounded-control px-3 py-2 text-left transition hover:bg-surface-secondary"
           type="button"
-          onClick={() => {
-            void logout().finally(() => router.replace('/login'));
-          }}
+          onClick={() => setSettingOpen(true)}
         >
-          <LogOut aria-hidden="true" size={18} />
-          退出登录
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-label-primary text-xs font-semibold text-white">
+            {initials}
+          </span>
+          <span className="min-w-0">
+            <span className="block truncate text-sm font-medium text-label-primary">{displayName}</span>
+            <span className="block truncate text-xs text-label-tertiary">设置与账户</span>
+          </span>
         </button>
       </div>
+
+      <SettingModal open={isSettingOpen} onClose={() => setSettingOpen(false)} />
     </aside>
   );
 }

@@ -65,6 +65,10 @@ def mock_ai_chat_stream_path
     .fetch("const")
 end
 
+def setting_initial_state
+  read_json(File.join(CONTRACTS_DIR, "fixtures/ui/setting-initial.json")).fetch("state")
+end
+
 def mock_environment_properties
   read_json(File.join(CONTRACTS_DIR, "domain/environment.schema.json"))
     .fetch("$defs")
@@ -489,6 +493,44 @@ def typescript_models
       nickname?: string | null;
       phone?: string | null;
     }
+
+    export type SettingRowAction = 'none' | 'openPrivacy' | 'confirmLogout' | 'openUpdatePassword';
+
+    export interface SettingRow {
+      kind: 'nickname' | 'username' | 'phone' | 'privacy' | 'appVersion' | 'logout';
+      title: string;
+      detail: string | null;
+      action: SettingRowAction;
+      selectable: boolean;
+      destructive: boolean;
+      centered: boolean;
+      showsDisclosure: boolean;
+    }
+
+    export interface SettingSection {
+      kind: 'account' | 'about' | 'logout';
+      title: string | null;
+      rows: SettingRow[];
+    }
+
+    export interface SettingLogoutDialogState {
+      visible: boolean;
+      title: string;
+      cancelTitle: string;
+      confirmTitle: string;
+      confirmRole: 'destructive';
+    }
+
+    export interface SettingUiState {
+      title: string;
+      isLoading: boolean;
+      isLoggingOut: boolean;
+      errorMessage: string | null;
+      sections: SettingSection[];
+      logoutDialog: SettingLogoutDialogState;
+    }
+
+    export const settingInitialUiState: SettingUiState = #{JSON.pretty_generate(setting_initial_state).gsub("\n", "\n    ")};
 
     export type AIHomeDestination = 'chat' | 'history' | 'settings';
     export type AIHomePanel = 'none' | 'history';

@@ -15,6 +15,20 @@ async function login(page: Page) {
   await expect(page.getByRole('link', { name: 'New Chat' })).toBeVisible();
 }
 
+test('opens contract-driven settings from the sidebar account entry', async ({ page }) => {
+  await login(page);
+
+  await page.getByRole('button', { name: /打开设置/ }).click();
+  const dialog = page.getByRole('dialog', { name: '设置' });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByText('账户')).toBeVisible();
+  await expect(dialog.getByText('昵称')).toBeVisible();
+  await expect(dialog.getByText('登录名')).toBeVisible();
+  await expect(dialog.getByText('隐私政策')).toBeVisible();
+  await expect(dialog.getByText('App版本')).toBeVisible();
+  await expect(dialog.getByRole('button', { name: '退出登录' })).toBeVisible();
+});
+
 test('logs in, sends a chart question, and restores history from the sidebar', async ({ page }) => {
   await login(page);
 
