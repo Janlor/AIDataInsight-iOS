@@ -42,7 +42,7 @@ async function requestInternal<T>(
   options: RequestOptions,
   hasRetriedAfterRefresh: boolean,
 ): Promise<T> {
-  const response = await fetch(buildUrl(path, options.query), {
+  const response = await fetch(buildRequestUrl(path, options.query), {
     method: options.method ?? 'POST',
     headers: buildHeaders(options),
     body: options.body == null ? undefined : JSON.stringify(options.body),
@@ -92,8 +92,12 @@ async function refreshAccessToken(): Promise<boolean> {
   return refreshTask;
 }
 
-function buildUrl(path: string, query?: RequestOptions['query']) {
-  const url = new URL(path, runtimeConfig.apiBaseUrl);
+export function buildRequestUrl(path: string, query?: RequestOptions['query']) {
+  const baseUrl = runtimeConfig.apiBaseUrl.endsWith('/')
+    ? runtimeConfig.apiBaseUrl
+    : `${runtimeConfig.apiBaseUrl}/`;
+  const normalizedPath = path.replace(/^\/+/, '');
+  const url = new URL(normalizedPath, baseUrl);
   Object.entries(query ?? {}).forEach(([key, value]) => {
     if (value !== null && value !== undefined) {
       url.searchParams.set(key, String(value));

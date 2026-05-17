@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { configureHttpAuthBridge, request } from './http-client';
+import { buildRequestUrl, configureHttpAuthBridge, request } from './http-client';
 
 describe('http-client', () => {
   afterEach(() => {
@@ -44,6 +44,14 @@ describe('http-client', () => {
       code: 401,
     });
     expect(clearSession).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the injected base path when building absolute API URLs', () => {
+    const url = buildRequestUrl('/oauth2/login', { page: 1 });
+
+    expect(url.toString()).toBe(
+      'https://m1.apifoxmock.com/m1/3174267-1700689-default/oauth2/login?page=1',
+    );
   });
 });
 
