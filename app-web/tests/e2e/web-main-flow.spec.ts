@@ -18,10 +18,10 @@ test('logs in, sends a chart question, and manages history', async ({ page }) =>
   await page.getByRole('button', { name: '发送' }).click();
 
   await expect(page.getByText('图表结果')).toBeVisible();
-  await expect(page.getByText('2026-01')).toBeVisible();
+  await expect(page.getByText('2026-01').first()).toBeVisible();
 
   await page.getByRole('link', { name: '历史' }).click();
-  await expect(page.getByRole('heading', { name: '历史记录' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '历史记录', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: '查看一月销售额' })).toBeVisible();
 
   await page.getByRole('button', { name: '删除历史' }).first().click();

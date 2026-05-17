@@ -14,9 +14,10 @@ export default function HistoryPage() {
   const historyQuery = useHistoryPage();
   const queryClient = useQueryClient();
   const [deletedIds, setDeletedIds] = useState<Set<string>>(() => new Set());
+  const [isLocallyCleared, setLocallyCleared] = useState(false);
   const sections = useMemo(
-    () => removeDeletedItems(historyQuery.data ?? [], deletedIds),
-    [deletedIds, historyQuery.data],
+    () => (isLocallyCleared ? [] : removeDeletedItems(historyQuery.data ?? [], deletedIds)),
+    [deletedIds, historyQuery.data, isLocallyCleared],
   );
   const refreshHistory = () => {
     void queryClient.invalidateQueries({ queryKey: ['history'] });
@@ -24,6 +25,7 @@ export default function HistoryPage() {
   const deleteOneMutation = useMutation({
     mutationFn: deleteHistory,
     onSuccess: (_, historyId) => {
+      setLocallyCleared(false);
       setDeletedIds((current) => new Set(current).add(String(historyId)));
       refreshHistory();
     },
@@ -31,7 +33,8 @@ export default function HistoryPage() {
   const deleteAllMutation = useMutation({
     mutationFn: deleteAllHistory,
     onSuccess: () => {
-      setDeletedIds(new Set(sections.flatMap((section) => section.items.map((item) => item.id))));
+      setLocallyCleared(true);
+      setDeletedIds(new Set());
       refreshHistory();
     },
   });
