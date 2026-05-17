@@ -1,19 +1,47 @@
 'use client';
 
 import Link from 'next/link';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Trash2 } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { StatusPanel } from '@/components/status-panel';
+import { deleteAllHistory, deleteHistory } from '@/features/history/history-api';
 import { useHistoryPage } from '@/features/history/use-history-page';
 
 export default function HistoryPage() {
   const historyQuery = useHistoryPage();
+  const queryClient = useQueryClient();
   const sections = historyQuery.data ?? [];
+  const refreshHistory = () => {
+    void queryClient.invalidateQueries({ queryKey: ['history'] });
+  };
+  const deleteOneMutation = useMutation({
+    mutationFn: deleteHistory,
+    onSuccess: refreshHistory,
+  });
+  const deleteAllMutation = useMutation({
+    mutationFn: deleteAllHistory,
+    onSuccess: refreshHistory,
+  });
 
   return (
     <>
       <PageHeader
         title="历史记录"
         description="已接入 history/page 数据层，详情恢复会复用 AI Chat 的 history mapper。"
+        action={
+          sections.length > 0 ? (
+            <button
+              className="inline-flex h-10 items-center gap-2 rounded-control border border-separator bg-white px-4 text-sm font-medium text-label-secondary transition hover:text-label-primary disabled:opacity-50"
+              type="button"
+              disabled={deleteAllMutation.isPending}
+              onClick={() => deleteAllMutation.mutate()}
+            >
+              <Trash2 aria-hidden="true" size={16} />
+              清空
+            </button>
+          ) : null
+        }
       />
 
       {historyQuery.isLoading ? (
@@ -36,16 +64,32 @@ export default function HistoryPage() {
           <section key={section.kind}>
             <h2 className="mb-2 text-sm font-semibold text-label-secondary">{section.title}</h2>
             <div className="overflow-hidden rounded-lg border border-separator bg-white shadow-sm">
-              {section.items.map((item) => (
-                <Link
-                  key={item.id}
-                  className="flex items-center justify-between gap-4 border-b border-separator px-4 py-3 text-sm last:border-b-0 hover:bg-surface-secondary"
-                  href={`/ai?historyId=${item.id}`}
-                >
-                  <span className="min-w-0 truncate font-medium text-label-primary">{item.title}</span>
-                  <span className="shrink-0 text-label-tertiary">{item.displayTime}</span>
-                </Link>
-              ))}
+              {section.items.map((item) => {
+                const historyId = Number(item.id);
+                return (
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-3 border-b border-separator px-4 py-3 text-sm last:border-b-0 hover:bg-surface-secondary"
+                  >
+                    <Link
+                      className="min-w-0 flex-1 truncate font-medium text-label-primary"
+                      href={`/ai?historyId=${item.id}`}
+                    >
+                      {item.title}
+                    </Link>
+                    <span className="shrink-0 text-label-tertiary">{item.displayTime}</span>
+                    <button
+                      aria-label="删除历史"
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-control text-label-tertiary transition hover:bg-red-50 hover:text-mark disabled:opacity-50"
+                      type="button"
+                      disabled={deleteOneMutation.isPending || !Number.isFinite(historyId)}
+                      onClick={() => deleteOneMutation.mutate(historyId)}
+                    >
+                      <Trash2 aria-hidden="true" size={15} />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </section>
         ))}

@@ -3,7 +3,7 @@
 import type { ConversationMessage, FunctionModel } from '@/contracts/generated/models';
 import { loadHistoryDetail } from '@/features/history/history-api';
 import { useQuery } from '@tanstack/react-query';
-import { analyzeFunction, loadChartData, streamAIResponse } from './ai-chat-api';
+import { analyzeFunction, loadChartData, sendLikeFeedback, streamAIResponse } from './ai-chat-api';
 import {
   createAssistantTextMessage,
   createUserMessage,
@@ -80,6 +80,28 @@ export function useAIChatController(historyId: number | null) {
     }
   }, [activeHistoryId, input, isSending, messages]);
 
+  const sendFeedback = useCallback(
+    async (messageId: string, historyDetailId: number, feedback: 'liked' | 'disliked') => {
+      const previousMessages = messages;
+      setDraftMessages(
+        messages.map((message) =>
+          message.id === messageId ? { ...message, feedback } : message,
+        ),
+      );
+
+      try {
+        await sendLikeFeedback({
+          historyDetailId,
+          like: feedback === 'liked' ? '1' : '0',
+        });
+      } catch (error) {
+        setDraftMessages(previousMessages);
+        setErrorMessage(error instanceof Error ? error.message : '反馈提交失败，请稍后重试');
+      }
+    },
+    [messages],
+  );
+
   return useMemo(
     () => ({
       activeHistoryId,
@@ -93,6 +115,7 @@ export function useAIChatController(historyId: number | null) {
         (historyDetailQuery.isError ? '历史详情加载失败，请稍后重试' : null),
       canSend,
       send,
+      sendFeedback,
     }),
     [
       activeHistoryId,
@@ -104,6 +127,7 @@ export function useAIChatController(historyId: number | null) {
       isSending,
       messages,
       send,
+      sendFeedback,
     ],
   );
 }

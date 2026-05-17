@@ -1,7 +1,7 @@
 'use client';
 
 import type { ConversationMessage } from '@/contracts/generated/models';
-import { Loader2, SendHorizonal } from 'lucide-react';
+import { Loader2, SendHorizonal, ThumbsDown, ThumbsUp } from 'lucide-react';
 import { FormEvent, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { PageHeader } from '@/components/page-header';
@@ -73,7 +73,14 @@ function AIWorkspace({ historyId }: { historyId: number | null }) {
                       : 'border border-separator bg-surface-secondary text-label-primary',
                   ].join(' ')}
                 >
-                  <MessageContent message={message} />
+                  <MessageContent
+                    message={message}
+                    onFeedback={(feedback) => {
+                      if (message.historyDetailId) {
+                        void chat.sendFeedback(message.id, message.historyDetailId, feedback);
+                      }
+                    }}
+                  />
                 </div>
               </div>
             ))}
@@ -140,12 +147,19 @@ function AIWorkspace({ historyId }: { historyId: number | null }) {
   );
 }
 
-function MessageContent({ message }: { message: ConversationMessage }) {
+function MessageContent({
+  message,
+  onFeedback,
+}: {
+  message: ConversationMessage;
+  onFeedback: (feedback: 'liked' | 'disliked') => void;
+}) {
   if (message.contentKind === 'chart') {
     return (
       <div>
         <p className="font-medium">图表结果</p>
         <ChartMessage payload={message.chartPayload} />
+        <FeedbackActions message={message} onFeedback={onFeedback} />
       </div>
     );
   }
@@ -157,11 +171,60 @@ function MessageContent({ message }: { message: ConversationMessage }) {
         {message.functionName ? (
           <p className="mt-2 text-xs text-label-tertiary">Function: {message.functionName}</p>
         ) : null}
+        <FeedbackActions message={message} onFeedback={onFeedback} />
       </div>
     );
   }
 
-  return message.text ?? '';
+  return (
+    <div>
+      <p>{message.text ?? ''}</p>
+      <FeedbackActions message={message} onFeedback={onFeedback} />
+    </div>
+  );
+}
+
+function FeedbackActions({
+  message,
+  onFeedback,
+}: {
+  message: ConversationMessage;
+  onFeedback: (feedback: 'liked' | 'disliked') => void;
+}) {
+  if (message.role !== 'assistant' || !message.historyDetailId) {
+    return null;
+  }
+
+  return (
+    <div className="mt-3 flex items-center gap-2">
+      <button
+        aria-label="喜欢"
+        className={[
+          'flex h-8 w-8 items-center justify-center rounded-control border transition',
+          message.feedback === 'liked'
+            ? 'border-accent-primary bg-blue-50 text-accent-primary'
+            : 'border-separator bg-white text-label-tertiary hover:text-label-primary',
+        ].join(' ')}
+        type="button"
+        onClick={() => onFeedback('liked')}
+      >
+        <ThumbsUp aria-hidden="true" size={15} />
+      </button>
+      <button
+        aria-label="不喜欢"
+        className={[
+          'flex h-8 w-8 items-center justify-center rounded-control border transition',
+          message.feedback === 'disliked'
+            ? 'border-mark bg-red-50 text-mark'
+            : 'border-separator bg-white text-label-tertiary hover:text-label-primary',
+        ].join(' ')}
+        type="button"
+        onClick={() => onFeedback('disliked')}
+      >
+        <ThumbsDown aria-hidden="true" size={15} />
+      </button>
+    </div>
+  );
 }
 
 function parseHistoryId(value: string | null): number | null {
