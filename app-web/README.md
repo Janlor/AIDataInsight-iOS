@@ -37,5 +37,8 @@ npm run build
 - 登录、refresh、logout、getUserInfo 账户 API 封装
 - snake_case token 归一化测试
 - `402` refresh 后重试测试
+- AI Chat template / function / chart / feedback API 封装
+- History page / detail / delete API 封装
+- AI Chat 和 History contract fixtures mapper 测试
 
-下一步优先接入 AI Chat 和 History 的真实 use case、fixtures 和 mock server。
+下一步优先接入 AI Chat 发送流程、历史详情恢复和 mock server。

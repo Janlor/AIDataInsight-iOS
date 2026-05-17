@@ -3,14 +3,15 @@
 import { SendHorizonal } from 'lucide-react';
 import { FormEvent, useState } from 'react';
 import { PageHeader } from '@/components/page-header';
-
-const templateQuestions = [
-  '本月销售额按月份汇总',
-  '库存按仓库分布',
-  '应收账款账龄分析',
-];
+import { useTemplateQuestions } from '@/features/ai-chat/use-template-questions';
 
 export default function AIPage() {
+  const templateQuery = useTemplateQuestions();
+  const templateQuestions = templateQuery.data ?? [
+    '本月销售额按月份汇总',
+    '库存按仓库分布',
+    '应收账款账龄分析',
+  ];
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
@@ -83,6 +84,16 @@ export default function AIPage() {
 
         <aside className="space-y-3">
           <h2 className="text-sm font-semibold text-label-primary">推荐问题</h2>
+          {templateQuery.isLoading ? (
+            <div className="rounded-lg border border-separator bg-white p-4 text-sm text-label-secondary shadow-sm">
+              正在加载模板...
+            </div>
+          ) : null}
+          {templateQuery.isError ? (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              模板加载失败，已显示默认问题。
+            </div>
+          ) : null}
           {templateQuestions.map((question) => (
             <button
               key={question}
