@@ -4,7 +4,8 @@ import type {
   HistoryChartDetail,
   TemplateQuestionSet,
 } from '@/contracts/generated/models';
-import { request } from '@/data/http/http-client';
+import { aiChatEndpoint as chatEndpoint } from '@/contracts/generated/models';
+import { request, streamText } from '@/data/http/http-client';
 import { normalizeTemplateQuestions } from './ai-chat-mappers';
 import type { FunctionAnalysisInput, LikeFeedbackInput } from './ai-chat-types';
 
@@ -31,6 +32,13 @@ export function loadChartData(functionName: FunctionName, historyId: number) {
   return request<HistoryChartDetail>(`/chart/${functionName}`, {
     method: 'GET',
     query: { historyId },
+  });
+}
+
+export function streamAIResponse(question: string) {
+  return streamText(chatEndpoint.streamPath, {
+    method: 'GET',
+    query: { question },
   });
 }
 

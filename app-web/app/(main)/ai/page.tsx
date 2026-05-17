@@ -5,6 +5,7 @@ import { Loader2, SendHorizonal } from 'lucide-react';
 import { FormEvent, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { PageHeader } from '@/components/page-header';
+import { ChartMessage } from '@/features/ai-chat/chart-message';
 import { useAIChatController } from '@/features/ai-chat/use-ai-chat-controller';
 import { useTemplateQuestions } from '@/features/ai-chat/use-template-questions';
 
@@ -141,24 +142,10 @@ function AIWorkspace({ historyId }: { historyId: number | null }) {
 
 function MessageContent({ message }: { message: ConversationMessage }) {
   if (message.contentKind === 'chart') {
-    const series = message.chartPayload?.series ?? [];
     return (
       <div>
         <p className="font-medium">图表结果</p>
-        {series.length === 0 ? (
-          <p className="mt-2 text-label-secondary">{message.chartPayload?.emptyMessage ?? '暂无图表数据'}</p>
-        ) : (
-          <div className="mt-3 space-y-2">
-            {series.map((item) => (
-              <div key={item.xAxis} className="rounded-control bg-white p-3">
-                <p className="font-medium text-label-primary">{item.xAxis}</p>
-                <p className="mt-1 text-label-secondary">
-                  {item.labels.map((label, index) => `${label}: ${item.values[index] ?? 0}`).join(' / ')}
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
+        <ChartMessage payload={message.chartPayload} />
       </div>
     );
   }

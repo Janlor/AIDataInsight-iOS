@@ -3,8 +3,9 @@
 import type { ConversationMessage, FunctionModel } from '@/contracts/generated/models';
 import { loadHistoryDetail } from '@/features/history/history-api';
 import { useQuery } from '@tanstack/react-query';
-import { analyzeFunction, loadChartData } from './ai-chat-api';
+import { analyzeFunction, loadChartData, streamAIResponse } from './ai-chat-api';
 import {
+  createAssistantTextMessage,
   createUserMessage,
   createWelcomeMessage,
   mapChartDetailToMessage,
@@ -60,8 +61,18 @@ export function useAIChatController(historyId: number | null) {
       });
       setActiveHistoryId(functionModel.historyId ?? activeHistoryId);
 
-      const assistantMessages = await buildAssistantMessages(functionModel);
-      setDraftMessages((current) => [...current, ...assistantMessages]);
+      await appendAssistantResponse({
+        model: functionModel,
+        question,
+        appendMessages: (assistantMessages) => {
+          setDraftMessages((current) => [...current, ...assistantMessages]);
+        },
+        updateMessage: (messageId, text) => {
+          setDraftMessages((current) =>
+            current.map((message) => (message.id === messageId ? { ...message, text } : message)),
+          );
+        },
+      });
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : '发送失败，请稍后重试');
     } finally {
@@ -97,27 +108,57 @@ export function useAIChatController(historyId: number | null) {
   );
 }
 
-async function buildAssistantMessages(model: FunctionModel): Promise<ConversationMessage[]> {
-  if (!model.hasTool || !model.name || !model.historyId || model.name === 'queryPerformanceType') {
-    return [mapFunctionModelToMessage(model)];
+async function appendAssistantResponse({
+  model,
+  question,
+  appendMessages,
+  updateMessage,
+}: {
+  model: FunctionModel;
+  question: string;
+  appendMessages: (messages: ConversationMessage[]) => void;
+  updateMessage: (messageId: string, text: string) => void;
+}) {
+  if (!model.hasTool) {
+    const messageId = `assistant-stream-${Date.now()}`;
+    let streamedText = '';
+    appendMessages([createAssistantTextMessage(messageId, model.msg ?? '')]);
+
+    try {
+      for await (const chunk of streamAIResponse(question)) {
+        streamedText += chunk;
+        updateMessage(messageId, streamedText);
+      }
+      if (!streamedText && model.msg) {
+        updateMessage(messageId, model.msg);
+      }
+    } catch {
+      updateMessage(messageId, streamedText || model.msg || '响应生成失败，请稍后重试。');
+    }
+    return;
+  }
+
+  if (!model.name || !model.historyId || model.name === 'queryPerformanceType') {
+    appendMessages([mapFunctionModelToMessage(model)]);
+    return;
   }
 
   try {
     const chartDetail = await loadChartData(model.name, model.historyId);
-    return [
+    appendMessages([
       mapChartDetailToMessage({
         ...chartDetail,
         historyDetailId: chartDetail.historyDetailId ?? model.historyId,
         funcType: chartDetail.funcType ?? model.name,
       }),
-    ];
+    ]);
   } catch {
-    return [
+    appendMessages([
       {
         ...mapFunctionModelToMessage(model),
         contentKind: 'text',
         text: '图表数据加载失败，请稍后重试。',
       },
-    ];
+    ]);
   }
 }

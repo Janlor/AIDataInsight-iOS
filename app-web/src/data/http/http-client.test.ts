@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { buildRequestUrl, configureHttpAuthBridge, request } from './http-client';
+import {
+  buildRequestUrl,
+  configureHttpAuthBridge,
+  parseServerSentEventBuffer,
+  request,
+} from './http-client';
 
 describe('http-client', () => {
   afterEach(() => {
@@ -52,6 +57,13 @@ describe('http-client', () => {
     expect(url.toString()).toBe(
       'https://m1.apifoxmock.com/m1/3174267-1700689-default/oauth2/login?page=1',
     );
+  });
+
+  it('parses server-sent event data frames and keeps incomplete buffers', () => {
+    const parsed = parseServerSentEventBuffer('data: 你好\n\ndata: 世界\n\ndata: partial');
+
+    expect(parsed.chunks).toEqual(['你好', '世界']);
+    expect(parsed.remaining).toBe('data: partial');
   });
 });
 

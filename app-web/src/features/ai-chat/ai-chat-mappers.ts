@@ -61,6 +61,16 @@ export function createWelcomeMessage(): ConversationMessage {
   };
 }
 
+export function createAssistantTextMessage(id: string, text = ''): ConversationMessage {
+  return {
+    id,
+    role: 'assistant',
+    contentKind: 'text',
+    text,
+    feedback: 'none',
+  };
+}
+
 export function mapChartDetailToMessage(
   detail: HistoryChartDetail,
   fallbackId = 'chart-current',

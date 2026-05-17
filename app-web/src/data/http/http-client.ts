@@ -37,6 +37,46 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   return requestInternal<T>(path, options, false);
 }
 
+export async function* streamText(path: string, options: RequestOptions = {}): AsyncGenerator<string> {
+  const response = await fetch(buildRequestUrl(path, options.query), {
+    method: options.method ?? 'GET',
+    headers: buildHeaders(options),
+    signal: options.signal,
+  });
+
+  if (!response.ok) {
+    throw new AppError('unknown', `HTTP ${response.status}`);
+  }
+
+  if (!response.body) {
+    return;
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { value, done } = await reader.read();
+    buffer += decoder.decode(value, { stream: !done });
+
+    const parsed = parseServerSentEventBuffer(buffer);
+    buffer = parsed.remaining;
+    for (const chunk of parsed.chunks) {
+      yield chunk;
+    }
+
+    if (done) {
+      break;
+    }
+  }
+
+  const finalParsed = parseServerSentEventBuffer(`${buffer}\n\n`);
+  for (const chunk of finalParsed.chunks) {
+    yield chunk;
+  }
+}
+
 async function requestInternal<T>(
   path: string,
   options: RequestOptions,
@@ -104,6 +144,29 @@ export function buildRequestUrl(path: string, query?: RequestOptions['query']) {
     }
   });
   return url;
+}
+
+export function parseServerSentEventBuffer(buffer: string): {
+  chunks: string[];
+  remaining: string;
+} {
+  const normalized = buffer.replace(/\r\n/g, '\n');
+  const events = normalized.split('\n\n');
+  const remaining = events.pop() ?? '';
+  const chunks = events.flatMap((event) => {
+    const dataLines = event
+      .split('\n')
+      .filter((line) => line.startsWith('data:'))
+      .map((line) => line.slice(5).trimStart());
+
+    const data = dataLines.join('\n');
+    if (!data || data === '[DONE]') {
+      return [];
+    }
+    return [data];
+  });
+
+  return { chunks, remaining };
 }
 
 function buildHeaders(options: RequestOptions): HeadersInit {
