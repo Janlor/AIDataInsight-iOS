@@ -48,6 +48,10 @@ export function ChatSidebar() {
         <Link
           className="flex h-10 items-center gap-3 rounded-control px-3 text-sm font-medium text-label-primary transition hover:bg-surface-secondary"
           href="/ai"
+          onClick={(event) => {
+            event.preventDefault();
+            router.push(`/ai?newChat=${Date.now()}`);
+          }}
         >
           <MessageSquarePlus aria-hidden="true" size={18} />
           New Chat

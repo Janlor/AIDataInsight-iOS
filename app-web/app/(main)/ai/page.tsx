@@ -19,8 +19,9 @@ export default function AIPage() {
 function AIPageContent() {
   const searchParams = useSearchParams();
   const historyId = parseHistoryId(searchParams.get('historyId'));
+  const newChatId = searchParams.get('newChat') ?? 'initial';
 
-  return <AIWorkspace key={historyId ?? 'new'} historyId={historyId} />;
+  return <AIWorkspace key={historyId ? `history-${historyId}` : `new-${newChatId}`} historyId={historyId} />;
 }
 
 function AIWorkspace({ historyId }: { historyId: number | null }) {

@@ -64,6 +64,14 @@ export function AppShell({ children }: { children: ReactNode }) {
                     active ? 'bg-accent-secondary text-accent-primary' : 'text-label-secondary',
                   ].join(' ')}
                   href={item.href}
+                  onClick={
+                    item.href === '/ai'
+                      ? (event) => {
+                          event.preventDefault();
+                          router.push(`/ai?newChat=${Date.now()}`);
+                        }
+                      : undefined
+                  }
                 >
                   <Icon aria-hidden="true" size={18} />
                 </Link>

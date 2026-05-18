@@ -50,6 +50,19 @@ test('deletes a history conversation from the sidebar', async ({ page }) => {
   await expect(page.getByRole('link', { name: /你好/ })).toHaveCount(0);
 });
 
+test('starts a fresh new chat from an existing new chat draft', async ({ page }) => {
+  await login(page);
+
+  await page.getByPlaceholder('输入你想分析的问题').fill('你好');
+  await page.getByRole('button', { name: '发送' }).click();
+  await expect(page.getByText('你好，我可以帮你分析经营数据。').last()).toBeVisible();
+
+  await page.getByRole('link', { name: 'New Chat' }).click();
+  await expect(page).toHaveURL(/newChat=/);
+  await expect(page.getByRole('heading', { name: '今天想分析什么？' })).toBeVisible();
+  await expect(page.getByText('你好，我可以帮你分析经营数据。')).toHaveCount(0);
+});
+
 test('logs in, sends a chart question, and restores history from the sidebar', async ({ page }) => {
   await login(page);
 
