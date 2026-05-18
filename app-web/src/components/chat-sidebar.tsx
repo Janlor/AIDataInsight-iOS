@@ -45,6 +45,7 @@ export function ChatSidebar() {
   return (
     <aside className="fixed inset-y-0 left-0 hidden w-72 flex-col border-r border-separator bg-surface-primary lg:flex">
       <div className="border-b border-separator p-3">
+        <h1 className="mb-2 px-3 text-sm font-semibold text-label-primary">AI数据分析助手</h1>
         <Link
           className="flex h-10 items-center gap-3 rounded-control px-3 text-sm font-medium text-label-primary transition hover:bg-surface-secondary"
           href="/ai"

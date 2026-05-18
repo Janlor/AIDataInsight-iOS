@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Bot, Loader2, Lock, UserRound } from 'lucide-react';
+import { Loader2, Lock, UserRound } from 'lucide-react';
 import { FormEvent, useState } from 'react';
 import { useAccountStore } from '@/data/account/session-store';
 
@@ -44,14 +45,16 @@ export default function LoginPage() {
     <main className="min-h-screen bg-surface-secondary px-4 py-8">
       <section className="mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-6xl items-center gap-8 lg:grid-cols-[1fr_420px]">
         <div className="max-w-2xl">
-          <div className="mb-8 flex h-12 w-12 items-center justify-center rounded-control bg-accent-primary text-white shadow-panel">
-            <Bot aria-hidden="true" size={26} />
-          </div>
-          <h1 className="text-4xl font-semibold tracking-normal text-label-primary sm:text-5xl">
-            AIDataInsight
-          </h1>
+          <Image
+            alt="AI数据分析助手"
+            className="mb-8 h-16 w-16 rounded-control shadow-panel"
+            height={64}
+            src="/brand/login-icon.png"
+            width={64}
+          />
+          <h1 className="text-4xl font-semibold tracking-normal text-label-primary sm:text-5xl">AI数据分析助手</h1>
           <p className="mt-5 max-w-xl text-base leading-7 text-label-secondary">
-            面向经营分析的 AI 工作台。Web 端从跨平台契约出发，优先打通登录、会话和 AI 主链路。
+            让工作更流畅更轻松。用自然语言查询业绩、库存、代采、应收和账龄数据，快速生成清晰的经营分析结果。
           </p>
         </div>
 
@@ -61,7 +64,7 @@ export default function LoginPage() {
         >
           <div>
             <h2 className="text-xl font-semibold text-label-primary">登录</h2>
-            <p className="mt-2 text-sm text-label-secondary">使用已有账号进入 AI 工作台</p>
+            <p className="mt-2 text-sm text-label-secondary">使用账号进入 AI 数据分析工作台</p>
           </div>
 
           <label className="mt-6 block text-sm font-medium text-label-primary" htmlFor="name">

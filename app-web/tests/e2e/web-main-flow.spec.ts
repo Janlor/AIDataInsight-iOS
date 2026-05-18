@@ -7,12 +7,19 @@ test.beforeEach(async ({ page }) => {
   await page.reload();
 });
 
+test('shows localized login brand content', async ({ page }) => {
+  await expect(page.getByRole('img', { name: 'AI数据分析助手' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'AI数据分析助手' })).toBeVisible();
+  await expect(page.getByText('让工作更流畅更轻松')).toBeVisible();
+});
+
 async function login(page: Page) {
   await page.getByLabel('账号').fill('demo');
   await page.getByLabel('密码').fill('demo@123');
   await page.getByLabel(/我已阅读并同意/).check();
   await page.getByRole('button', { name: '登录' }).click();
   await expect(page.getByRole('link', { name: 'New Chat' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'AI数据分析助手' })).toBeVisible();
 }
 
 test('opens contract-driven settings from the sidebar account entry', async ({ page }) => {
