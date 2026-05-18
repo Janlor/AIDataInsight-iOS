@@ -6,9 +6,11 @@ import { useRouter } from 'next/navigation';
 import { Loader2, Lock, UserRound } from 'lucide-react';
 import { FormEvent, useState } from 'react';
 import { useAccountStore } from '@/data/account/session-store';
+import { useI18n } from '@/i18n/use-i18n';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useI18n();
   const login = useAccountStore((state) => state.login);
   const [name, setName] = useState('');
   const [pwd, setPwd] = useState('');
@@ -21,12 +23,12 @@ export default function LoginPage() {
     setError(null);
 
     if (!name.trim() || !pwd.trim()) {
-      setError('请输入账号和密码');
+      setError(t.login.missingCredentials);
       return;
     }
 
     if (!accepted) {
-      setError('请先阅读并同意隐私协议');
+      setError(t.login.missingPrivacy);
       return;
     }
 
@@ -35,7 +37,7 @@ export default function LoginPage() {
       await login({ name: name.trim(), pwd });
       router.replace('/ai');
     } catch (loginError) {
-      setError(loginError instanceof Error ? loginError.message : '登录失败，请稍后重试');
+      setError(loginError instanceof Error ? loginError.message : t.login.failed);
     } finally {
       setSubmitting(false);
     }
@@ -46,15 +48,15 @@ export default function LoginPage() {
       <section className="mx-auto grid min-h-[calc(100vh-4rem)] w-full max-w-6xl items-center gap-8 lg:grid-cols-[1fr_420px]">
         <div className="max-w-2xl">
           <Image
-            alt="AI数据分析助手"
+            alt={t.brandTitle}
             className="mb-8 h-16 w-16 rounded-control shadow-panel"
             height={64}
             src="/brand/login-icon.png"
             width={64}
           />
-          <h1 className="text-4xl font-semibold tracking-normal text-label-primary sm:text-5xl">AI数据分析助手</h1>
+          <h1 className="text-4xl font-semibold tracking-normal text-label-primary sm:text-5xl">{t.brandTitle}</h1>
           <p className="mt-5 max-w-xl text-base leading-7 text-label-secondary">
-            让工作更流畅更轻松。用自然语言查询业绩、库存、代采、应收和账龄数据，快速生成清晰的经营分析结果。
+            {t.login.description}
           </p>
         </div>
 
@@ -63,12 +65,12 @@ export default function LoginPage() {
           onSubmit={onSubmit}
         >
           <div>
-            <h2 className="text-xl font-semibold text-label-primary">登录</h2>
-            <p className="mt-2 text-sm text-label-secondary">使用账号进入 AI 数据分析工作台</p>
+            <h2 className="text-xl font-semibold text-label-primary">{t.login.submit}</h2>
+            <p className="mt-2 text-sm text-label-secondary">{t.login.formHelp}</p>
           </div>
 
           <label className="mt-6 block text-sm font-medium text-label-primary" htmlFor="name">
-            账号
+            {t.login.username}
           </label>
           <div className="mt-2 flex items-center gap-2 rounded-control border border-separator bg-surface-primary px-3">
             <UserRound aria-hidden="true" className="text-label-tertiary" size={18} />
@@ -82,7 +84,7 @@ export default function LoginPage() {
           </div>
 
           <label className="mt-4 block text-sm font-medium text-label-primary" htmlFor="pwd">
-            密码
+            {t.login.password}
           </label>
           <div className="mt-2 flex items-center gap-2 rounded-control border border-separator bg-surface-primary px-3">
             <Lock aria-hidden="true" className="text-label-tertiary" size={18} />
@@ -104,9 +106,9 @@ export default function LoginPage() {
               onChange={(event) => setAccepted(event.target.checked)}
             />
             <span>
-              我已阅读并同意
+              {t.login.privacyPrefix}
               <Link className="ml-1 text-accent-primary hover:underline" href="/privacy">
-                隐私协议
+                {t.login.privacyPolicy}
               </Link>
             </span>
           </label>
@@ -123,7 +125,7 @@ export default function LoginPage() {
             disabled={isSubmitting}
           >
             {isSubmitting ? <Loader2 aria-hidden="true" className="animate-spin" size={18} /> : null}
-            登录
+            {isSubmitting ? t.login.submitting : t.login.submit}
           </button>
         </form>
       </section>

@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { useEffect } from 'react';
-import { privacyPolicyContent } from '@/contracts/generated/models';
 import { useAccountStore } from '@/data/account/session-store';
+import { useI18n } from '@/i18n/use-i18n';
 
 export default function PrivacyPage() {
   const session = useAccountStore((state) => state.session);
+  const { t } = useI18n();
   const isHydrated = useAccountStore((state) => state.isHydrated);
   const hydrate = useAccountStore((state) => state.hydrate);
 
@@ -15,15 +16,15 @@ export default function PrivacyPage() {
   }, [hydrate]);
 
   const returnHref = isHydrated && session.isLogin ? '/ai' : '/login';
-  const returnText = isHydrated && session.isLogin ? '返回工作台' : '返回登录';
+  const returnText = isHydrated && session.isLogin ? t.privacy.returnWorkspace : t.privacy.returnLogin;
 
   return (
     <main className="min-h-screen bg-surface-secondary px-4 py-8">
       <article className="mx-auto max-w-3xl rounded-lg border border-separator bg-surface-primary p-6 shadow-sm">
-        <h1 className="text-2xl font-semibold text-label-primary">{privacyPolicyContent.title}</h1>
-        <p className="mt-2 text-sm text-label-tertiary">更新日期：{privacyPolicyContent.updatedAt}</p>
+        <h1 className="text-2xl font-semibold text-label-primary">{t.privacy.title}</h1>
+        <p className="mt-2 text-sm text-label-tertiary">{t.privacy.updatedAtLabel}：2026-05-18</p>
         <div className="mt-6 space-y-6">
-          {privacyPolicyContent.sections.map((section) => (
+          {t.privacy.sections.map((section) => (
             <section key={section.heading}>
               <h2 className="text-base font-semibold text-label-primary">{section.heading}</h2>
               <div className="mt-2 space-y-2">

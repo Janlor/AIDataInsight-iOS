@@ -29,8 +29,8 @@ export function buildSettingStateFromContract({
   };
 }
 
-export function getDisplayName(session: AccountSession, user: AccountUser | null) {
-  return user?.nickname ?? user?.username ?? session.username ?? '已登录用户';
+export function getDisplayName(session: AccountSession, user: AccountUser | null, fallback = '已登录用户') {
+  return user?.nickname ?? user?.username ?? session.username ?? fallback;
 }
 
 export function getInitials(name: string) {

@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Bot, MessageSquarePlus, Settings } from 'lucide-react';
 import { ReactNode, useEffect } from 'react';
 import { useAccountStore } from '@/data/account/session-store';
+import { useI18n } from '@/i18n/use-i18n';
 import { ChatSidebar } from './chat-sidebar';
 
 const navItems = [
@@ -15,6 +16,7 @@ const navItems = [
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useI18n();
   const session = useAccountStore((state) => state.session);
   const isHydrated = useAccountStore((state) => state.isHydrated);
   const hydrate = useAccountStore((state) => state.hydrate);
@@ -32,7 +34,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   if (!isHydrated) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-surface-secondary text-sm text-label-secondary">
-        正在恢复会话...
+        {t.shell.restoringSession}
       </main>
     );
   }
@@ -49,7 +51,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="flex items-center justify-between">
           <Link className="flex items-center gap-2 text-sm font-semibold text-label-primary" href="/ai">
             <Bot aria-hidden="true" size={20} />
-            AIDataInsight
+            {t.shell.mobileBrand}
           </Link>
           <nav className="flex items-center gap-1">
             {navItems.map((item) => {
@@ -58,7 +60,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               return (
                 <Link
                   key={item.href}
-                  aria-label={item.label}
+                  aria-label={item.href === '/ai' ? t.shell.newChat : t.shell.settings}
                   className={[
                     'flex h-9 w-9 items-center justify-center rounded-control',
                     active ? 'bg-accent-secondary text-accent-primary' : 'text-label-secondary',

@@ -4,6 +4,7 @@ import type { Page } from '@playwright/test';
 test.beforeEach(async ({ page }) => {
   await page.goto('/login');
   await page.evaluate(() => window.localStorage.clear());
+  await page.evaluate(() => window.localStorage.setItem('aidatainsight.locale', 'zh-Hans'));
   await page.reload();
 });
 
@@ -11,6 +12,16 @@ test('shows localized login brand content', async ({ page }) => {
   await expect(page.getByRole('img', { name: 'AI数据分析助手' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'AI数据分析助手' })).toBeVisible();
   await expect(page.getByText('让工作更流畅更轻松')).toBeVisible();
+});
+
+test('switches login content to English', async ({ page }) => {
+  await page.evaluate(() => window.localStorage.setItem('aidatainsight.locale', 'en'));
+  await page.reload();
+
+  await expect(page.getByRole('img', { name: 'AI Data Insight' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'AI Data Insight' })).toBeVisible();
+  await expect(page.getByText('Make Work Smoother and Easier')).toBeVisible();
+  await expect(page.getByLabel('Account')).toBeVisible();
 });
 
 async function login(page: Page) {

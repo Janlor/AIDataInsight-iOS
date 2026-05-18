@@ -1,11 +1,15 @@
+'use client';
+
 import type { ChartPayload } from '@/contracts/generated/models';
+import { useI18n } from '@/i18n/use-i18n';
 
 export function ChartMessage({ payload }: { payload: ChartPayload | null | undefined }) {
+  const { t } = useI18n();
   const series = payload?.series ?? [];
 
   if (series.length === 0) {
     return (
-      <p className="mt-2 text-label-secondary">{payload?.emptyMessage ?? '暂无图表数据'}</p>
+      <p className="mt-2 text-label-secondary">{payload?.emptyMessage ?? t.chart.empty}</p>
     );
   }
 

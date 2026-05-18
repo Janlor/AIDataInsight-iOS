@@ -9,8 +9,10 @@ import { StatusPanel } from '@/components/status-panel';
 import { deleteAllHistory, deleteHistory } from '@/features/history/history-api';
 import type { HistorySection } from '@/features/history/history-types';
 import { useHistoryPage } from '@/features/history/use-history-page';
+import { useI18n } from '@/i18n/use-i18n';
 
 export default function HistoryPage() {
+  const { t } = useI18n();
   const historyQuery = useHistoryPage();
   const queryClient = useQueryClient();
   const [deletedIds, setDeletedIds] = useState<Set<string>>(() => new Set());
@@ -42,8 +44,8 @@ export default function HistoryPage() {
   return (
     <>
       <PageHeader
-        title="历史记录"
-        description="已接入 history/page 数据层，详情恢复会复用 AI Chat 的 history mapper。"
+        title={t.history.title}
+        description={t.history.description}
         action={
           sections.length > 0 ? (
             <button
@@ -53,31 +55,33 @@ export default function HistoryPage() {
               onClick={() => deleteAllMutation.mutate()}
             >
               <Trash2 aria-hidden="true" size={16} />
-              清空
+              {t.history.clear}
             </button>
           ) : null
         }
       />
 
       {historyQuery.isLoading ? (
-        <StatusPanel title="正在加载历史记录" description="请稍候。" />
+        <StatusPanel title={t.history.loadingTitle} description={t.history.loadingDescription} />
       ) : null}
 
       {historyQuery.isError ? (
         <StatusPanel
-          title="历史记录加载失败"
-          description="请检查登录态或网络环境。当前接口层已经按跨端契约保留业务错误码。"
+          title={t.history.errorTitle}
+          description={t.history.errorDescription}
         />
       ) : null}
 
       {!historyQuery.isLoading && !historyQuery.isError && sections.length === 0 ? (
-        <StatusPanel title="暂无历史记录" description="完成一次 AI 对话后，会在这里显示历史会话。" />
+        <StatusPanel title={t.history.emptyTitle} description={t.history.emptyDescription} />
       ) : null}
 
       <div className="space-y-5">
         {sections.map((section) => (
           <section key={section.kind}>
-            <h2 className="mb-2 text-sm font-semibold text-label-secondary">{section.title}</h2>
+            <h2 className="mb-2 text-sm font-semibold text-label-secondary">
+              {t.sidebar.sections[section.kind]}
+            </h2>
             <div className="overflow-hidden rounded-lg border border-separator bg-surface-primary shadow-sm">
               {section.items.map((item) => {
                 const historyId = Number(item.id);
@@ -94,7 +98,7 @@ export default function HistoryPage() {
                     </Link>
                     <span className="shrink-0 text-label-tertiary">{item.displayTime}</span>
                     <button
-                      aria-label="删除历史"
+                      aria-label={t.history.delete}
                       className="flex h-8 w-8 shrink-0 items-center justify-center rounded-control text-label-tertiary transition hover:bg-mark-muted hover:text-mark disabled:opacity-50"
                       type="button"
                       disabled={deleteOneMutation.isPending || !Number.isFinite(historyId)}

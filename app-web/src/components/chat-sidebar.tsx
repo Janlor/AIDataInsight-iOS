@@ -10,10 +10,12 @@ import { deleteHistory } from '@/features/history/history-api';
 import { useHistoryPage } from '@/features/history/use-history-page';
 import { getDisplayName, getInitials } from '@/features/setting/setting-contract';
 import { SettingModal } from '@/features/setting/setting-modal';
+import { interpolate, useI18n } from '@/i18n/use-i18n';
 
 export function ChatSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useI18n();
   const searchParams = useSearchParams();
   const queryClient = useQueryClient();
   const session = useAccountStore((state) => state.session);
@@ -28,7 +30,7 @@ export function ChatSidebar() {
       items: section.items.filter((item) => !deletedIds.has(item.id)),
     }))
     .filter((section) => section.items.length > 0);
-  const displayName = getDisplayName(session, user);
+  const displayName = getDisplayName(session, user, t.common.unknownUser);
   const initials = getInitials(displayName);
   const deleteMutation = useMutation({
     mutationFn: deleteHistory,
@@ -45,7 +47,7 @@ export function ChatSidebar() {
   return (
     <aside className="fixed inset-y-0 left-0 hidden w-72 flex-col border-r border-separator bg-surface-primary lg:flex">
       <div className="border-b border-separator p-3">
-        <h1 className="mb-2 px-3 text-sm font-semibold text-label-primary">AI数据分析助手</h1>
+        <h1 className="mb-2 px-3 text-sm font-semibold text-label-primary">{t.brandTitle}</h1>
         <Link
           className="flex h-10 items-center gap-3 rounded-control px-3 text-sm font-medium text-label-primary transition hover:bg-surface-secondary"
           href="/ai"
@@ -55,21 +57,21 @@ export function ChatSidebar() {
           }}
         >
           <MessageSquarePlus aria-hidden="true" size={18} />
-          New Chat
+          {t.shell.newChat}
         </Link>
       </div>
 
       <div className="flex-1 overflow-y-auto px-3 py-4">
         {historyQuery.isLoading ? (
-          <p className="px-3 text-sm text-label-secondary">正在加载历史...</p>
+          <p className="px-3 text-sm text-label-secondary">{t.sidebar.loadingHistory}</p>
         ) : null}
         {historyQuery.isError ? (
-          <p className="px-3 text-sm text-mark">历史加载失败</p>
+          <p className="px-3 text-sm text-mark">{t.sidebar.historyError}</p>
         ) : null}
         {sections.map((section) => (
           <section key={section.kind} className="mb-5">
             <h2 className="mb-2 px-3 text-xs font-semibold uppercase tracking-normal text-label-tertiary">
-              {section.title}
+              {t.sidebar.sections[section.kind]}
             </h2>
             <div className="space-y-1">
               {section.items.map((item) => {
@@ -90,7 +92,7 @@ export function ChatSidebar() {
                       <span className="mt-1 block text-xs text-label-tertiary">{item.displayTime}</span>
                     </Link>
                     <button
-                      aria-label={`删除历史：${item.title}`}
+                      aria-label={interpolate(t.sidebar.deleteHistory, { title: item.title })}
                       className="mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-control text-label-tertiary opacity-0 transition hover:bg-mark-muted hover:text-mark focus:opacity-100 disabled:opacity-50 group-hover:opacity-100"
                       type="button"
                       disabled={deleteMutation.isPending || !Number.isFinite(historyId)}
@@ -105,13 +107,13 @@ export function ChatSidebar() {
           </section>
         ))}
         {!historyQuery.isLoading && !historyQuery.isError && sections.length === 0 ? (
-          <p className="px-3 text-sm text-label-secondary">暂无历史记录</p>
+          <p className="px-3 text-sm text-label-secondary">{t.sidebar.emptyHistory}</p>
         ) : null}
       </div>
 
       <div className="border-t border-separator p-3">
         <button
-          aria-label={`打开设置：${displayName}`}
+          aria-label={interpolate(t.sidebar.openSettings, { name: displayName })}
           className="flex w-full items-center gap-3 rounded-control px-3 py-2 text-left transition hover:bg-surface-secondary"
           type="button"
           onClick={() => setSettingOpen(true)}
@@ -121,7 +123,7 @@ export function ChatSidebar() {
           </span>
           <span className="min-w-0">
             <span className="block truncate text-sm font-medium text-label-primary">{displayName}</span>
-            <span className="block truncate text-xs text-label-tertiary">设置与账户</span>
+            <span className="block truncate text-xs text-label-tertiary">{t.sidebar.accountSubtitle}</span>
           </span>
         </button>
       </div>

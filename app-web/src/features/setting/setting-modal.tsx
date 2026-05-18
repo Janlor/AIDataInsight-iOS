@@ -6,10 +6,12 @@ import { ChevronRight, Loader2, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import type { SettingRow } from '@/contracts/generated/models';
 import { useAccountStore } from '@/data/account/session-store';
+import { useI18n } from '@/i18n/use-i18n';
 import { buildSettingStateFromContract } from './setting-contract';
 
 export function SettingModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const router = useRouter();
+  const { locale, setLocale, t } = useI18n();
   const session = useAccountStore((state) => state.session);
   const user = useAccountStore((state) => state.user);
   const logout = useAccountStore((state) => state.logout);
@@ -44,10 +46,10 @@ export function SettingModal({ open, onClose }: { open: boolean; onClose: () => 
       >
         <header className="flex h-14 items-center justify-between border-b border-separator px-4">
           <h2 id="setting-modal-title" className="text-base font-semibold text-label-primary">
-            {settingState.title}
+            {t.setting.title}
           </h2>
           <button
-            aria-label="关闭设置"
+            aria-label={t.setting.close}
             className="flex h-9 w-9 items-center justify-center rounded-control text-label-secondary transition hover:bg-surface-secondary hover:text-label-primary"
             type="button"
             onClick={onClose}
@@ -61,7 +63,9 @@ export function SettingModal({ open, onClose }: { open: boolean; onClose: () => 
             {settingState.sections.map((section) => (
               <section key={section.kind}>
                 {section.title ? (
-                  <h3 className="mb-2 px-1 text-xs font-semibold text-label-tertiary">{section.title}</h3>
+                  <h3 className="mb-2 px-1 text-xs font-semibold text-label-tertiary">
+                    {t.setting.sections[section.kind]}
+                  </h3>
                 ) : null}
                 <div className="overflow-hidden rounded-lg border border-separator bg-surface-primary">
                   {section.rows.map((row) => (
@@ -76,6 +80,39 @@ export function SettingModal({ open, onClose }: { open: boolean; onClose: () => 
                 </div>
               </section>
             ))}
+            <section>
+              <h3 className="mb-2 px-1 text-xs font-semibold text-label-tertiary">
+                {t.setting.sections.language}
+              </h3>
+              <div className="overflow-hidden rounded-lg border border-separator bg-surface-primary p-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    className={[
+                      'h-10 rounded-control text-sm font-medium transition',
+                      locale === 'zh-Hans'
+                        ? 'bg-accent-secondary text-accent-primary'
+                        : 'text-label-secondary hover:bg-surface-secondary hover:text-label-primary',
+                    ].join(' ')}
+                    type="button"
+                    onClick={() => setLocale('zh-Hans')}
+                  >
+                    {t.setting.simplifiedChinese}
+                  </button>
+                  <button
+                    className={[
+                      'h-10 rounded-control text-sm font-medium transition',
+                      locale === 'en'
+                        ? 'bg-accent-secondary text-accent-primary'
+                        : 'text-label-secondary hover:bg-surface-secondary hover:text-label-primary',
+                    ].join(' ')}
+                    type="button"
+                    onClick={() => setLocale('en')}
+                  >
+                    {t.setting.english}
+                  </button>
+                </div>
+              </div>
+            </section>
           </div>
         </div>
       </div>
@@ -84,7 +121,7 @@ export function SettingModal({ open, onClose }: { open: boolean; onClose: () => 
         <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/30 p-4">
           <div className="w-full max-w-sm rounded-lg bg-surface-primary p-5 shadow-xl">
             <h3 className="text-base font-semibold text-label-primary">
-              {settingState.logoutDialog.title}
+              {t.setting.confirmLogoutTitle}
             </h3>
             <div className="mt-5 flex justify-end gap-2">
               <button
@@ -93,7 +130,7 @@ export function SettingModal({ open, onClose }: { open: boolean; onClose: () => 
                 disabled={isLoggingOut}
                 onClick={() => setConfirmingLogout(false)}
               >
-                {settingState.logoutDialog.cancelTitle}
+                {t.setting.cancel}
               </button>
               <button
                 className="inline-flex h-10 items-center gap-2 rounded-control bg-mark px-4 text-sm font-medium text-white transition hover:bg-mark/90 disabled:opacity-60"
@@ -104,7 +141,7 @@ export function SettingModal({ open, onClose }: { open: boolean; onClose: () => 
                 }}
               >
                 {isLoggingOut ? <Loader2 aria-hidden="true" className="animate-spin" size={16} /> : null}
-                {settingState.logoutDialog.confirmTitle}
+                {t.setting.confirm}
               </button>
             </div>
           </div>
@@ -125,6 +162,14 @@ function SettingRowItem({
   onClose: () => void;
   onConfirmLogout: () => void;
 }) {
+  const { t } = useI18n();
+  const title = t.setting.rows[row.kind];
+  const detail =
+    row.detail === '未设置'
+      ? t.setting.unset
+      : row.detail === '0.1.0 (1)'
+        ? row.detail
+        : row.detail;
   const className = [
     'flex min-h-12 w-full items-center gap-3 border-b border-separator px-4 py-3 text-sm last:border-b-0',
     row.centered ? 'justify-center text-center' : 'justify-between text-left',
@@ -135,9 +180,9 @@ function SettingRowItem({
   if (row.action === 'openPrivacy') {
     return (
       <Link className={className} href="/privacy" onClick={onClose}>
-        <span>{row.title}</span>
+        <span>{title}</span>
         <span className="flex items-center gap-2 text-label-tertiary">
-          {row.detail}
+          {detail}
           {row.showsDisclosure ? <ChevronRight aria-hidden="true" size={16} /> : null}
         </span>
       </Link>
@@ -147,15 +192,15 @@ function SettingRowItem({
   if (row.action === 'confirmLogout') {
     return (
       <button className={className} type="button" disabled={disabled} onClick={onConfirmLogout}>
-        {row.title}
+        {title}
       </button>
     );
   }
 
   return (
     <div className={className}>
-      <span>{row.title}</span>
-      <span className="text-label-secondary">{row.detail}</span>
+      <span>{title}</span>
+      <span className="text-label-secondary">{detail}</span>
     </div>
   );
 }

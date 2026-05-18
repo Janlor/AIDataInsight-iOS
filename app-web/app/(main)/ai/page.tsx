@@ -7,10 +7,12 @@ import { useSearchParams } from 'next/navigation';
 import { ChartMessage } from '@/features/ai-chat/chart-message';
 import { useAIChatController } from '@/features/ai-chat/use-ai-chat-controller';
 import { useTemplateQuestions } from '@/features/ai-chat/use-template-questions';
+import { useI18n } from '@/i18n/use-i18n';
 
 export default function AIPage() {
+  const { t } = useI18n();
   return (
-    <Suspense fallback={<div className="text-sm text-label-secondary">正在加载 AI 工作台...</div>}>
+    <Suspense fallback={<div className="text-sm text-label-secondary">{t.ai.loading}</div>}>
       <AIPageContent />
     </Suspense>
   );
@@ -25,13 +27,10 @@ function AIPageContent() {
 }
 
 function AIWorkspace({ historyId }: { historyId: number | null }) {
+  const { t } = useI18n();
   const templateQuery = useTemplateQuestions();
   const chat = useAIChatController(historyId);
-  const templateQuestions = templateQuery.data ?? [
-    '本月销售额按月份汇总',
-    '库存按仓库分布',
-    '应收账款账龄分析',
-  ];
+  const templateQuestions = templateQuery.data ?? t.ai.defaultQuestions;
   const showSuggestions = !historyId && chat.messages.length <= 1 && !chat.isSending;
 
   function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -51,12 +50,12 @@ function AIWorkspace({ historyId }: { historyId: number | null }) {
         <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-6">
           {showSuggestions ? (
             <div className="mx-auto flex min-h-[52vh] max-w-3xl flex-col justify-center">
-              <h1 className="text-2xl font-semibold text-label-primary">今天想分析什么？</h1>
-              <p className="mt-2 text-sm text-label-secondary">选择一个推荐问题，或直接输入你的经营分析需求。</p>
+              <h1 className="text-2xl font-semibold text-label-primary">{t.ai.promptTitle}</h1>
+              <p className="mt-2 text-sm text-label-secondary">{t.ai.promptDescription}</p>
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 {templateQuery.isLoading ? (
                   <div className="rounded-lg border border-separator bg-surface-secondary p-4 text-sm text-label-secondary">
-                    正在加载推荐问题...
+                    {t.ai.loadingQuestions}
                   </div>
                 ) : null}
                 {templateQuestions.map((question) => (
@@ -71,7 +70,7 @@ function AIWorkspace({ historyId }: { historyId: number | null }) {
                 ))}
               </div>
               {templateQuery.isError ? (
-                <p className="mt-3 text-sm text-warning">推荐问题加载失败，已显示默认问题。</p>
+                <p className="mt-3 text-sm text-warning">{t.ai.questionError}</p>
               ) : null}
             </div>
           ) : null}
@@ -79,7 +78,7 @@ function AIWorkspace({ historyId }: { historyId: number | null }) {
           {!showSuggestions && chat.isRestoringHistory ? (
             <div className="flex items-center justify-center gap-2 py-10 text-sm text-label-secondary">
               <Loader2 aria-hidden="true" className="animate-spin" size={18} />
-              正在恢复历史会话...
+              {t.ai.restoringHistory}
             </div>
           ) : null}
           {!showSuggestions
@@ -112,7 +111,7 @@ function AIWorkspace({ historyId }: { historyId: number | null }) {
             <div className="flex justify-start">
               <div className="flex items-center gap-2 rounded-lg border border-separator bg-surface-secondary px-4 py-3 text-sm text-label-secondary">
                 <Loader2 aria-hidden="true" className="animate-spin" size={16} />
-                正在分析...
+                {t.ai.analyzing}
               </div>
             </div>
           ) : null}
@@ -125,10 +124,10 @@ function AIWorkspace({ historyId }: { historyId: number | null }) {
               rows={1}
               value={chat.input}
               onChange={(event) => chat.setInput(event.target.value)}
-              placeholder="输入你想分析的问题"
+              placeholder={t.ai.inputPlaceholder}
             />
             <button
-              aria-label="发送"
+              aria-label={t.ai.send}
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-accent-primary text-white transition hover:bg-accent-primary/90 disabled:opacity-50"
               type="submit"
               disabled={!chat.canSend}
@@ -153,10 +152,11 @@ function MessageContent({
   message: ConversationMessage;
   onFeedback: (feedback: 'liked' | 'disliked') => void;
 }) {
+  const { t } = useI18n();
   if (message.contentKind === 'chart') {
     return (
       <div>
-        <p className="font-medium">图表结果</p>
+        <p className="font-medium">{t.ai.chartResult}</p>
         <ChartMessage payload={message.chartPayload} />
         <FeedbackActions message={message} onFeedback={onFeedback} />
       </div>
@@ -166,7 +166,7 @@ function MessageContent({
   if (message.contentKind === 'intent') {
     return (
       <div>
-        <p>{message.text ?? '已识别分析意图。'}</p>
+        <p>{message.text ?? t.ai.intentFallback}</p>
         {message.functionName ? (
           <p className="mt-2 text-xs text-label-tertiary">Function: {message.functionName}</p>
         ) : null}
@@ -190,6 +190,7 @@ function FeedbackActions({
   message: ConversationMessage;
   onFeedback: (feedback: 'liked' | 'disliked') => void;
 }) {
+  const { t } = useI18n();
   if (message.role !== 'assistant' || !message.historyDetailId) {
     return null;
   }
@@ -197,7 +198,7 @@ function FeedbackActions({
   return (
     <div className="mt-3 flex items-center gap-2">
       <button
-        aria-label="喜欢"
+        aria-label={t.ai.liked}
         className={[
           'flex h-8 w-8 items-center justify-center rounded-control border transition',
           message.feedback === 'liked'
@@ -210,7 +211,7 @@ function FeedbackActions({
         <ThumbsUp aria-hidden="true" size={15} />
       </button>
       <button
-        aria-label="不喜欢"
+        aria-label={t.ai.disliked}
         className={[
           'flex h-8 w-8 items-center justify-center rounded-control border transition',
           message.feedback === 'disliked'
