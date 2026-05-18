@@ -4,7 +4,7 @@ AIDataInsight 是一个 AI 驱动的数据分析多端应用项目。
 
 项目的核心目标不是“手写多套互相漂移的端侧代码”，而是先设计一套稳定的领域模型、API 契约、业务用例和设计规则，再让 AI 基于这套契约辅助生成 iOS、Android、HarmonyOS NEXT、Web 以及未来候选端实现。
 
-当前 iOS、Android 和 HarmonyOS NEXT 已完成主要功能开发，并逐步沉淀为参考实现、契约验收端和 ArkUI 原生实现端；Web 排在 HarmonyOS NEXT 之后；macOS、Windows 等端暂作为后续候选方向评估。
+当前 iOS、Android、HarmonyOS NEXT 和 Web 已完成主要功能开发，并逐步沉淀为参考实现、契约验收端、ArkUI 原生实现端和桌面工作台实现端；macOS、Windows 等端暂作为后续候选方向评估。
 
 ## 项目理念
 
@@ -35,7 +35,7 @@ iOS 当前是参考实现，但不是其它端照抄的来源。Android / Harmon
 P0 iOS：已完成主要功能，继续稳定和契约化
 P1 Android：已完成主要功能，继续作为契约验收端
 P2 HarmonyOS NEXT：已完成主要功能开发，后续以 bugfix 和体验优化为主
-P3 Web：HarmonyOS NEXT 完成后再推进，先保留 contract models
+P3 Web：已完成主要功能开发，进入收尾、联调和体验打磨
 P4 macOS：短期靠 iPadOS 兼容模式，SwiftUI 化后再看
 P5 Windows：暂不规划，未来优先 Web / PWA
 ```
@@ -80,7 +80,7 @@ P5 Windows：暂不规划，未来优先 Web / PWA
 -> 对话气泡增量展示
 ```
 
-iOS 端当前已落地流式响应和打字机式渲染，Android 已按同一 use case 语义映射到 `Flow`；HarmonyOS NEXT 当前按完整响应解析 `/stream` 的 `data:` 内容并一次性展示，实时 SSE / 打字机可作为后续体验优化；Web 后续再映射到 `ReadableStream` / async iterator。
+iOS 端当前已落地流式响应和打字机式渲染，Android 已按同一 use case 语义映射到 `Flow`；HarmonyOS NEXT 当前按完整响应解析 `/stream` 的 `data:` 内容并一次性展示，实时 SSE / 打字机可作为后续体验优化；Web 已接入 SSE 流式响应并完成桌面工作台主链路。
 
 ## 架构分层
 
@@ -145,7 +145,7 @@ AIDataInsight
 ├── app-ios/                 # iOS App、Swift Package 模块和 iOS 专属文档
 ├── app-android/             # Android Gradle 多模块工程
 ├── app-harmony/             # HarmonyOS NEXT DevEco / ArkTS 原生工程
-├── app-web/                 # Web contract generated models，后续扩展为 Web 工程
+├── app-web/                 # Next.js Web 工程、契约生成模型和桌面工作台体验
 ├── docs/
 │   ├── architecture/        # 架构、端侧策略、演进方案
 │   └── cross-platform/      # 跨平台契约说明与机器可读契约包
@@ -232,18 +232,17 @@ HarmonyOS NEXT 已完成主要功能开发。工程已接入 DevEco Studio / Ark
 
 ## Web 当前状态
 
-Web 端目前已生成 TypeScript contract models，但完整 Web 工程排在 HarmonyOS NEXT 之后：
+Web 端已完成第一版桌面工作台主链路，并复用跨平台契约生成模型：
 
-- `app-web/src/contracts/generated/models.ts`
+- Next.js App Router / React / TypeScript / Tailwind CSS 工程
+- Apifox mock、local mock、DEV、TEST、PRE、PROD 环境矩阵
+- 登录、自动登录、退出登录和 `401` / `402` session 行为
+- 类 ChatGPT 左侧历史会话布局、New Chat、历史恢复和删除
+- AI Chat 模板问题、SSE 流式响应、图表 fallback 和反馈
+- 设置、隐私政策、深色模式、简体中文 / English 国际化
+- Vitest 单元测试和 Playwright E2E 主流程保护
 
-后续建议技术栈：
-
-- TypeScript
-- Next.js App Router
-- React
-- TanStack Query 或 fetch 封装
-- ECharts 或 AntV
-- Vitest / Testing Library / Playwright
+Web 端说明见 [app-web/README.md](app-web/README.md)。
 
 ## 桌面端
 
@@ -311,6 +310,7 @@ AI 生成端侧代码时必须遵守固定协议：
 - iOS 专属文档：[app-ios/docs](app-ios/docs)
 - 多端适配建议：[docs/architecture/platform-adaptation-strategy.md](docs/architecture/platform-adaptation-strategy.md)
 - HarmonyOS NEXT 适配清单：[docs/architecture/harmonyos-next-implementation-plan.md](docs/architecture/harmonyos-next-implementation-plan.md)
+- Web 执行计划：[docs/architecture/web-implementation-plan.md](docs/architecture/web-implementation-plan.md)
 - AI 生成协议：[docs/ai-generation-guide.md](docs/ai-generation-guide.md)
 - 跨平台蓝图：[docs/architecture/cross-platform-blueprint.md](docs/architecture/cross-platform-blueprint.md)
 - 领域模型说明：[docs/cross-platform/domain-models.md](docs/cross-platform/domain-models.md)
@@ -325,6 +325,6 @@ AI 生成端侧代码时必须遵守固定协议：
 
 - 当前仓库以 AI 数据分析 Demo、多端架构设计和契约驱动生成实践为主
 - iOS 已经具备完整参考实现
-- iOS / Android / HarmonyOS NEXT 已完成主要功能开发，之后再推进 Web
-- 当前默认环境使用 Apifox mock；HarmonyOS NEXT 的 `/stream` 当前一次性展示解析结果，实时 SSE 可作为后续体验优化
+- iOS / Android / HarmonyOS NEXT / Web 已完成主要功能开发，后续以联调、bugfix 和体验打磨为主
+- 当前默认环境使用 Apifox mock；Web E2E 使用 local mock 保持稳定回归
 - macOS、Windows 暂不作为当前阶段强目标

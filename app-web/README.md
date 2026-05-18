@@ -27,6 +27,16 @@ npm run test
 npm run build
 ```
 
+推荐本地提交前执行：
+
+```sh
+npm run lint
+npm run typecheck
+npm run test
+npm run build
+npm run e2e
+```
+
 ## 环境配置
 
 默认不配置环境变量时，Web 端使用跨平台契约里的 Apifox mock host。
@@ -91,7 +101,7 @@ npm run e2e
 
 ## 当前进度
 
-已完成第一批 Web 基线：
+已完成第一版 Web 主链路：
 
 - Next.js / React / TypeScript 工程骨架
 - Tailwind CSS 基础主题
@@ -99,6 +109,7 @@ npm run e2e
 - Web shell、导航和登录态守卫
 - HTTP client、response envelope 和 `401` / `402` session 规则
 - 登录、refresh、logout、getUserInfo 账户 API 封装
+- 类 ChatGPT 左侧会话栏、New Chat、历史恢复和历史删除
 - snake_case token 归一化测试
 - `402` refresh 后重试测试
 - AI Chat template / function / chart / feedback API 封装
@@ -107,5 +118,24 @@ npm run e2e
 - AI Chat 发送流程和历史详情恢复
 - SSE 流式响应、图表组件和本地 mock API
 - Apifox mock / local mock / dev / test / pre / prod 环境矩阵
+- 设置弹窗、契约驱动隐私政策、退出登录确认
+- 系统深色模式适配
+- 简体中文 / English 国际化
 
-下一步优先补齐部署侧 CI 环境变量配置和 runtime validation。
+## 收尾验收
+
+Web 端进入联调或提交前至少满足：
+
+- `npm run lint`
+- `npm run typecheck`
+- `npm run test`
+- `npm run build`
+- `npm run e2e`
+
+GitHub Actions 已提供 Web CI workflow，会在 `app-web`、Web 计划文档和跨平台契约变化时运行上述质量门禁。
+
+## 后续建议
+
+- 将 DEV / TEST / PRE / PROD 的真实 `NEXT_PUBLIC_API_BASE_URL` 接入部署平台
+- 增加 runtime validation 的覆盖面，优先覆盖 AI Chat、History 和 Setting 的远端响应
+- 真实后端联调后补充错误态、超时态和空状态截图回归
