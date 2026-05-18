@@ -42,6 +42,14 @@ test('opens privacy policy from settings without returning authenticated users t
   await expect(page.getByRole('link', { name: '返回登录' })).toHaveCount(0);
 });
 
+test('deletes a history conversation from the sidebar', async ({ page }) => {
+  await login(page);
+
+  await expect(page.getByRole('link', { name: /你好/ })).toBeVisible();
+  await page.getByRole('button', { name: '删除历史：你好' }).click();
+  await expect(page.getByRole('link', { name: /你好/ })).toHaveCount(0);
+});
+
 test('logs in, sends a chart question, and restores history from the sidebar', async ({ page }) => {
   await login(page);
 
@@ -67,9 +75,9 @@ test('manages history from the history route', async ({ page }) => {
   const main = page.locator('main');
   await expect(main.getByRole('heading', { name: '历史记录', exact: true })).toBeVisible();
   await expect(main.getByRole('link', { name: '查看一月销售额', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: '删除历史' }).first().click();
+  await main.getByRole('button', { name: '删除历史' }).first().click();
   await expect(main.getByRole('link', { name: '你好', exact: true })).toHaveCount(0);
 
-  await page.getByRole('button', { name: '清空' }).click();
+  await main.getByRole('button', { name: '清空' }).click();
   await expect(main.getByText('暂无历史记录')).toBeVisible();
 });

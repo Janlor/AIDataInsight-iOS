@@ -1,25 +1,46 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { MessageSquarePlus } from 'lucide-react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { MessageSquarePlus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useAccountStore } from '@/data/account/session-store';
+import { deleteHistory } from '@/features/history/history-api';
 import { useHistoryPage } from '@/features/history/use-history-page';
 import { getDisplayName, getInitials } from '@/features/setting/setting-contract';
 import { SettingModal } from '@/features/setting/setting-modal';
 
 export function ChatSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
+  const queryClient = useQueryClient();
   const session = useAccountStore((state) => state.session);
   const user = useAccountStore((state) => state.user);
   const historyQuery = useHistoryPage();
   const [isSettingOpen, setSettingOpen] = useState(false);
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(() => new Set());
   const activeHistoryId = searchParams.get('historyId');
-  const sections = historyQuery.data ?? [];
+  const sections = (historyQuery.data ?? [])
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => !deletedIds.has(item.id)),
+    }))
+    .filter((section) => section.items.length > 0);
   const displayName = getDisplayName(session, user);
   const initials = getInitials(displayName);
+  const deleteMutation = useMutation({
+    mutationFn: deleteHistory,
+    onSuccess: (_, historyId) => {
+      const deletedId = String(historyId);
+      setDeletedIds((current) => new Set(current).add(deletedId));
+      void queryClient.invalidateQueries({ queryKey: ['history'] });
+      if (pathname === '/ai' && activeHistoryId === deletedId) {
+        router.replace('/ai');
+      }
+    },
+  });
 
   return (
     <aside className="fixed inset-y-0 left-0 hidden w-72 flex-col border-r border-separator bg-surface-primary lg:flex">
@@ -48,20 +69,31 @@ export function ChatSidebar() {
             <div className="space-y-1">
               {section.items.map((item) => {
                 const active = pathname === '/ai' && activeHistoryId === item.id;
+                const historyId = Number(item.id);
                 return (
-                  <Link
+                  <div
                     key={item.id}
                     className={[
-                      'block rounded-control px-3 py-2 text-sm transition',
+                      'group flex items-center rounded-control text-sm transition',
                       active
                         ? 'bg-accent-secondary text-accent-primary'
                         : 'text-label-secondary hover:bg-surface-secondary hover:text-label-primary',
                     ].join(' ')}
-                    href={`/ai?historyId=${item.id}`}
                   >
-                    <span className="block truncate font-medium">{item.title}</span>
-                    <span className="mt-1 block text-xs text-label-tertiary">{item.displayTime}</span>
-                  </Link>
+                    <Link className="min-w-0 flex-1 px-3 py-2" href={`/ai?historyId=${item.id}`}>
+                      <span className="block truncate font-medium">{item.title}</span>
+                      <span className="mt-1 block text-xs text-label-tertiary">{item.displayTime}</span>
+                    </Link>
+                    <button
+                      aria-label={`删除历史：${item.title}`}
+                      className="mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-control text-label-tertiary opacity-0 transition hover:bg-mark-muted hover:text-mark focus:opacity-100 disabled:opacity-50 group-hover:opacity-100"
+                      type="button"
+                      disabled={deleteMutation.isPending || !Number.isFinite(historyId)}
+                      onClick={() => deleteMutation.mutate(historyId)}
+                    >
+                      <Trash2 aria-hidden="true" size={15} />
+                    </button>
+                  </div>
                 );
               })}
             </div>
