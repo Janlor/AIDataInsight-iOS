@@ -6,6 +6,7 @@
 //
 
 import Testing
+import AppCore
 @testable import AIDataInsightApple
 
 struct AIDataInsightAppleTests {

@@ -17,3 +17,11 @@ import Testing
     #expect(envelope.tid == "tid-1")
 }
 
+@Test func functionNameContractKeepsContractCoverage() {
+    #expect(FunctionNameContract.allCases.count == 18)
+    #expect(FunctionNameContract.querySalesGroupByMonth.rawValue == "querySalesGroupByMonth")
+}
+
+@Test func historySectionKindsMatchContractOrder() {
+    #expect(HistorySectionKindContract.allCases == [.today, .thisMonth, .other])
+}

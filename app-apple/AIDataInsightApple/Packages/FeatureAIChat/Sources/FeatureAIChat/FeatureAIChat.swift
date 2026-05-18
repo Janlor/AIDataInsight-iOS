@@ -49,6 +49,7 @@ public struct AIChatScreen: View {
             if store.messages.isEmpty {
                 Text("今天想分析什么？")
                     .font(.title.bold())
+                    .accessibilityIdentifier("ai-chat-empty-title")
             } else {
                 List(store.messages) { message in
                     Text(message.text)

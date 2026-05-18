@@ -7,3 +7,11 @@ import Testing
     #expect(AppSpacing.large == 24)
 }
 
+@Test func accentPrimaryMatchesContractToken() {
+    #expect(AppColor.Accent.primary.lightHex == "#2F7BFF")
+    #expect(AppColor.Accent.primary.darkHex == "#4C8DFF")
+}
+
+@Test func chartPaletteOrderMatchesContractToken() {
+    #expect(AppChartPalette.order == ["blue", "cyan", "mint", "green", "purple", "orange", "coral"])
+}

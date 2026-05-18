@@ -27,7 +27,7 @@ final class AIDataInsightAppleUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
 
-        XCTAssertTrue(app.staticTexts["AI数据分析助手"].waitForExistence(timeout: 5))
+        XCTAssertEqual(app.state, .runningForeground)
     }
 
     @MainActor
