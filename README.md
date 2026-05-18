@@ -143,6 +143,7 @@ Domain + Data Layer
 ```text
 AIDataInsight
 ├── app-ios/                 # iOS App、Swift Package 模块和 iOS 专属文档
+├── app-apple/               # 现代 SwiftUI Apple 全平台工程
 ├── app-android/             # Android Gradle 多模块工程
 ├── app-harmony/             # HarmonyOS NEXT DevEco / ArkTS 原生工程
 ├── app-web/                 # Next.js Web 工程、契约生成模型和桌面工作台体验
