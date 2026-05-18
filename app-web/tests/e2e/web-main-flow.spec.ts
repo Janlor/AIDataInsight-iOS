@@ -29,7 +29,7 @@ async function login(page: Page) {
   await page.getByLabel('密码').fill('demo@123');
   await page.getByLabel(/我已阅读并同意/).check();
   await page.getByRole('button', { name: '登录' }).click();
-  await expect(page.getByRole('link', { name: 'New Chat' })).toBeVisible();
+  await expect(page.getByRole('link', { name: '新聊天' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'AI数据分析助手' })).toBeVisible();
 }
 
@@ -75,7 +75,7 @@ test('starts a fresh new chat from an existing new chat draft', async ({ page })
   await page.getByRole('button', { name: '发送' }).click();
   await expect(page.getByText('你好，我可以帮你分析经营数据。').last()).toBeVisible();
 
-  await page.getByRole('link', { name: 'New Chat' }).click();
+  await page.getByRole('link', { name: '新聊天' }).click();
   await expect(page).toHaveURL(/newChat=/);
   await expect(page.getByRole('heading', { name: '今天想分析什么？' })).toBeVisible();
   await expect(page.getByText('你好，我可以帮你分析经营数据。')).toHaveCount(0);

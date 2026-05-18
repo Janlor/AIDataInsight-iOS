@@ -22,7 +22,7 @@ export const dictionaries = {
     },
     shell: {
       restoringSession: '正在恢复会话...',
-      newChat: 'New Chat',
+      newChat: '新聊天',
       settings: '设置',
       mobileBrand: 'AIDataInsight',
     },
