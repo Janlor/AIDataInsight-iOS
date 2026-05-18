@@ -12,6 +12,53 @@ public struct AccountSessionContract: Codable, Equatable, Sendable {
         self.username = username
         self.isLogin = isLogin
     }
+
+    private enum CodingKeys: String, CodingKey {
+        case accessToken
+        case refreshToken
+        case orgId
+        case username
+        case isLogin
+        case accessTokenSnake = "access_token"
+        case refreshTokenSnake = "refresh_token"
+        case orgIdSnake = "org_id"
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        accessToken = try container.decodeIfPresent(String.self, forKey: .accessToken)
+            ?? container.decodeIfPresent(String.self, forKey: .accessTokenSnake)
+        refreshToken = try container.decodeIfPresent(String.self, forKey: .refreshToken)
+            ?? container.decodeIfPresent(String.self, forKey: .refreshTokenSnake)
+        orgId = try container.decodeIfPresent(Int.self, forKey: .orgId)
+            ?? container.decodeIfPresent(Int.self, forKey: .orgIdSnake)
+        username = try container.decodeIfPresent(String.self, forKey: .username)
+        isLogin = try container.decodeIfPresent(Bool.self, forKey: .isLogin)
+            ?? ((accessToken?.isEmpty == false) || (refreshToken?.isEmpty == false))
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(accessToken, forKey: .accessToken)
+        try container.encodeIfPresent(refreshToken, forKey: .refreshToken)
+        try container.encodeIfPresent(orgId, forKey: .orgId)
+        try container.encodeIfPresent(username, forKey: .username)
+        try container.encode(isLogin, forKey: .isLogin)
+    }
+}
+
+public struct LoginRequestContract: Codable, Equatable, Sendable {
+    public let name: String
+    public let pwd: String
+
+    public init(name: String, pwd: String) {
+        self.name = name
+        self.pwd = pwd
+    }
+}
+
+public struct EmptyContract: Codable, Equatable, Sendable {
+    public init() {}
 }
 
 public struct AccountUserContract: Codable, Equatable, Sendable {
