@@ -12,6 +12,7 @@ import FeatureHistory
 import FeatureLogin
 import FeaturePrivacy
 import FeatureSetting
+import SwiftData
 import SwiftUI
 
 struct RootView: View {
@@ -39,6 +40,7 @@ struct RootView: View {
             }
         }
         .tokenizedBackground()
+        .modelContainer(environment.modelContainer)
         .task {
             await environment.loginStore.resolveLaunchSession()
         }

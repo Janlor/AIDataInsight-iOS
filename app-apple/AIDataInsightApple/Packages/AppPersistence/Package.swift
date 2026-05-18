@@ -13,11 +13,10 @@ let package = Package(
         .library(name: "AppPersistence", targets: ["AppPersistence"]),
     ],
     dependencies: [
-        .package(path: "../AppCore"),
         .package(path: "../AppContracts"),
     ],
     targets: [
-        .target(name: "AppPersistence", dependencies: ["AppCore", "AppContracts"]),
+        .target(name: "AppPersistence", dependencies: ["AppContracts"]),
         .testTarget(name: "AppPersistenceTests", dependencies: ["AppPersistence"]),
     ]
 )

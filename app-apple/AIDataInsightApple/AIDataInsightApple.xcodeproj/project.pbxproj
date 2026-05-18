@@ -10,6 +10,7 @@
 		7B0000010000000000000001 /* AppCore in Frameworks */ = {isa = PBXBuildFile; productRef = 7B0001010000000000000001 /* AppCore */; };
 		7B0000010000000000000003 /* AppDesignSystem in Frameworks */ = {isa = PBXBuildFile; productRef = 7B0001010000000000000003 /* AppDesignSystem */; };
 		7B0000010000000000000004 /* AppNetworking in Frameworks */ = {isa = PBXBuildFile; productRef = 7B0001010000000000000004 /* AppNetworking */; };
+		7B0000010000000000000005 /* AppPersistence in Frameworks */ = {isa = PBXBuildFile; productRef = 7B0001010000000000000005 /* AppPersistence */; };
 		7B0000010000000000000006 /* AppAccount in Frameworks */ = {isa = PBXBuildFile; productRef = 7B0001010000000000000006 /* AppAccount */; };
 		7B0000010000000000000007 /* FeatureLogin in Frameworks */ = {isa = PBXBuildFile; productRef = 7B0001010000000000000007 /* FeatureLogin */; };
 		7B0000010000000000000008 /* FeatureAIChat in Frameworks */ = {isa = PBXBuildFile; productRef = 7B0001010000000000000008 /* FeatureAIChat */; };
@@ -67,6 +68,7 @@
 				7B0000010000000000000001 /* AppCore in Frameworks */,
 				7B0000010000000000000003 /* AppDesignSystem in Frameworks */,
 				7B0000010000000000000004 /* AppNetworking in Frameworks */,
+				7B0000010000000000000005 /* AppPersistence in Frameworks */,
 				7B0000010000000000000006 /* AppAccount in Frameworks */,
 				7B0000010000000000000007 /* FeatureLogin in Frameworks */,
 				7B0000010000000000000008 /* FeatureAIChat in Frameworks */,
@@ -136,6 +138,7 @@
 				7B0001010000000000000001 /* AppCore */,
 				7B0001010000000000000003 /* AppDesignSystem */,
 				7B0001010000000000000004 /* AppNetworking */,
+				7B0001010000000000000005 /* AppPersistence */,
 				7B0001010000000000000006 /* AppAccount */,
 				7B0001010000000000000007 /* FeatureLogin */,
 				7B0001010000000000000008 /* FeatureAIChat */,
@@ -723,6 +726,10 @@
 		7B0001010000000000000004 /* AppNetworking */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = AppNetworking;
+		};
+		7B0001010000000000000005 /* AppPersistence */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = AppPersistence;
 		};
 		7B0001010000000000000006 /* AppAccount */ = {
 			isa = XCSwiftPackageProductDependency;

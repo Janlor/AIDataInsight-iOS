@@ -8,11 +8,13 @@
 import AppAccount
 import AppCore
 import AppNetworking
+import AppPersistence
 import FeatureAIChat
 import FeatureHistory
 import FeatureLogin
 import FeatureSetting
 import Observation
+import SwiftData
 
 @MainActor
 @Observable
@@ -23,6 +25,7 @@ final class AppRuntimeEnvironment {
     let historyStore: HistoryStore
     let settingStore: SettingStore
     let sessionManager: AccountSessionManager
+    let modelContainer: ModelContainer
 
     init(
         appEnvironment: AppEnvironment = .mock,
@@ -32,9 +35,11 @@ final class AppRuntimeEnvironment {
             HistoryConversationViewState(id: "welcome", title: "欢迎使用 AI 数据分析助手"),
         ]),
         settingStore: SettingStore = SettingStore(),
-        sessionManager: AccountSessionManager? = nil
+        sessionManager: AccountSessionManager? = nil,
+        modelContainer: ModelContainer? = nil
     ) {
         self.appEnvironment = appEnvironment
+        self.modelContainer = modelContainer ?? AppRuntimeEnvironment.makeModelContainer()
         let resolvedSessionManager = sessionManager ?? AccountSessionManager(store: KeychainSessionStore())
         self.sessionManager = resolvedSessionManager
         let client = URLSessionHTTPClient(
@@ -46,5 +51,13 @@ final class AppRuntimeEnvironment {
         self.chatStore = chatStore
         self.historyStore = historyStore
         self.settingStore = settingStore
+    }
+
+    private static func makeModelContainer() -> ModelContainer {
+        do {
+            return try AppModelContainerFactory.make()
+        } catch {
+            fatalError("Failed to create SwiftData model container: \(error)")
+        }
     }
 }
