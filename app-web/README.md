@@ -18,23 +18,23 @@ scripts/generate-cross-platform-contracts.sh
 ## 开发命令
 
 ```sh
-npm install
-npm run dev
-npm run dev:mock
-npm run dev:local
-npm run typecheck
-npm run test
-npm run build
+pnpm install
+pnpm dev
+pnpm dev:mock
+pnpm dev:local
+pnpm typecheck
+pnpm test
+pnpm build
 ```
 
 推荐本地提交前执行：
 
 ```sh
-npm run lint
-npm run typecheck
-npm run test
-npm run build
-npm run e2e
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm build
+pnpm e2e
 ```
 
 ## 环境配置
@@ -55,8 +55,8 @@ npm run e2e
 常用启动方式：
 
 ```sh
-npm run dev:mock   # Apifox mock
-npm run dev:local  # local Next.js mock route
+pnpm dev:mock   # Apifox mock
+pnpm dev:local  # local Next.js mock route
 ```
 
 也可以复制对应示例文件为 `.env.local`：
@@ -95,8 +95,8 @@ cp .env.prod.example .env.local
 Playwright E2E 固定使用本地 mock：
 
 ```sh
-npx playwright install --only-shell chromium
-npm run e2e
+pnpm exec playwright install --only-shell chromium
+pnpm e2e
 ```
 
 ## 当前进度
@@ -126,11 +126,11 @@ npm run e2e
 
 Web 端进入联调或提交前至少满足：
 
-- `npm run lint`
-- `npm run typecheck`
-- `npm run test`
-- `npm run build`
-- `npm run e2e`
+- `pnpm lint`
+- `pnpm typecheck`
+- `pnpm test`
+- `pnpm build`
+- `pnpm e2e`
 
 GitHub Actions 已提供 Web CI workflow，会在 `app-web`、Web 计划文档和跨平台契约变化时运行上述质量门禁。
 
