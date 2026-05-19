@@ -229,18 +229,18 @@
 			mainGroup = 7AF889BC2FBB71BC0067033D;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				7B0002010000000000000001 /* XCLocalSwiftPackageReference "AppCore" */,
-				7B0002010000000000000002 /* XCLocalSwiftPackageReference "AppContracts" */,
-				7B0002010000000000000003 /* XCLocalSwiftPackageReference "AppDesignSystem" */,
-				7B0002010000000000000004 /* XCLocalSwiftPackageReference "AppNetworking" */,
-				7B0002010000000000000005 /* XCLocalSwiftPackageReference "AppPersistence" */,
-				7B0002010000000000000006 /* XCLocalSwiftPackageReference "AppAccount" */,
-				7B0002010000000000000007 /* XCLocalSwiftPackageReference "FeatureLogin" */,
-				7B0002010000000000000008 /* XCLocalSwiftPackageReference "FeatureAIChat" */,
-				7B0002010000000000000009 /* XCLocalSwiftPackageReference "FeatureHistory" */,
-				7B000201000000000000000A /* XCLocalSwiftPackageReference "FeatureSetting" */,
-				7B000201000000000000000B /* XCLocalSwiftPackageReference "FeaturePrivacy" */,
-				7B000201000000000000000C /* XCLocalSwiftPackageReference "AppTestingSupport" */,
+				7B0002010000000000000001 /* XCLocalSwiftPackageReference "Packages/AppCore" */,
+				7B0002010000000000000002 /* XCLocalSwiftPackageReference "Packages/AppContracts" */,
+				7B0002010000000000000003 /* XCLocalSwiftPackageReference "Packages/AppDesignSystem" */,
+				7B0002010000000000000004 /* XCLocalSwiftPackageReference "Packages/AppNetworking" */,
+				7B0002010000000000000005 /* XCLocalSwiftPackageReference "Packages/AppPersistence" */,
+				7B0002010000000000000006 /* XCLocalSwiftPackageReference "Packages/AppAccount" */,
+				7B0002010000000000000007 /* XCLocalSwiftPackageReference "Packages/FeatureLogin" */,
+				7B0002010000000000000008 /* XCLocalSwiftPackageReference "Packages/FeatureAIChat" */,
+				7B0002010000000000000009 /* XCLocalSwiftPackageReference "Packages/FeatureHistory" */,
+				7B000201000000000000000A /* XCLocalSwiftPackageReference "Packages/FeatureSetting" */,
+				7B000201000000000000000B /* XCLocalSwiftPackageReference "Packages/FeaturePrivacy" */,
+				7B000201000000000000000C /* XCLocalSwiftPackageReference "Packages/AppTestingSupport" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 7AF889C62FBB71BC0067033D /* Products */;
@@ -437,6 +437,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = AIDataInsightApple/AIDataInsightApple.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = A5WGUK9HS4;
@@ -481,6 +482,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = AIDataInsightApple/AIDataInsightApple.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = A5WGUK9HS4;
@@ -664,51 +666,51 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		7B0002010000000000000001 /* XCLocalSwiftPackageReference "AppCore" */ = {
+		7B0002010000000000000001 /* XCLocalSwiftPackageReference "Packages/AppCore" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/AppCore;
 		};
-		7B0002010000000000000002 /* XCLocalSwiftPackageReference "AppContracts" */ = {
+		7B0002010000000000000002 /* XCLocalSwiftPackageReference "Packages/AppContracts" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/AppContracts;
 		};
-		7B0002010000000000000003 /* XCLocalSwiftPackageReference "AppDesignSystem" */ = {
+		7B0002010000000000000003 /* XCLocalSwiftPackageReference "Packages/AppDesignSystem" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/AppDesignSystem;
 		};
-		7B0002010000000000000004 /* XCLocalSwiftPackageReference "AppNetworking" */ = {
+		7B0002010000000000000004 /* XCLocalSwiftPackageReference "Packages/AppNetworking" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/AppNetworking;
 		};
-		7B0002010000000000000005 /* XCLocalSwiftPackageReference "AppPersistence" */ = {
+		7B0002010000000000000005 /* XCLocalSwiftPackageReference "Packages/AppPersistence" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/AppPersistence;
 		};
-		7B0002010000000000000006 /* XCLocalSwiftPackageReference "AppAccount" */ = {
+		7B0002010000000000000006 /* XCLocalSwiftPackageReference "Packages/AppAccount" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/AppAccount;
 		};
-		7B0002010000000000000007 /* XCLocalSwiftPackageReference "FeatureLogin" */ = {
+		7B0002010000000000000007 /* XCLocalSwiftPackageReference "Packages/FeatureLogin" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/FeatureLogin;
 		};
-		7B0002010000000000000008 /* XCLocalSwiftPackageReference "FeatureAIChat" */ = {
+		7B0002010000000000000008 /* XCLocalSwiftPackageReference "Packages/FeatureAIChat" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/FeatureAIChat;
 		};
-		7B0002010000000000000009 /* XCLocalSwiftPackageReference "FeatureHistory" */ = {
+		7B0002010000000000000009 /* XCLocalSwiftPackageReference "Packages/FeatureHistory" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/FeatureHistory;
 		};
-		7B000201000000000000000A /* XCLocalSwiftPackageReference "FeatureSetting" */ = {
+		7B000201000000000000000A /* XCLocalSwiftPackageReference "Packages/FeatureSetting" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/FeatureSetting;
 		};
-		7B000201000000000000000B /* XCLocalSwiftPackageReference "FeaturePrivacy" */ = {
+		7B000201000000000000000B /* XCLocalSwiftPackageReference "Packages/FeaturePrivacy" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/FeaturePrivacy;
 		};
-		7B000201000000000000000C /* XCLocalSwiftPackageReference "AppTestingSupport" */ = {
+		7B000201000000000000000C /* XCLocalSwiftPackageReference "Packages/AppTestingSupport" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/AppTestingSupport;
 		};
