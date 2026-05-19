@@ -23,14 +23,20 @@ struct RootView: View {
         Group {
             if environment.loginStore.state.isAuthenticated {
                 NavigationSplitView {
-                    HistorySidebar(conversations: environment.historyStore.conversations)
-                        .toolbar {
-                            ToolbarItem {
-                                Button("New Chat", systemImage: "plus") {
-                                    environment.chatStore.startNewChat()
-                                }
+                    HistorySidebar(
+                        store: environment.historyStore,
+                        onNewChat: {
+                            environment.chatStore.startNewChat()
+                        },
+                        onSelect: { historyID in
+                            Task {
+                                await environment.chatStore.loadHistory(historyID: historyID)
                             }
+                        },
+                        onDeletedSelected: {
+                            environment.chatStore.startNewChat()
                         }
+                    )
                 } content: {
                     AIChatScreen(store: environment.chatStore)
                 } detail: {
@@ -61,6 +67,7 @@ struct RootView: View {
             await environment.loginStore.resolveLaunchSession()
         }
         .onReceive(NotificationCenter.default.publisher(for: .startNewChat)) { _ in
+            environment.historyStore.clearSelection()
             environment.chatStore.startNewChat()
         }
         .onChange(of: environment.settingStore.state.didLogout) { _, didLogout in

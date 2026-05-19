@@ -1,41 +1,437 @@
+import AppContracts
+import AppNetworking
+import Foundation
 import Observation
 import SwiftUI
 
 public struct HistoryConversationViewState: Identifiable, Equatable, Sendable {
     public let id: String
+    public let remoteID: Int?
     public let title: String
+    public let displayTime: String
+    public let updatedAt: Date
 
-    public init(id: String, title: String) {
+    public init(id: String, remoteID: Int? = nil, title: String, displayTime: String = "", updatedAt: Date = .distantPast) {
+        self.id = id
+        self.remoteID = remoteID
+        self.title = title
+        self.displayTime = displayTime
+        self.updatedAt = updatedAt
+    }
+}
+
+public struct HistoryGroupViewState: Identifiable, Equatable, Sendable {
+    public let id: HistorySectionKindContract
+    public let title: String
+    public let conversations: [HistoryConversationViewState]
+
+    public init(id: HistorySectionKindContract, title: String, conversations: [HistoryConversationViewState]) {
         self.id = id
         self.title = title
+        self.conversations = conversations
+    }
+}
+
+public struct HistoryViewState: Equatable, Sendable {
+    public var groups: [HistoryGroupViewState]
+    public var selectedID: Int?
+    public var currentPage: Int
+    public var pageSize: Int
+    public var hasMore: Bool
+    public var isLoading: Bool
+    public var isMutating: Bool
+    public var errorMessage: String?
+
+    public init(
+        groups: [HistoryGroupViewState] = [],
+        selectedID: Int? = nil,
+        currentPage: Int = 0,
+        pageSize: Int = 20,
+        hasMore: Bool = true,
+        isLoading: Bool = false,
+        isMutating: Bool = false,
+        errorMessage: String? = nil
+    ) {
+        self.groups = groups
+        self.selectedID = selectedID
+        self.currentPage = currentPage
+        self.pageSize = pageSize
+        self.hasMore = hasMore
+        self.isLoading = isLoading
+        self.isMutating = isMutating
+        self.errorMessage = errorMessage
+    }
+}
+
+public protocol HistoryRepository: Sendable {
+    func loadHistoryPage(currentPage: Int, pageSize: Int) async throws -> RecordPageContract
+    func deleteHistory(historyId: Int) async throws
+    func deleteAllHistory() async throws
+}
+
+public struct RemoteHistoryRepository: HistoryRepository {
+    private let client: HTTPClient
+
+    public init(client: HTTPClient) {
+        self.client = client
+    }
+
+    public func loadHistoryPage(currentPage: Int, pageSize: Int) async throws -> RecordPageContract {
+        let envelope = try await client.send(
+            HTTPRequest(path: "/history/page", queryItems: [
+                HTTPQueryItem(name: "currentPage", value: String(currentPage)),
+                HTTPQueryItem(name: "pageSize", value: String(pageSize)),
+            ]),
+            as: RecordPageContract.self
+        )
+        return envelope.data ?? RecordPageContract(currentPage: currentPage, pageSize: pageSize, total: 0, pages: 0, cacheKey: nil, records: [])
+    }
+
+    public func deleteHistory(historyId: Int) async throws {
+        _ = try await client.send(
+            HTTPRequest(path: "/history/delete", queryItems: [HTTPQueryItem(name: "historyId", value: String(historyId))]),
+            as: EmptyContract.self
+        )
+    }
+
+    public func deleteAllHistory() async throws {
+        _ = try await client.send(HTTPRequest(path: "/history/deleteAll"), as: EmptyContract.self)
     }
 }
 
 @MainActor
 @Observable
 public final class HistoryStore {
-    public private(set) var conversations: [HistoryConversationViewState]
+    public private(set) var state: HistoryViewState
+    private let repository: HistoryRepository
+    private var records: [HistoryRecordContract]
 
-    public init(conversations: [HistoryConversationViewState] = []) {
-        self.conversations = conversations
+    public init(
+        conversations: [HistoryConversationViewState] = [],
+        state: HistoryViewState? = nil,
+        repository: HistoryRepository = PreviewHistoryRepository()
+    ) {
+        let initialRecords = conversations.map {
+            HistoryRecordContract(id: $0.remoteID ?? Int($0.id), name: $0.title, updateTime: ISO8601DateFormatter().string(from: $0.updatedAt), detailList: nil)
+        }
+        self.repository = repository
+        self.records = initialRecords
+        self.state = state ?? HistoryViewState(groups: HistoryStore.group(records: initialRecords))
+    }
+
+    public var conversations: [HistoryConversationViewState] {
+        state.groups.flatMap(\.conversations)
+    }
+
+    public var selectedID: Int? {
+        state.selectedID
+    }
+
+    public func loadFirstPage() async {
+        await load(page: 1, replacing: true)
+    }
+
+    public func loadNextPageIfNeeded(currentItemID: String?) async {
+        guard state.hasMore, state.isLoading == false else {
+            return
+        }
+        guard currentItemID == conversations.last?.id else {
+            return
+        }
+        await load(page: state.currentPage + 1, replacing: false)
+    }
+
+    public func select(historyID: Int) {
+        state.selectedID = historyID
+    }
+
+    public func clearSelection() {
+        state.selectedID = nil
     }
 
     public func delete(id: String) {
-        conversations.removeAll { $0.id == id }
+        if let remoteID = Int(id) {
+            records.removeAll { $0.id == remoteID }
+        }
+        state.groups = HistoryStore.group(records: records)
+    }
+
+    public func delete(historyID: Int) async -> Bool {
+        state.isMutating = true
+        state.errorMessage = nil
+        defer { state.isMutating = false }
+        do {
+            try await repository.deleteHistory(historyId: historyID)
+            records.removeAll { $0.id == historyID }
+            state.groups = HistoryStore.group(records: records)
+            if state.selectedID == historyID {
+                state.selectedID = nil
+                return true
+            }
+            return false
+        } catch {
+            state.errorMessage = "删除历史记录失败"
+            return false
+        }
+    }
+
+    public func deleteAll() async -> Bool {
+        state.isMutating = true
+        state.errorMessage = nil
+        defer { state.isMutating = false }
+        do {
+            try await repository.deleteAllHistory()
+            records.removeAll()
+            state.groups.removeAll()
+            state.selectedID = nil
+            state.hasMore = false
+            return true
+        } catch {
+            state.errorMessage = "清空历史记录失败"
+            return false
+        }
+    }
+
+    private func load(page: Int, replacing: Bool) async {
+        state.isLoading = true
+        state.errorMessage = nil
+        defer { state.isLoading = false }
+        do {
+            let pageResult = try await repository.loadHistoryPage(currentPage: page, pageSize: state.pageSize)
+            let incoming = pageResult.records ?? []
+            records = replacing ? incoming : records + incoming
+            state.currentPage = pageResult.currentPage ?? page
+            state.pageSize = pageResult.pageSize ?? state.pageSize
+            state.hasMore = state.currentPage < (pageResult.pages ?? state.currentPage)
+            state.groups = HistoryStore.group(records: records)
+        } catch {
+            state.errorMessage = "历史记录加载失败"
+        }
+    }
+
+    private static func group(records: [HistoryRecordContract], now: Date = .now) -> [HistoryGroupViewState] {
+        let items = records.compactMap { record -> (kind: HistorySectionKindContract, item: HistoryConversationViewState)? in
+            guard let date = DateParser.parse(record.updateTime ?? record.createTime) else {
+                return nil
+            }
+            let kind = sectionKind(for: date, now: now)
+            return (kind, HistoryConversationViewState(
+                id: record.id.map(String.init) ?? UUID().uuidString,
+                remoteID: record.id,
+                title: record.name?.isEmpty == false ? record.name! : "未命名会话",
+                displayTime: displayTime(for: date, kind: kind),
+                updatedAt: date
+            ))
+        }
+
+        return HistorySectionKindContract.allCases.compactMap { kind in
+            let conversations = items
+                .filter { $0.kind == kind }
+                .map(\.item)
+                .sorted { $0.updatedAt > $1.updatedAt }
+            guard conversations.isEmpty == false else {
+                return nil
+            }
+            return HistoryGroupViewState(id: kind, title: kind.title, conversations: conversations)
+        }
+    }
+
+    private static func sectionKind(for date: Date, now: Date) -> HistorySectionKindContract {
+        let calendar = Calendar.current
+        if calendar.isDate(date, inSameDayAs: now) {
+            return .today
+        }
+        let components = calendar.dateComponents([.year, .month], from: date)
+        let nowComponents = calendar.dateComponents([.year, .month], from: now)
+        if components.year == nowComponents.year, components.month == nowComponents.month {
+            return .thisMonth
+        }
+        return .other
+    }
+
+    private static func displayTime(for date: Date, kind: HistorySectionKindContract) -> String {
+        let formatter = DateFormatter()
+        switch kind {
+        case .today:
+            formatter.dateFormat = "HH:mm"
+        case .thisMonth:
+            formatter.dateFormat = "MM-dd"
+        case .other:
+            formatter.dateFormat = "yyyy-MM-dd"
+        }
+        return formatter.string(from: date)
     }
 }
 
 public struct HistorySidebar: View {
-    public let conversations: [HistoryConversationViewState]
+    @Bindable private var store: HistoryStore
+    private let onNewChat: () -> Void
+    private let onSelect: (Int) -> Void
+    private let onDeletedSelected: () -> Void
 
-    public init(conversations: [HistoryConversationViewState]) {
-        self.conversations = conversations
+    public init(
+        store: HistoryStore,
+        onNewChat: @escaping () -> Void = {},
+        onSelect: @escaping (Int) -> Void = { _ in },
+        onDeletedSelected: @escaping () -> Void = {}
+    ) {
+        self.store = store
+        self.onNewChat = onNewChat
+        self.onSelect = onSelect
+        self.onDeletedSelected = onDeletedSelected
     }
 
     public var body: some View {
-        List(conversations) { conversation in
-            Text(conversation.title)
+        List(selection: Binding(
+            get: { store.state.selectedID },
+            set: { value in
+                guard let value else {
+                    store.clearSelection()
+                    return
+                }
+                store.select(historyID: value)
+                onSelect(value)
+            }
+        )) {
+            if let errorMessage = store.state.errorMessage {
+                Text(errorMessage)
+                    .foregroundStyle(.red)
+            }
+
+            ForEach(store.state.groups) { group in
+                Section(group.title) {
+                    ForEach(group.conversations) { conversation in
+                        row(conversation)
+                            .tag(conversation.remoteID)
+                            .onAppear {
+                                Task {
+                                    await store.loadNextPageIfNeeded(currentItemID: conversation.id)
+                                }
+                            }
+                    }
+                }
+            }
         }
-        .navigationTitle("历史记录")
+        .navigationTitle("AI数据分析助手")
+        .toolbar {
+            ToolbarItemGroup {
+                Button("New Chat", systemImage: "plus") {
+                    store.clearSelection()
+                    onNewChat()
+                }
+                Button("Clear", systemImage: "trash") {
+                    Task {
+                        let shouldReset = await store.deleteAll()
+                        if shouldReset {
+                            onDeletedSelected()
+                        }
+                    }
+                }
+                .disabled(store.conversations.isEmpty || store.state.isMutating)
+            }
+        }
+        .task {
+            if store.conversations.isEmpty {
+                await store.loadFirstPage()
+            }
+        }
     }
+
+    private func row(_ conversation: HistoryConversationViewState) -> some View {
+        HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(conversation.title)
+                    .lineLimit(1)
+                if conversation.displayTime.isEmpty == false {
+                    Text(conversation.displayTime)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            Spacer()
+            Button {
+                guard let remoteID = conversation.remoteID else {
+                    return
+                }
+                Task {
+                    let deletedSelected = await store.delete(historyID: remoteID)
+                    if deletedSelected {
+                        onDeletedSelected()
+                    }
+                }
+            } label: {
+                Image(systemName: "trash")
+            }
+            .buttonStyle(.borderless)
+            .foregroundStyle(.secondary)
+        }
+        .contextMenu {
+            Button("删除", role: .destructive) {
+                guard let remoteID = conversation.remoteID else {
+                    return
+                }
+                Task {
+                    let deletedSelected = await store.delete(historyID: remoteID)
+                    if deletedSelected {
+                        onDeletedSelected()
+                    }
+                }
+            }
+        }
+    }
+}
+
+private enum DateParser {
+    static func parse(_ string: String?) -> Date? {
+        guard let string, string.isEmpty == false else {
+            return nil
+        }
+        if let date = ISO8601DateFormatter().date(from: string) {
+            return date
+        }
+        for format in ["yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd'T'HH:mm:ss", "yyyy-MM-dd"] {
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "en_US_POSIX")
+            formatter.dateFormat = format
+            if let date = formatter.date(from: string) {
+                return date
+            }
+        }
+        return nil
+    }
+}
+
+private extension HistorySectionKindContract {
+    var title: String {
+        switch self {
+        case .today:
+            "今天"
+        case .thisMonth:
+            "本月"
+        case .other:
+            "其它"
+        }
+    }
+}
+
+public struct PreviewHistoryRepository: HistoryRepository {
+    public init() {}
+
+    public func loadHistoryPage(currentPage: Int, pageSize: Int) async throws -> RecordPageContract {
+        let now = ISO8601DateFormatter().string(from: .now)
+        return RecordPageContract(
+            currentPage: currentPage,
+            pageSize: pageSize,
+            total: 1,
+            pages: 1,
+            cacheKey: nil,
+            records: [
+                HistoryRecordContract(id: 1, name: "欢迎使用 AI 数据分析助手", updateTime: now, detailList: nil),
+            ]
+        )
+    }
+
+    public func deleteHistory(historyId: Int) async throws {}
+
+    public func deleteAllHistory() async throws {}
 }

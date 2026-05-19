@@ -151,7 +151,9 @@ public final class SwiftDataHistoryCacheRepository: HistoryCacheRepository {
     public func replaceAll(with records: [HistoryRecordContract]) throws {
         try clear()
         for record in records {
-            context.insert(CachedHistoryRecordModel(contract: record))
+            let model = CachedHistoryRecordModel(contract: record)
+            context.insert(model)
+            model.details.forEach { context.insert($0) }
         }
         try context.save()
     }
@@ -160,7 +162,19 @@ public final class SwiftDataHistoryCacheRepository: HistoryCacheRepository {
         let descriptor = FetchDescriptor<CachedHistoryRecordModel>(
             sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]
         )
-        return try context.fetch(descriptor).map(\.contract)
+        return try context.fetch(descriptor).map { record in
+            var details = record.details
+            if let remoteID = record.remoteID {
+                let detailDescriptor = FetchDescriptor<CachedHistoryDetailModel>(
+                    predicate: #Predicate { detail in
+                        detail.historyID == remoteID
+                    },
+                    sortBy: [SortDescriptor(\.sortIndex)]
+                )
+                details = try context.fetch(detailDescriptor)
+            }
+            return record.contract(with: details)
+        }
     }
 
     public func delete(remoteID: Int) throws {
@@ -284,20 +298,27 @@ public final class SwiftDataUserPreferenceRepository: UserPreferenceRepository {
 private extension CachedHistoryRecordModel {
     convenience init(contract: HistoryRecordContract) {
         let remoteID = contract.id
+        let detailModels = (contract.detailList ?? []).enumerated().map { index, detail in
+            CachedHistoryDetailModel(contract: detail, sortIndex: index)
+        }
         self.init(
             cacheID: remoteID.map { "history-\($0)" } ?? UUID().uuidString,
             remoteID: remoteID,
             name: contract.name ?? "Untitled",
-            details: (contract.detailList ?? []).enumerated().map { index, detail in
-                CachedHistoryDetailModel(contract: detail, sortIndex: index)
-            }
+            details: detailModels
         )
+        detailModels.forEach { $0.record = self }
     }
 
     var contract: HistoryRecordContract {
+        contract(with: details)
+    }
+
+    func contract(with details: [CachedHistoryDetailModel]) -> HistoryRecordContract {
         HistoryRecordContract(
             id: remoteID,
             name: name,
+            updateTime: ISO8601DateFormatter().string(from: updatedAt),
             detailList: details
                 .sorted { $0.sortIndex < $1.sortIndex }
                 .map(\.contract)
@@ -325,7 +346,8 @@ private extension CachedHistoryDetailModel {
             historyId: historyID,
             type: detailTypeRawValue.flatMap(HistoryDetailTypeContract.init(rawValue:)),
             contentType: contentTypeRawValue.flatMap(HistoryContentTypeContract.init(rawValue:)),
-            content: content
+            content: content,
+            updateTime: ISO8601DateFormatter().string(from: updatedAt)
         )
     }
 }
