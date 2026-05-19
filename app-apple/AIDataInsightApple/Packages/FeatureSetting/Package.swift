@@ -13,11 +13,13 @@ let package = Package(
         .library(name: "FeatureSetting", targets: ["FeatureSetting"]),
     ],
     dependencies: [
+        .package(path: "../AppAccount"),
+        .package(path: "../AppContracts"),
         .package(path: "../AppCore"),
         .package(path: "../AppDesignSystem"),
     ],
     targets: [
-        .target(name: "FeatureSetting", dependencies: ["AppCore", "AppDesignSystem"]),
+        .target(name: "FeatureSetting", dependencies: ["AppAccount", "AppContracts", "AppCore", "AppDesignSystem"]),
         .testTarget(name: "FeatureSettingTests", dependencies: ["FeatureSetting"]),
     ]
 )

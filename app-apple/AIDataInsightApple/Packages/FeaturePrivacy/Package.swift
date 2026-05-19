@@ -13,11 +13,12 @@ let package = Package(
         .library(name: "FeaturePrivacy", targets: ["FeaturePrivacy"]),
     ],
     dependencies: [
+        .package(path: "../AppContracts"),
         .package(path: "../AppCore"),
         .package(path: "../AppDesignSystem"),
     ],
     targets: [
-        .target(name: "FeaturePrivacy", dependencies: ["AppCore", "AppDesignSystem"]),
+        .target(name: "FeaturePrivacy", dependencies: ["AppContracts", "AppCore", "AppDesignSystem"]),
         .testTarget(name: "FeaturePrivacyTests", dependencies: ["FeaturePrivacy"]),
     ]
 )

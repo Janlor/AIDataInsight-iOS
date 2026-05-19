@@ -1,13 +1,132 @@
+import AppAccount
+import AppContracts
 import Observation
 import SwiftUI
 
-public struct SettingViewState: Equatable, Sendable {
-    public var displayName: String
-    public var appVersion: String
+public enum SettingSectionKind: String, Equatable, Sendable {
+    case account
+    case about
+    case logout
+}
 
-    public init(displayName: String = "Janlor Lee", appVersion: String = "1.0") {
-        self.displayName = displayName
-        self.appVersion = appVersion
+public enum SettingRowKind: String, Equatable, Sendable {
+    case nickname
+    case username
+    case phone
+    case privacy
+    case appVersion
+    case logout
+}
+
+public enum SettingRowAction: Equatable, Sendable {
+    case none
+    case openPrivacy
+    case confirmLogout
+}
+
+public struct SettingRowState: Equatable, Sendable, Identifiable {
+    public var id: SettingRowKind { kind }
+    public let kind: SettingRowKind
+    public let title: String
+    public let detail: String?
+    public let action: SettingRowAction
+    public let selectable: Bool
+    public let destructive: Bool
+    public let centered: Bool
+    public let showsDisclosure: Bool
+}
+
+public struct SettingSectionState: Equatable, Sendable, Identifiable {
+    public var id: SettingSectionKind { kind }
+    public let kind: SettingSectionKind
+    public let title: String?
+    public let rows: [SettingRowState]
+}
+
+public struct LogoutDialogState: Equatable, Sendable {
+    public var visible: Bool
+    public let title: String
+    public let cancelTitle: String
+    public let confirmTitle: String
+
+    public init(
+        visible: Bool = false,
+        title: String = "确认注销并退出系统吗？",
+        cancelTitle: String = "取消",
+        confirmTitle: String = "确定"
+    ) {
+        self.visible = visible
+        self.title = title
+        self.cancelTitle = cancelTitle
+        self.confirmTitle = confirmTitle
+    }
+}
+
+public struct SettingViewState: Equatable, Sendable {
+    public var title: String
+    public var isLoading: Bool
+    public var isLoggingOut: Bool
+    public var errorMessage: String?
+    public var sections: [SettingSectionState]
+    public var logoutDialog: LogoutDialogState
+    public var didLogout: Bool
+
+    public init(
+        title: String = "设置",
+        isLoading: Bool = false,
+        isLoggingOut: Bool = false,
+        errorMessage: String? = nil,
+        sections: [SettingSectionState] = SettingViewState.sections(from: SettingViewState.defaultSnapshot),
+        logoutDialog: LogoutDialogState = LogoutDialogState(),
+        didLogout: Bool = false
+    ) {
+        self.title = title
+        self.isLoading = isLoading
+        self.isLoggingOut = isLoggingOut
+        self.errorMessage = errorMessage
+        self.sections = sections
+        self.logoutDialog = logoutDialog
+        self.didLogout = didLogout
+    }
+
+    public static let defaultSnapshot = SettingSnapshotContract(
+        accountInfo: SettingAccountInfoContract(nickname: "未设置", username: "demo", phone: nil),
+        capability: SettingCapabilityContract(canUpdatePassword: false, canOpenPrivacy: true, canLogout: true),
+        appVersion: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
+    )
+
+    public static func sections(from snapshot: SettingSnapshotContract) -> [SettingSectionState] {
+        let unset = "未设置"
+        var sections: [SettingSectionState] = [
+            SettingSectionState(
+                kind: .account,
+                title: "账户",
+                rows: [
+                    SettingRowState(kind: .nickname, title: "昵称", detail: snapshot.accountInfo.nickname.nonEmpty ?? unset, action: .none, selectable: false, destructive: false, centered: false, showsDisclosure: false),
+                    SettingRowState(kind: .username, title: "登录名", detail: snapshot.accountInfo.username.nonEmpty ?? unset, action: .none, selectable: false, destructive: false, centered: false, showsDisclosure: false),
+                    SettingRowState(kind: .phone, title: "手机号", detail: snapshot.accountInfo.phone.nonEmpty ?? unset, action: .none, selectable: false, destructive: false, centered: false, showsDisclosure: false),
+                ]
+            ),
+        ]
+
+        var aboutRows: [SettingRowState] = []
+        if snapshot.capability.canOpenPrivacy {
+            aboutRows.append(SettingRowState(kind: .privacy, title: "隐私政策", detail: nil, action: .openPrivacy, selectable: true, destructive: false, centered: false, showsDisclosure: true))
+        }
+        aboutRows.append(SettingRowState(kind: .appVersion, title: "App版本", detail: snapshot.appVersion, action: .none, selectable: false, destructive: false, centered: false, showsDisclosure: false))
+        sections.append(SettingSectionState(kind: .about, title: "关于", rows: aboutRows))
+
+        if snapshot.capability.canLogout {
+            sections.append(SettingSectionState(
+                kind: .logout,
+                title: nil,
+                rows: [
+                    SettingRowState(kind: .logout, title: "退出登录", detail: nil, action: .confirmLogout, selectable: true, destructive: true, centered: true, showsDisclosure: false),
+                ]
+            ))
+        }
+
+        return sections
     }
 }
 
@@ -15,28 +134,189 @@ public struct SettingViewState: Equatable, Sendable {
 @Observable
 public final class SettingStore {
     public private(set) var state: SettingViewState
+    private let accountService: AccountServicing
 
-    public init(state: SettingViewState = SettingViewState()) {
+    public init(
+        state: SettingViewState = SettingViewState(),
+        accountService: AccountServicing = PreviewAccountService()
+    ) {
         self.state = state
+        self.accountService = accountService
+    }
+
+    public func load() async {
+        state.isLoading = true
+        state.errorMessage = nil
+        do {
+            let session = try await accountService.resolveLaunchSession()
+            let username = session?.username?.nonEmpty ?? "demo"
+            let snapshot = SettingSnapshotContract(
+                accountInfo: SettingAccountInfoContract(nickname: username, username: username, phone: nil),
+                capability: SettingCapabilityContract(canUpdatePassword: false, canOpenPrivacy: true, canLogout: session?.isLogin == true),
+                appVersion: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
+            )
+            state.sections = SettingViewState.sections(from: snapshot)
+        } catch {
+            state.errorMessage = "设置加载失败，请稍后重试"
+        }
+        state.isLoading = false
+    }
+
+    public func confirmLogout() {
+        state.logoutDialog.visible = true
+    }
+
+    public func cancelLogout() {
+        state.logoutDialog.visible = false
+    }
+
+    public func logout() async {
+        state.isLoggingOut = true
+        state.errorMessage = nil
+        do {
+            try await accountService.logout()
+            state.logoutDialog.visible = false
+            state.didLogout = true
+        } catch {
+            state.errorMessage = "退出登录失败，请稍后重试"
+        }
+        state.isLoggingOut = false
+    }
+
+    public func consumeLogoutSignal() {
+        state.didLogout = false
     }
 }
 
 public struct SettingScreen: View {
-    public let state: SettingViewState
+    @Bindable private var store: SettingStore
+    private let onOpenPrivacy: () -> Void
 
-    public init(state: SettingViewState) {
-        self.state = state
+    public init(store: SettingStore, onOpenPrivacy: @escaping () -> Void = {}) {
+        self.store = store
+        self.onOpenPrivacy = onOpenPrivacy
     }
 
     public var body: some View {
         Form {
-            Section("账户") {
-                LabeledContent("昵称", value: state.displayName)
+            if let errorMessage = store.state.errorMessage {
+                Section {
+                    Text(errorMessage)
+                        .foregroundStyle(.red)
+                }
             }
-            Section("关于") {
-                LabeledContent("App版本", value: state.appVersion)
+
+            ForEach(store.state.sections) { section in
+                Section {
+                    ForEach(section.rows) { row in
+                        rowView(row)
+                    }
+                } header: {
+                    if let title = section.title {
+                        Text(title)
+                    }
+                }
             }
         }
-        .navigationTitle("设置")
+        .navigationTitle(store.state.title)
+        .task {
+            await store.load()
+        }
+        .confirmationDialog(
+            store.state.logoutDialog.title,
+            isPresented: Binding(
+                get: { store.state.logoutDialog.visible },
+                set: { visible in
+                    if visible == false {
+                        store.cancelLogout()
+                    }
+                }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(store.state.logoutDialog.confirmTitle, role: .destructive) {
+                Task {
+                    await store.logout()
+                }
+            }
+            Button(store.state.logoutDialog.cancelTitle, role: .cancel) {
+                store.cancelLogout()
+            }
+        }
     }
+
+    @ViewBuilder
+    private func rowView(_ row: SettingRowState) -> some View {
+        if row.selectable {
+            Button {
+                switch row.action {
+                case .openPrivacy:
+                    onOpenPrivacy()
+                case .confirmLogout:
+                    store.confirmLogout()
+                case .none:
+                    break
+                }
+            } label: {
+                rowContent(row)
+            }
+            .disabled(store.state.isLoggingOut)
+            .buttonStyle(.plain)
+        } else {
+            rowContent(row)
+        }
+    }
+
+    private func rowContent(_ row: SettingRowState) -> some View {
+        HStack {
+            if row.centered {
+                Spacer()
+            }
+            Text(row.kind == .logout && store.state.isLoggingOut ? "退出中..." : row.title)
+                .foregroundStyle(row.destructive ? .red : .primary)
+            if row.centered {
+                Spacer()
+            } else {
+                Spacer()
+                if let detail = row.detail {
+                    Text(detail)
+                        .foregroundStyle(.secondary)
+                }
+                if row.showsDisclosure {
+                    Image(systemName: "chevron.right")
+                        .font(.footnote)
+                        .foregroundStyle(.tertiary)
+                }
+            }
+        }
+    }
+}
+
+private extension String? {
+    var nonEmpty: String? {
+        guard let value = self, value.isEmpty == false else {
+            return nil
+        }
+        return value
+    }
+}
+
+private extension String {
+    var nonEmpty: String? {
+        isEmpty ? nil : self
+    }
+}
+
+public struct PreviewAccountService: AccountServicing {
+    public init() {}
+
+    public func resolveLaunchSession() async throws -> AccountSession? {
+        AccountSession(accessToken: "preview-access", refreshToken: "preview-refresh", orgID: "0", username: "demo")
+    }
+
+    public func login(name: String, password: String) async throws -> AccountSession {
+        AccountSession(accessToken: "preview-access", refreshToken: "preview-refresh", orgID: "0", username: name)
+    }
+
+    public func logout() async throws {}
 }

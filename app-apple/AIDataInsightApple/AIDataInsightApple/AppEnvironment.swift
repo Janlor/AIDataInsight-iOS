@@ -34,7 +34,7 @@ final class AppRuntimeEnvironment {
         historyStore: HistoryStore = HistoryStore(conversations: [
             HistoryConversationViewState(id: "welcome", title: "欢迎使用 AI 数据分析助手"),
         ]),
-        settingStore: SettingStore = SettingStore(),
+        settingStore: SettingStore? = nil,
         sessionManager: AccountSessionManager? = nil,
         modelContainer: ModelContainer? = nil
     ) {
@@ -50,7 +50,7 @@ final class AppRuntimeEnvironment {
         self.loginStore = loginStore ?? LoginStore(accountService: accountService)
         self.chatStore = chatStore
         self.historyStore = historyStore
-        self.settingStore = settingStore
+        self.settingStore = settingStore ?? SettingStore(accountService: accountService)
     }
 
     private static func makeModelContainer() -> ModelContainer {

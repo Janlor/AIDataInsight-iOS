@@ -94,13 +94,19 @@ public final class LoginStore {
         }
         state.isLoading = false
     }
+
+    public func markLoggedOut() {
+        state.isAuthenticated = false
+    }
 }
 
 public struct LoginScreen: View {
     @Bindable private var store: LoginStore
+    private let privacyDestination: AnyView?
 
-    public init(store: LoginStore) {
+    public init(store: LoginStore, privacyDestination: AnyView? = nil) {
         self.store = store
+        self.privacyDestination = privacyDestination
     }
 
     public var body: some View {
@@ -121,6 +127,12 @@ public struct LoginScreen: View {
                 get: { store.state.acceptedPrivacy },
                 set: { store.setPrivacyAccepted($0) }
             ))
+            if let privacyDestination {
+                NavigationLink("查看隐私政策") {
+                    privacyDestination
+                }
+                .font(.footnote)
+            }
             if let errorMessage = store.state.errorMessage {
                 Text(errorMessage)
                     .foregroundStyle(.red)
