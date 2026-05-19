@@ -1,6 +1,7 @@
 import Testing
 import AppContracts
 import AppCore
+import Foundation
 @testable import AppNetworking
 
 @Test func httpRequestDefaultsToGet() {

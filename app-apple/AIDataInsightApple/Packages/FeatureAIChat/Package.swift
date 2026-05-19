@@ -13,11 +13,13 @@ let package = Package(
         .library(name: "FeatureAIChat", targets: ["FeatureAIChat"]),
     ],
     dependencies: [
+        .package(path: "../AppContracts"),
         .package(path: "../AppCore"),
         .package(path: "../AppDesignSystem"),
+        .package(path: "../AppNetworking"),
     ],
     targets: [
-        .target(name: "FeatureAIChat", dependencies: ["AppCore", "AppDesignSystem"]),
+        .target(name: "FeatureAIChat", dependencies: ["AppContracts", "AppCore", "AppDesignSystem", "AppNetworking"]),
         .testTarget(name: "FeatureAIChatTests", dependencies: ["FeatureAIChat"]),
     ]
 )

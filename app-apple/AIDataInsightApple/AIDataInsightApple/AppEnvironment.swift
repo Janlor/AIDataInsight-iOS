@@ -30,7 +30,7 @@ final class AppRuntimeEnvironment {
     init(
         appEnvironment: AppEnvironment = .mock,
         loginStore: LoginStore? = nil,
-        chatStore: AIChatStore = AIChatStore(),
+        chatStore: AIChatStore? = nil,
         historyStore: HistoryStore = HistoryStore(conversations: [
             HistoryConversationViewState(id: "welcome", title: "欢迎使用 AI 数据分析助手"),
         ]),
@@ -47,8 +47,9 @@ final class AppRuntimeEnvironment {
             sessionManager: resolvedSessionManager
         )
         let accountService = AccountService(client: client, sessionManager: resolvedSessionManager)
+        let aiChatRepository = RemoteAIChatRepository(client: client, streamer: client)
         self.loginStore = loginStore ?? LoginStore(accountService: accountService)
-        self.chatStore = chatStore
+        self.chatStore = chatStore ?? AIChatStore(repository: aiChatRepository)
         self.historyStore = historyStore
         self.settingStore = settingStore ?? SettingStore(accountService: accountService)
     }

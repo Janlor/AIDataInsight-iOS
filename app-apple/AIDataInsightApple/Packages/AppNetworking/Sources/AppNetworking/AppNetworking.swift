@@ -62,6 +62,10 @@ public protocol HTTPClient: Sendable {
     func send<Payload: Decodable & Sendable>(_ request: HTTPRequest, as payloadType: Payload.Type) async throws -> APIResponseEnvelope<Payload>
 }
 
+public protocol SSEStreaming: Sendable {
+    func stream(_ request: HTTPRequest) -> AsyncThrowingStream<SSEEvent, Error>
+}
+
 public protocol HTTPTransport: Sendable {
     func data(for request: URLRequest) async throws -> (Data, HTTPURLResponse)
 }
@@ -237,6 +241,44 @@ public struct URLSessionHTTPClient: HTTPClient {
             throw AppError(kind: .dataFormat)
         }
         return resolvedURL
+    }
+}
+
+extension URLSessionHTTPClient: SSEStreaming {
+    public func stream(_ request: HTTPRequest) -> AsyncThrowingStream<SSEEvent, Error> {
+        AsyncThrowingStream { continuation in
+            let task = Task {
+                do {
+                    var urlRequest = try await makeURLRequest(from: request)
+                    urlRequest.setValue("text/event-stream", forHTTPHeaderField: "Accept")
+                    let (bytes, response) = try await URLSession.shared.bytes(for: urlRequest)
+                    guard let httpResponse = response as? HTTPURLResponse, (200 ..< 300).contains(httpResponse.statusCode) else {
+                        throw AppError(kind: .transport(message: "Invalid SSE response."))
+                    }
+
+                    for try await line in bytes.lines {
+                        try Task.checkCancellation()
+                        guard line.hasPrefix("data:") else {
+                            continue
+                        }
+                        let data = line.dropFirst(5).trimmingCharacters(in: .whitespaces)
+                        guard data.isEmpty == false, data != "[DONE]" else {
+                            continue
+                        }
+                        continuation.yield(SSEEvent(data: data))
+                    }
+                    continuation.finish()
+                } catch is CancellationError {
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+
+            continuation.onTermination = { _ in
+                task.cancel()
+            }
+        }
     }
 }
 
