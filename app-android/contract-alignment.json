@@ -1,0 +1,13 @@
+{
+  "app": "app-android",
+  "contractVersion": "0.1.0",
+  "lastAppliedMigration": null,
+  "status": "needs-review",
+  "updatedAt": "2026-05-20",
+  "pendingMigrations": [
+    "0.2.0-account-user-protected-persistence"
+  ],
+  "notes": [
+    "Review AccountUserStore storage boundary and update this file after alignment."
+  ]
+}

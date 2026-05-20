@@ -8,6 +8,13 @@
 
 当你让 AI 生成或修改任意端代码时，优先把这份文档作为提示词的一部分。
 
+日常维护和迁移优先使用轻量入口：
+
+- `docs/ai-entrypoint.md`
+- `scripts/check-contract-alignment.sh <app>`
+
+只有在新增 feature、创建新端、或 alignment/migration 明确要求时，才需要完整读取本文件和全量契约。
+
 ---
 
 ## 一、核心原则
@@ -80,7 +87,9 @@ iOS 真实实现
 
 ## 二、固定读取顺序
 
-每次让 AI 生成某个功能时，必须按下面顺序读取上下文。
+每次让 AI 生成某个新功能时，必须按下面顺序读取上下文。
+
+如果只是迁移既有契约版本，先运行 `scripts/check-contract-alignment.sh <app>`，只读取脚本输出的 minimal read set。
 
 1. 读取 `docs/cross-platform/contracts/README.md`
 2. 读取 `docs/cross-platform/contracts/domain/` 中相关 schema

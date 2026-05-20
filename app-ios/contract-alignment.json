@@ -1,0 +1,11 @@
+{
+  "app": "app-ios",
+  "contractVersion": "0.2.0",
+  "lastAppliedMigration": "0.2.0-account-user-protected-persistence",
+  "status": "aligned",
+  "updatedAt": "2026-05-20",
+  "notes": [
+    "AccountUserStore is backed by Keychain via AccountRouter.updateUser.",
+    "User info uses canonical nickname field."
+  ]
+}

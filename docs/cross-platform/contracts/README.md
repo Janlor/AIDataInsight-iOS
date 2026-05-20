@@ -4,6 +4,19 @@
 
 `docs/cross-platform` 下的 Markdown 文档负责解释设计意图和背景；本目录下的文件是多端生成代码和手写镜像实现的源事实。
 
+契约包当前版本与迁移索引见：
+
+- `contract-manifest.yaml`
+- `migrations/*.yaml`
+
+新 AI / 新对话 / 多团队迁移时，先读 `docs/ai-entrypoint.md`，再运行：
+
+```sh
+scripts/check-contract-alignment.sh <app>
+```
+
+脚本会输出目标端需要读取的最小文件集合，避免每次全量读取 docs。
+
 ## 契约结构
 
 ```text
@@ -16,6 +29,7 @@ contracts/
   routes/       共享路由意图词表。
   design/       机器可读的设计 token。
   fixtures/     多端 contract tests 共用的 golden examples。
+  migrations/   版本化迁移记录、影响端和验收标准。
 ```
 
 ## 更新规则

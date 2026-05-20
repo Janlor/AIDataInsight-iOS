@@ -1,0 +1,62 @@
+schemaVersion: 1
+contractPackage: AIDataInsight Cross-Platform Contracts
+contractVersion: 0.2.0
+updatedAt: "2026-05-20"
+status: active
+summary: >
+  Source-of-truth contract package for AIDataInsight domain models, OpenAPI,
+  use cases, UI state, UI layout, route intents, design tokens, fixtures,
+  migrations, and generated model outputs.
+
+requiredEntryFiles:
+  - docs/ai-entrypoint.md
+  - docs/cross-platform/contracts/contract-manifest.yaml
+  - docs/cross-platform/contracts/migrations/
+  - "{app}/contract-alignment.json"
+
+sourceOfTruth:
+  machineReadable:
+    - docs/cross-platform/contracts/domain/
+    - docs/cross-platform/contracts/api/openapi.yaml
+    - docs/cross-platform/contracts/usecases/
+    - docs/cross-platform/contracts/ui-state/
+    - docs/cross-platform/contracts/ui-layout/
+    - docs/cross-platform/contracts/routes/route-intents.yaml
+    - docs/cross-platform/contracts/design/tokens.json
+    - docs/cross-platform/contracts/fixtures/
+  explanatory:
+    - docs/ai-generation-guide.md
+    - docs/cross-platform/domain-models.md
+    - docs/cross-platform/api-contract.md
+    - docs/cross-platform/change-log.md
+    - docs/architecture/platform-adaptation-strategy.md
+    - docs/architecture/cross-platform-blueprint.md
+
+versionPolicy:
+  format: semver
+  patch: Clarifications, fixture additions, non-behavioral wording, generated metadata refresh.
+  minor: Backward-compatible contract additions or stricter client-side implementation requirements.
+  major: Breaking API/model/usecase/layout changes requiring coordinated client migrations.
+
+currentMigrations:
+  - id: 0.2.0-account-user-protected-persistence
+    version: 0.2.0
+    file: docs/cross-platform/contracts/migrations/0.2.0-account-user-protected-persistence.yaml
+    breaking: false
+    requiredFor:
+      - app-ios
+      - app-android
+      - app-harmony
+      - app-web
+      - app-apple
+
+clientAlignmentFiles:
+  app-ios: app-ios/contract-alignment.json
+  app-android: app-android/contract-alignment.json
+  app-harmony: app-harmony/contract-alignment.json
+  app-web: app-web/contract-alignment.json
+  app-apple: app-apple/contract-alignment.json
+
+checks:
+  contractValidation: scripts/validate-cross-platform-contracts.sh
+  alignmentCheck: scripts/check-contract-alignment.sh

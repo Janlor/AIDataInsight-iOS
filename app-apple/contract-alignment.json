@@ -1,0 +1,11 @@
+{
+  "app": "app-apple",
+  "contractVersion": "0.2.0",
+  "lastAppliedMigration": "0.2.0-account-user-protected-persistence",
+  "status": "aligned",
+  "updatedAt": "2026-05-20",
+  "notes": [
+    "KeychainAccountUserStore persists AccountUser.",
+    "Setting renders cached user info before remote refresh."
+  ]
+}

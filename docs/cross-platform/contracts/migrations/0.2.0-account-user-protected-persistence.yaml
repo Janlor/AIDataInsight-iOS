@@ -1,0 +1,72 @@
+id: 0.2.0-account-user-protected-persistence
+version: 0.2.0
+date: "2026-05-20"
+title: AccountUser protected persistence
+breaking: false
+category:
+  - account
+  - setting
+  - persistence
+
+context: >
+  Existing iOS persists UserInfoMO through AccountUserStore into Keychain and
+  Setting reads local user info before building UI. Apple multiplatform initially
+  fetched user info only when opening Setting, causing placeholder flicker.
+
+contractChanges:
+  - AccountUser is acquired from GET /oauth2/getUserInfo, not POST /oauth2/login.
+  - AccountUser must be persisted through AccountUserStore.
+  - Apple clients store AccountUser in Keychain; AccountUser must not enter SwiftData.
+  - Setting must render local AccountUser first and then silently refresh remote user info.
+  - logout, 401, and failed 402 refresh must clear both AccountSession and AccountUser.
+
+requiredClientActions:
+  app-ios:
+    status: implemented
+    actions:
+      - Keep AccountUserStore backed by Keychain.
+      - Keep canonical field name nickname.
+      - Verify Setting reads AccountUserStore instead of remote-only user info.
+  app-apple:
+    status: implemented
+    actions:
+      - Add KeychainAccountUserStore.
+      - Persist getUserInfo success into AccountUserStore.
+      - Use cached AccountUser before remote refresh in Setting.
+      - Clear user info on logout/session invalidation.
+  app-android:
+    status: pending-review
+    actions:
+      - Verify AccountUserStore storage meets protected account storage requirements.
+      - Ensure getUserInfo success updates AccountUserStore.
+      - Ensure Setting uses cached user first, then refreshes remote user info.
+      - Clear user info on logout/session invalidation.
+  app-harmony:
+    status: pending-review
+    actions:
+      - Add or verify AccountUserStore.
+      - Persist getUserInfo success through platform-appropriate protected storage.
+      - Use cached user first in Setting.
+      - Clear user info on logout/session invalidation.
+  app-web:
+    status: pending-review
+    actions:
+      - Keep session/userInfo in the account store boundary.
+      - Ensure getUserInfo success updates cached user.
+      - Use cached user first in Setting.
+      - Clear user info on logout/session invalidation.
+
+recommendedReadSet:
+  - docs/ai-entrypoint.md
+  - docs/cross-platform/contracts/contract-manifest.yaml
+  - docs/cross-platform/contracts/migrations/0.2.0-account-user-protected-persistence.yaml
+  - docs/cross-platform/contracts/domain/account.schema.json
+  - docs/cross-platform/contracts/usecases/setting.usecases.yaml
+  - docs/cross-platform/contracts/api/openapi.yaml
+  - "{app}/contract-alignment.json"
+
+acceptance:
+  - AccountUser is available immediately from local cache after the first successful getUserInfo.
+  - Setting no longer flickers from default account placeholders to real account values.
+  - User info is removed together with token/session on logout and session invalidation.
+  - Contract alignment check reports the target app as aligned after implementation.
