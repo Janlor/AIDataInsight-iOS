@@ -32,6 +32,8 @@ scripts/check-contract-alignment.sh app-web
 
 只有在新增复杂功能、创建新端、重构生成器，或 migration 明确要求时，才按需读取 `docs/ai-generation-guide.md` 的相关小节和更大范围的契约文档；不要默认完整读取全文。
 
+`docs/cross-platform/change-log.md` 只作为轻量变更索引。不要默认读取 `docs/cross-platform/changelog-archive/`；只有 migration 或索引明确要求追溯历史背景时，才读取对应归档文件。
+
 ## 契约规则
 
 - 契约文件是跨端源事实，不能以某一端实现作为最终事实。

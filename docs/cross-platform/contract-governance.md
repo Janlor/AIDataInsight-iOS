@@ -14,6 +14,10 @@
   本地检查脚本，用于发现某端是否落后当前契约版本。
 - `docs/ai-task-templates.md`
   给 AI 使用的标准任务模板，避免每次复制粘贴长提示词。
+- `docs/cross-platform/change-log.md`
+  轻量变更索引，只保留活跃迁移、最近记录和归档入口。
+- `docs/cross-platform/changelog-archive/`
+  历史归档。默认不读，只有需要追溯背景时按月份读取。
 
 ## 文档语言规范
 
@@ -32,6 +36,7 @@
 6. 受影响端按 migration 修改端侧代码。
 7. 更新该端的 `contract-alignment.json`。
 8. 运行 alignment check 和目标端测试。
+9. 如果记录进入 changelog，最新记录写在 `change-log.md` 顶部；旧记录按月份移入 `changelog-archive/`。
 
 ## 版本规则
 

@@ -30,6 +30,7 @@ sourceOfTruth:
     - docs/cross-platform/domain-models.md
     - docs/cross-platform/api-contract.md
     - docs/cross-platform/change-log.md
+    - docs/cross-platform/changelog-archive/
     - docs/architecture/platform-adaptation-strategy.md
     - docs/architecture/cross-platform-blueprint.md
 
