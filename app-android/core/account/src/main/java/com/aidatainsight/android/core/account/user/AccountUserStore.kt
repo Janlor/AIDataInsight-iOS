@@ -5,4 +5,5 @@ import com.aidatainsight.android.core.model.account.AccountUser
 interface AccountUserStore {
     suspend fun updateUser(user: AccountUser)
     suspend fun getUser(): AccountUser?
+    suspend fun remove()
 }

@@ -20,6 +20,10 @@ class SharedPreferencesAccountUserStore(
         return getUserImmediately()
     }
 
+    override suspend fun remove() {
+        removeImmediately()
+    }
+
     fun updateUserImmediately(user: AccountUser) {
         preferences.edit()
             .putNullableInt(KEY_ID, user.id)
@@ -70,4 +74,3 @@ class SharedPreferencesAccountUserStore(
         const val KEY_NICKNAME = "nickname"
     }
 }
-

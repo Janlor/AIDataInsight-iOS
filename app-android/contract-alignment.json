@@ -1,13 +1,13 @@
 {
   "app": "app-android",
-  "contractVersion": "0.1.0",
-  "lastAppliedMigration": null,
-  "status": "needs-review",
+  "contractVersion": "0.2.0",
+  "lastAppliedMigration": "0.2.0-account-user-protected-persistence",
+  "status": "aligned",
   "updatedAt": "2026-05-20",
-  "pendingMigrations": [
-    "0.2.0-account-user-protected-persistence"
-  ],
+  "pendingMigrations": [],
   "notes": [
-    "Review AccountUserStore storage boundary and update this file after alignment."
+    "AccountUserStore stays in the same app-private account storage boundary as AccountSessionStore.",
+    "Setting renders cached AccountUser first and silently refreshes /oauth2/getUserInfo.",
+    "Logout and session invalidation clear both AccountSession and AccountUser."
   ]
 }

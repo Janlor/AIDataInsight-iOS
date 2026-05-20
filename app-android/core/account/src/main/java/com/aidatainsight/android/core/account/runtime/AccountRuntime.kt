@@ -55,7 +55,7 @@ object AccountRuntime {
             apiClient = apiClient,
             sessionStore = sessionStore,
             userStore = userStore,
-            authService = AccountAuthService(authRemoteService, sessionStore),
+            authService = AccountAuthService(authRemoteService, sessionStore, userStore),
             accountRemoteService = DefaultAccountRemoteService(accountNetworkRemoteService, userStore),
         )
         installedGraph = graph

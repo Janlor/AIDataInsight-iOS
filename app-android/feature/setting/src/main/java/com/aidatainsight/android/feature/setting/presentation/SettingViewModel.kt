@@ -22,7 +22,7 @@ class SettingViewModel(
     fun refresh() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-            runCatching { repository.loadSnapshot() }
+            runCatching { repository.loadCachedSnapshot() }
                 .onSuccess { snapshot ->
                     _uiState.value = _uiState.value.copy(
                         snapshot = snapshot,
@@ -34,6 +34,10 @@ class SettingViewModel(
                         isLoading = false,
                         errorMessage = error.message ?: "加载失败",
                     )
+                }
+            repository.refreshRemoteSnapshot()
+                .onSuccess { snapshot ->
+                    _uiState.value = _uiState.value.copy(snapshot = snapshot)
                 }
         }
     }
