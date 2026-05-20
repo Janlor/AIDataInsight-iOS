@@ -45,9 +45,17 @@ struct RootView: View {
                     AIChatScreen(store: environment.chatStore)
                         .toolbar {
                             ToolbarItem {
+                                Button("New Chat", systemImage: "square.and.pencil") {
+                                    environment.historyStore.clearSelection()
+                                    environment.chatStore.startNewChat()
+                                }
+                                .accessibilityIdentifier("toolbar-new-chat-button")
+                            }
+                            ToolbarItem {
                                 Button("Settings", systemImage: "gearshape") {
                                     showsSetting = true
                                 }
+                                .accessibilityIdentifier("toolbar-settings-button")
                             }
                         }
                 }

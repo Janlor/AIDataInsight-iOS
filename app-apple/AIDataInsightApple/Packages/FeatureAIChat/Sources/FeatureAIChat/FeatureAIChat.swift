@@ -415,6 +415,7 @@ public struct AIChatScreen: View {
         }
         .background(Color(nsColorCompatibleLight: "#F7F8FA", dark: "#0B1020"))
         .navigationTitle("AI数据分析助手")
+        .accessibilityIdentifier("ai-chat-screen")
 #if os(macOS)
         .navigationSubtitle(store.state.activeHistoryID == nil ? "New Chat" : "History")
 #endif
@@ -533,6 +534,7 @@ public struct AIChatScreen: View {
                 .textFieldStyle(.plain)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 10)
+                .accessibilityIdentifier("chat-composer-input")
 
                 Button {
                     Task {
@@ -545,6 +547,7 @@ public struct AIChatScreen: View {
                 .help("发送")
                 .disabled(store.state.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || store.state.isSending)
                 .buttonStyle(.borderedProminent)
+                .accessibilityIdentifier("chat-send-button")
             }
             .padding(6)
             .frame(maxWidth: 860)
@@ -593,6 +596,7 @@ public struct AIChatScreen: View {
             }
         }
         .frame(maxWidth: .infinity)
+        .accessibilityIdentifier("chat-message-\(message.id)")
     }
 
     private func chartSummary(_ payload: ChartPayloadViewState) -> some View {

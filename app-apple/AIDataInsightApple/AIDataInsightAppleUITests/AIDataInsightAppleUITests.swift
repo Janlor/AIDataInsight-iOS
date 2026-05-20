@@ -5,6 +5,7 @@
 //  Created by Janlor on 5/19/26.
 //
 
+import Foundation
 import XCTest
 
 final class AIDataInsightAppleUITests: XCTestCase {
@@ -24,10 +25,53 @@ final class AIDataInsightAppleUITests: XCTestCase {
 
     @MainActor
     func testLaunchShowsWorkspace() throws {
-        let app = XCUIApplication()
-        app.launch()
+        let app = launchAndLogin()
 
         XCTAssertEqual(app.state, .runningForeground)
+        XCTAssertTrue(app.descendants(matching: .any)["history-sidebar"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["今天想分析什么？"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["New Chat"].exists)
+    }
+
+    @MainActor
+    func testWorkspaceHistoryNewChatAndSettings() throws {
+        let app = launchAndLogin()
+
+        let firstHistory = app.staticTexts["history-row-100"].firstMatch
+        XCTAssertTrue(firstHistory.waitForExistence(timeout: 5))
+        firstHistory.click()
+        let historyAnswer = app.staticTexts
+            .matching(NSPredicate(format: "value CONTAINS %@", "整体向好"))
+            .firstMatch
+        XCTAssertTrue(historyAnswer.waitForExistence(timeout: 5))
+
+        let newChat = app.buttons["toolbar-new-chat-button"].firstMatch
+        XCTAssertTrue(newChat.waitForExistence(timeout: 5))
+        newChat.click()
+        XCTAssertTrue(app.staticTexts["今天想分析什么？"].waitForExistence(timeout: 5))
+
+        app.buttons["Settings"].firstMatch.click()
+        XCTAssertTrue(app.descendants(matching: .any)["setting-screen"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.descendants(matching: .any)["setting-row-privacy"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["setting-row-logout"].waitForExistence(timeout: 5))
+    }
+
+    @MainActor
+    func testLogoutReturnsToLogin() throws {
+        let app = launchAndLogin()
+
+        let settings = app.buttons["Settings"].firstMatch
+        XCTAssertTrue(settings.waitForExistence(timeout: 5))
+        settings.click()
+        let logout = app.buttons["setting-row-logout"]
+        XCTAssertTrue(logout.waitForExistence(timeout: 5))
+        logout.click()
+
+        let confirmButton = app.buttons["action-button-1"].firstMatch
+        XCTAssertTrue(confirmButton.waitForExistence(timeout: 5))
+        confirmButton.click()
+
+        XCTAssertTrue(app.staticTexts["login-title"].waitForExistence(timeout: 5))
     }
 
     @MainActor
@@ -36,5 +80,32 @@ final class AIDataInsightAppleUITests: XCTestCase {
         measure(metrics: [XCTApplicationLaunchMetric()]) {
             XCUIApplication().launch()
         }
+    }
+
+    @MainActor
+    private func launchApp() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments.append("--ui-testing")
+        app.launch()
+        return app
+    }
+
+    @MainActor
+    private func launchAndLogin() -> XCUIApplication {
+        let app = launchApp()
+
+        if app.descendants(matching: .any)["history-sidebar"].waitForExistence(timeout: 2) {
+            return app
+        }
+
+        XCTAssertTrue(app.staticTexts["login-title"].waitForExistence(timeout: 5))
+        let privacy = app.checkBoxes["login-privacy-checkbox"]
+        if privacy.exists, privacy.value as? String != "1" {
+            privacy.click()
+        }
+        app.buttons["login-submit-button"].click()
+
+        XCTAssertTrue(app.descendants(matching: .any)["history-sidebar"].waitForExistence(timeout: 5))
+        return app
     }
 }

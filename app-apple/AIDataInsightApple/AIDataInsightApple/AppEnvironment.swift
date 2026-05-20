@@ -49,7 +49,7 @@ final class AppRuntimeEnvironment {
         let historyRepository: HistoryRepository
 
         if appEnvironment == .mock {
-            accountService = FeatureLogin.PreviewAccountService()
+            accountService = MockAccountService()
             aiChatRepository = PreviewAIChatRepository()
             historyRepository = PreviewHistoryRepository()
         } else {
@@ -70,5 +70,28 @@ final class AppRuntimeEnvironment {
         } catch {
             fatalError("Failed to create SwiftData model container: \(error)")
         }
+    }
+}
+
+private actor MockAccountService: AccountServicing {
+    private var session: AccountSession?
+
+    func resolveLaunchSession() async throws -> AccountSession? {
+        session
+    }
+
+    func login(name: String, password: String) async throws -> AccountSession {
+        let nextSession = AccountSession(
+            accessToken: "mock-access-token",
+            refreshToken: "mock-refresh-token",
+            orgID: "0",
+            username: name
+        )
+        session = nextSession
+        return nextSession
+    }
+
+    func logout() async throws {
+        session = nil
     }
 }

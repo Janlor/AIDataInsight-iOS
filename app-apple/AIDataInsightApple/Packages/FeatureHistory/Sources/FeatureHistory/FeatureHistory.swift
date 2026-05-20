@@ -307,6 +307,9 @@ public struct HistorySidebar: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .buttonStyle(.borderedProminent)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("New Chat")
+                .accessibilityIdentifier("history-new-chat-button")
             }
             .padding(14)
 
@@ -372,6 +375,7 @@ public struct HistorySidebar: View {
                     }
                 }
                 .buttonStyle(.plain)
+                .accessibilityIdentifier("history-account-button")
                 Spacer()
                 Button {
                     Task {
@@ -386,12 +390,14 @@ public struct HistorySidebar: View {
                 .help("清空历史")
                 .buttonStyle(.borderless)
                 .disabled(store.conversations.isEmpty || store.state.isMutating)
+                .accessibilityIdentifier("history-clear-button")
             }
             .padding(12)
         }
         .navigationTitle("AI数据分析助手")
         .navigationSplitViewColumnWidth(min: 260, ideal: 300, max: 360)
         .background(AppColor.Background.secondary.color)
+        .accessibilityIdentifier("history-sidebar")
         .task {
             if store.conversations.isEmpty {
                 await store.loadFirstPage()
@@ -436,6 +442,13 @@ public struct HistorySidebar: View {
         .padding(.horizontal, 8)
         .padding(.vertical, 7)
         .contentShape(Rectangle())
+        .onTapGesture {
+            guard let remoteID = conversation.remoteID else {
+                return
+            }
+            store.select(historyID: remoteID)
+            onSelect(remoteID)
+        }
         .background {
             if isSelected {
                 RoundedRectangle(cornerRadius: 8)
@@ -448,6 +461,7 @@ public struct HistorySidebar: View {
         .onHover { isHovering in
             hoveredConversationID = isHovering ? conversation.remoteID : nil
         }
+        .accessibilityIdentifier(conversation.remoteID.map { "history-row-\($0)" } ?? "history-row-\(conversation.id)")
         .contextMenu {
             Button("删除", role: .destructive) {
                 guard let remoteID = conversation.remoteID else {

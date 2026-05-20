@@ -133,6 +133,7 @@ public struct LoginScreen: View {
                         .background(.blue.opacity(0.10), in: Circle())
                     Text("AI数据分析助手")
                         .font(.largeTitle.bold())
+                        .accessibilityIdentifier("login-title")
                     Text("用自然语言提问，快速获得经营数据洞察")
                         .font(.callout)
                         .foregroundStyle(.secondary)
@@ -144,12 +145,14 @@ public struct LoginScreen: View {
                         set: { store.updateAccount($0) }
                     ))
                     .textFieldStyle(.roundedBorder)
+                    .accessibilityIdentifier("login-account-field")
 
                     SecureField("密码", text: Binding(
                         get: { store.state.password },
                         set: { store.updatePassword($0) }
                     ))
                     .textFieldStyle(.roundedBorder)
+                    .accessibilityIdentifier("login-password-field")
 
                     Toggle(isOn: Binding(
                         get: { store.state.acceptedPrivacy },
@@ -166,6 +169,7 @@ public struct LoginScreen: View {
                             }
                         }
                     }
+                    .accessibilityIdentifier("login-privacy-checkbox")
 
                     if let errorMessage = store.state.errorMessage {
                         Text(errorMessage)
@@ -192,6 +196,7 @@ public struct LoginScreen: View {
                     .disabled(store.state.isLoading)
                     .buttonStyle(.borderedProminent)
                     .controlSize(.large)
+                    .accessibilityIdentifier("login-submit-button")
                 }
                 .padding(24)
                 .frame(width: 420)

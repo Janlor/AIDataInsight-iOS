@@ -153,7 +153,7 @@ public final class SettingStore {
             let username = session?.username?.nonEmpty ?? "demo"
             let snapshot = SettingSnapshotContract(
                 accountInfo: SettingAccountInfoContract(nickname: username, username: username, phone: nil),
-                capability: SettingCapabilityContract(canUpdatePassword: false, canOpenPrivacy: true, canLogout: session?.isLogin == true),
+                capability: SettingCapabilityContract(canUpdatePassword: false, canOpenPrivacy: true, canLogout: true),
                 appVersion: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
             )
             state.sections = SettingViewState.sections(from: snapshot)
@@ -199,7 +199,7 @@ public struct SettingScreen: View {
     }
 
     public var body: some View {
-        VStack(spacing: 0) {
+        ZStack(alignment: .bottom) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
                     accountHeader
@@ -218,21 +218,27 @@ public struct SettingScreen: View {
                     }
                 }
                 .padding(24)
+                .padding(.bottom, logoutRow == nil ? 0 : 88)
                 .frame(maxWidth: 520)
                 .frame(maxWidth: .infinity)
             }
 
             if let logoutRow {
-                Divider()
-                rowView(logoutRow)
-                    .padding(16)
-                    .frame(maxWidth: 520)
-                    .frame(maxWidth: .infinity)
-                    .background(.bar)
+                VStack(spacing: 0) {
+                    Divider()
+                    rowView(logoutRow)
+                        .padding(16)
+                        .frame(maxWidth: 520)
+                        .frame(maxWidth: .infinity)
+                }
+                .background(.bar)
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("setting-logout-area")
             }
         }
         .background(AppColor.Background.secondary.color)
         .navigationTitle(store.state.title)
+        .accessibilityIdentifier("setting-screen")
 #if os(macOS)
         .toolbarTitleDisplayMode(.inline)
 #endif
@@ -351,8 +357,14 @@ public struct SettingScreen: View {
             }
             .disabled(store.state.isLoggingOut)
             .buttonStyle(.plain)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(row.title)
+            .accessibilityIdentifier("setting-row-\(row.kind.rawValue)")
         } else {
             rowContent(row)
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel(row.title)
+                .accessibilityIdentifier("setting-row-\(row.kind.rawValue)")
         }
     }
 
