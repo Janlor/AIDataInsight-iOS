@@ -10,7 +10,7 @@ struct DefaultAccountRemoteServiceTests {
     func getUserInfo_success_updatesStoreAndReturnsModel() async throws {
         let store = MockAccountUserStore()
         let client = MockNetworkClient(responses: [
-            .success(jsonResponse(body: #"{"code":200,"msg":"ok","data":{"id":1,"phone":"13800000000","username":"demo","nikeName":"Demo"}}"#))
+            .success(jsonResponse(body: #"{"code":200,"msg":"ok","data":{"id":1,"phone":"13800000000","username":"demo","nickname":"Demo"}}"#))
         ])
         let service = DefaultAccountRemoteService(
             accountUserStore: store,

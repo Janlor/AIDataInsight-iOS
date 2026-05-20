@@ -17,12 +17,49 @@ import SwiftUI
 
 struct RootView: View {
     @Bindable var environment: AppRuntimeEnvironment
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var settingPath: [RootRoute] = []
     @State private var showsSetting = false
+    @State private var showsHistory = false
 
     var body: some View {
         Group {
             if environment.loginStore.state.isAuthenticated {
+                if horizontalSizeClass == .compact {
+                    compactWorkspace
+                } else {
+                    splitWorkspace
+                }
+            } else {
+                NavigationStack {
+                    LoginScreen(store: environment.loginStore, privacyDestination: AnyView(PrivacyScreen()))
+                }
+            }
+        }
+        .tokenizedBackground()
+        .modelContainer(environment.modelContainer)
+        .desktopContentSize()
+        .task {
+            await environment.loginStore.resolveLaunchSession()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .startNewChat)) { _ in
+            environment.historyStore.clearSelection()
+            environment.chatStore.startNewChat()
+            showsHistory = false
+        }
+        .onChange(of: environment.settingStore.state.didLogout) { _, didLogout in
+            guard didLogout else {
+                return
+            }
+            environment.loginStore.markLoggedOut()
+            environment.settingStore.consumeLogoutSignal()
+            settingPath.removeAll()
+            showsSetting = false
+            showsHistory = false
+        }
+    }
+
+    private var splitWorkspace: some View {
                 NavigationSplitView {
                     HistorySidebar(
                         store: environment.historyStore,
@@ -63,30 +100,59 @@ struct RootView: View {
                     settingView
                         .frame(minWidth: 500, minHeight: 600)
                 }
-            } else {
-                NavigationStack {
-                    LoginScreen(store: environment.loginStore, privacyDestination: AnyView(PrivacyScreen()))
+    }
+
+    private var compactWorkspace: some View {
+        NavigationStack {
+            AIChatScreen(store: environment.chatStore)
+                .toolbar {
+                    ToolbarItem {
+                        Button("History", systemImage: "sidebar.left") {
+                            showsHistory = true
+                        }
+                    }
+                    ToolbarItem {
+                        Button("Settings", systemImage: "gearshape") {
+                            showsSetting = true
+                        }
+                        .accessibilityIdentifier("toolbar-settings-button")
+                    }
+                }
+        }
+        .sheet(isPresented: $showsHistory) {
+            NavigationStack {
+                HistorySidebar(
+                    store: environment.historyStore,
+                    onNewChat: {
+                        environment.historyStore.clearSelection()
+                        environment.chatStore.startNewChat()
+                        showsHistory = false
+                    },
+                    onSelect: { historyID in
+                        Task {
+                            await environment.chatStore.loadHistory(historyID: historyID)
+                            showsHistory = false
+                        }
+                    },
+                    onDeletedSelected: {
+                        environment.chatStore.startNewChat()
+                    },
+                    onOpenSetting: {
+                        showsHistory = false
+                        showsSetting = true
+                    }
+                )
+                .toolbar {
+                    ToolbarItem {
+                        Button("关闭") {
+                            showsHistory = false
+                        }
+                    }
                 }
             }
         }
-        .tokenizedBackground()
-        .modelContainer(environment.modelContainer)
-        .desktopContentSize()
-        .task {
-            await environment.loginStore.resolveLaunchSession()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .startNewChat)) { _ in
-            environment.historyStore.clearSelection()
-            environment.chatStore.startNewChat()
-        }
-        .onChange(of: environment.settingStore.state.didLogout) { _, didLogout in
-            guard didLogout else {
-                return
-            }
-            environment.loginStore.markLoggedOut()
-            environment.settingStore.consumeLogoutSignal()
-            settingPath.removeAll()
-            showsSetting = false
+        .sheet(isPresented: $showsSetting) {
+            settingView
         }
     }
 
@@ -104,12 +170,19 @@ struct RootView: View {
                     PrivacyScreen()
                 }
             }
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("关闭") {
+                        showsSetting = false
+                    }
+                }
+            }
         }
     }
 }
 
 #Preview {
-    RootView(environment: AppRuntimeEnvironment())
+    RootView(environment: AppRuntimeEnvironment(usePreviewRepositories: true))
 }
 
 private enum RootRoute: Hashable {

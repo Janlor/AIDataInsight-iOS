@@ -14,11 +14,12 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../AppAccount"),
+        .package(path: "../AppContracts"),
         .package(path: "../AppCore"),
         .package(path: "../AppDesignSystem"),
     ],
     targets: [
-        .target(name: "FeatureLogin", dependencies: ["AppAccount", "AppCore", "AppDesignSystem"]),
+        .target(name: "FeatureLogin", dependencies: ["AppAccount", "AppContracts", "AppCore", "AppDesignSystem"]),
         .testTarget(name: "FeatureLoginTests", dependencies: ["FeatureLogin"]),
     ]
 )

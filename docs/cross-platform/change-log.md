@@ -150,6 +150,28 @@ HarmonyOS NEXT 进入阶段 2：从跨端契约生成 ArkTS contract models。
 
 ---
 
+## 2026-05-20 - AccountUser Protected Persistence Contract
+
+### Context
+
+Apple 全平台实现 Setting 时发现只持久化 AccountSession 会导致设置页先显示默认账户占位，再等待 `/oauth2/getUserInfo` 刷新真实用户信息。回看现有 `app-ios`，`AccountRouter.updateUser` 已将 `UserInfoMO` 保存到 Keychain，`SettingRepository` 从 `AccountUserStore.getUser` 读取本地用户资料。
+
+### Scope
+
+- 更新 Setting use case 契约，明确依赖 `AccountUserStore`。
+- 更新 Account 领域说明：`AccountUser` 通过受保护账号存储持久化，Apple 端使用 Keychain。
+- 更新 Apple 平台计划：`AccountUser` 不进入 SwiftData，设置页先读 Keychain-backed cache，再静默刷新远程用户信息。
+- `app-apple` 增加 Keychain-backed `AccountUserStore`，`getUserInfo` 成功后写入本地用户缓存。
+
+### Rule
+
+- `/oauth2/login` 只返回 OAuth token，不返回用户资料。
+- `/oauth2/getUserInfo` 返回 `AccountUser`，成功后必须更新 `AccountUserStore`。
+- 设置页应先用本地 `AccountUser` 渲染，再刷新远程数据，避免占位值闪烁。
+- 退出登录、401、402 refresh 失败必须同时清理 session 和 userInfo。
+
+---
+
 ## 2026-05-15 - HarmonyOS NEXT Stage 3 Mapper Tests
 
 ### Context

@@ -204,9 +204,9 @@ class UpdatePasswordController: BaseViewController {
         navigationItem.title = NSLocalizedString("修改密码", bundle: .module, comment: "")
         
         let user = Router.perform(key: AccountProtocol.self)?.getUser(UserInfoMO.self)
-        let nikeName = user?.nikeName
+        let nickname = user?.nickname
         let username = user?.username
-        nameLabel.text = "Hello，\(nikeName ?? "")"
+        nameLabel.text = "Hello，\(nickname ?? "")"
         usernameTextField.text = username
         middleUsernameField.text = username
     }

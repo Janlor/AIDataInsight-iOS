@@ -6,6 +6,7 @@
 //
 
 import AppAccount
+import AppContracts
 import AppCore
 import AppNetworking
 import AppPersistence
@@ -34,11 +35,13 @@ final class AppRuntimeEnvironment {
         historyStore: HistoryStore? = nil,
         settingStore: SettingStore? = nil,
         sessionManager: AccountSessionManager? = nil,
-        modelContainer: ModelContainer? = nil
+        modelContainer: ModelContainer? = nil,
+        usePreviewRepositories: Bool = false
     ) {
         self.appEnvironment = appEnvironment
         self.modelContainer = modelContainer ?? AppRuntimeEnvironment.makeModelContainer()
-        let resolvedSessionManager = sessionManager ?? AccountSessionManager(store: KeychainSessionStore())
+        let userStore = KeychainAccountUserStore()
+        let resolvedSessionManager = sessionManager ?? AccountSessionManager(store: KeychainSessionStore(), userStore: userStore)
         self.sessionManager = resolvedSessionManager
         let client = URLSessionHTTPClient(
             environment: APIEnvironment.resolve(appEnvironment),
@@ -48,12 +51,12 @@ final class AppRuntimeEnvironment {
         let aiChatRepository: AIChatRepository
         let historyRepository: HistoryRepository
 
-        if appEnvironment == .mock {
+        if usePreviewRepositories {
             accountService = MockAccountService()
             aiChatRepository = PreviewAIChatRepository()
             historyRepository = PreviewHistoryRepository()
         } else {
-            accountService = AccountService(client: client, sessionManager: resolvedSessionManager)
+            accountService = AccountService(client: client, sessionManager: resolvedSessionManager, userStore: userStore)
             aiChatRepository = RemoteAIChatRepository(client: client, streamer: client)
             historyRepository = RemoteHistoryRepository(client: client)
         }
@@ -89,6 +92,14 @@ private actor MockAccountService: AccountServicing {
         )
         session = nextSession
         return nextSession
+    }
+
+    func cachedUserInfo() async throws -> AccountUserContract? {
+        AccountUserContract(id: 1, username: "demo", nickname: "演示账号", phone: "18812341234")
+    }
+
+    func getUserInfo() async throws -> AccountUserContract {
+        AccountUserContract(id: 1, username: "demo", nickname: "演示账号", phone: "18812341234")
     }
 
     func logout() async throws {

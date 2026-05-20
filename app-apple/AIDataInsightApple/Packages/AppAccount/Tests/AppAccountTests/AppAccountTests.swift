@@ -15,6 +15,17 @@ import Foundation
     #expect(try await store.load() == nil)
 }
 
+@Test func inMemoryAccountUserStoreSavesAndClearsUser() async throws {
+    let store = InMemoryAccountUserStore()
+    let user = AccountUserContract(id: 1, username: "demo", nickname: "演示账号", phone: "18812341234")
+
+    try await store.save(user)
+    #expect(try await store.load() == user)
+
+    try await store.clear()
+    #expect(try await store.load() == nil)
+}
+
 @Test func accountSessionContractNormalizesWireAliases() throws {
     let data = Data(#"{"access_token":"access","refresh_token":"refresh","org_id":7}"#.utf8)
     let contract = try JSONDecoder().decode(AccountSessionContract.self, from: data)
@@ -49,13 +60,29 @@ import Foundation
 
 @Test func accountServiceClearsSessionOnLogout() async throws {
     let store = InMemorySessionStore(session: AccountSession(accessToken: "access", refreshToken: "refresh", orgID: "9"))
-    let manager = AccountSessionManager(store: store)
+    let userStore = InMemoryAccountUserStore(user: AccountUserContract(id: 1, username: "demo", nickname: "演示账号", phone: nil))
+    let manager = AccountSessionManager(store: store, userStore: userStore)
     let client = MockHTTPClient(envelope: APIResponseEnvelope(code: 200, msg: "ok", data: EmptyContract()))
-    let service = AccountService(client: client, sessionManager: manager)
+    let service = AccountService(client: client, sessionManager: manager, userStore: userStore)
 
     try await service.logout()
 
     #expect(try await store.load() == nil)
+    #expect(try await userStore.load() == nil)
+}
+
+@Test func accountServicePersistsUserInfoAfterFetch() async throws {
+    let sessionStore = InMemorySessionStore(session: AccountSession(accessToken: "access", refreshToken: "refresh", orgID: "9"))
+    let userStore = InMemoryAccountUserStore()
+    let manager = AccountSessionManager(store: sessionStore, userStore: userStore)
+    let user = AccountUserContract(id: 1, username: "demo", nickname: "演示账号", phone: "18812341234")
+    let client = MockHTTPClient(envelope: APIResponseEnvelope(code: 200, msg: "ok", data: user))
+    let service = AccountService(client: client, sessionManager: manager, userStore: userStore)
+
+    let fetched = try await service.getUserInfo()
+
+    #expect(fetched == user)
+    #expect(try await userStore.load() == user)
 }
 
 private struct MockHTTPClient<Payload: Decodable & Sendable>: HTTPClient {

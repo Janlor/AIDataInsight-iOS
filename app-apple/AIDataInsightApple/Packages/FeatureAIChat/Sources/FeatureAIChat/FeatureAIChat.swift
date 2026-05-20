@@ -796,13 +796,14 @@ public struct PreviewAIChatRepository: AIChatRepository {
     }
 
     public func loadHistoryDetail(historyId: Int) async throws -> HistoryRecordContract {
-        HistoryRecordContract(
+        let item = PreviewHistoryItem.item(for: historyId)
+        return HistoryRecordContract(
             id: historyId,
-            name: "本月销售额趋势",
+            name: item.title,
             updateTime: ISO8601DateFormatter().string(from: .now),
             detailList: [
-                HistoryDetailContract(id: historyId * 10 + 1, historyId: historyId, type: .question, contentType: .ai, content: "查询本月销售额趋势"),
-                HistoryDetailContract(id: historyId * 10 + 2, historyId: historyId, type: .answer, contentType: .ai, content: "本月销售额整体向好，华东和华南贡献最高。"),
+                HistoryDetailContract(id: historyId * 10 + 1, historyId: historyId, type: .question, contentType: .ai, content: item.question),
+                HistoryDetailContract(id: historyId * 10 + 2, historyId: historyId, type: .answer, contentType: .ai, content: item.answer),
             ]
         )
     }
@@ -879,6 +880,41 @@ public struct PreviewAIChatRepository: AIChatRepository {
         AsyncThrowingStream { continuation in
             continuation.yield("这是预览环境的流式回复：\(text)")
             continuation.finish()
+        }
+    }
+}
+
+private struct PreviewHistoryItem {
+    let title: String
+    let question: String
+    let answer: String
+
+    static func item(for historyId: Int) -> PreviewHistoryItem {
+        switch historyId {
+        case 101:
+            PreviewHistoryItem(
+                title: "各组织库存吨数",
+                question: "查看各组织库存吨数",
+                answer: "当前库存主要集中在华东、华南与华北组织，其中华东库存最高。"
+            )
+        case 102:
+            PreviewHistoryItem(
+                title: "客户应收账款分析",
+                question: "按客户分析应收账款",
+                answer: "远山贸易、青禾供应链与星河制造为主要应收客户，建议优先跟进高账龄客户。"
+            )
+        case 103:
+            PreviewHistoryItem(
+                title: "采购金额月度对比",
+                question: "采购金额按月份对比",
+                answer: "采购金额近几个月呈波动上升，第 4 周采购额最高，需要关注采购节奏。"
+            )
+        default:
+            PreviewHistoryItem(
+                title: "本月销售额趋势",
+                question: "查询本月销售额趋势",
+                answer: "本月销售额整体向好，华东和华南贡献最高。"
+            )
         }
     }
 }

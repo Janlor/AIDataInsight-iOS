@@ -91,7 +91,7 @@ scripts/generate-cross-platform-contracts.sh
 
 - Account / Setting 领域模型。
 - Setting use case / UI state / UI layout 契约，用于约束账户信息、关于、退出登录确认、可选图标和分组列表语义。
-- Account 自动登录规则：登录响应 token 归一化、session 持久化、启动读取 session、登录/退出/会话失效后的 root route 替换。
+- Account 自动登录规则：登录响应 token 归一化、session 持久化、AccountUser 受保护持久化、启动读取 session、登录/退出/会话失效后的 root route 替换。
 - Environment 领域模型，包含多端默认学习环境使用的 Apifox mock host。
 - AI Home 领域模型，描述登录成功后的 AI 业务主入口、内容切换和辅助面板语义。
 - AI Chat endpoint 领域模型，包含流式接口路径等子域 API 语义。

@@ -36,7 +36,7 @@ struct DefaultSettingRepository: SettingRepository {
 
         return SettingSnapshot(
             accountInfo: SettingAccountInfo(
-                nickname: userInfo?.nikeName,
+                nickname: userInfo?.nickname,
                 username: userInfo?.username,
                 phone: userInfo?.phone
             ),

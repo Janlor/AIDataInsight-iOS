@@ -1,5 +1,7 @@
 import AppAccount
+import AppContracts
 import AppCore
+import AppDesignSystem
 import Observation
 import SwiftUI
 
@@ -117,27 +119,11 @@ public struct LoginScreen: View {
 
     public var body: some View {
         ZStack {
-            LinearGradient(
-                colors: [Color.blue.opacity(0.10), Color.teal.opacity(0.08), Color.clear],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
+            AppColor.Background.secondary.color
+                .ignoresSafeArea()
 
-            VStack(spacing: 28) {
-                VStack(spacing: 10) {
-                    Image(systemName: "chart.xyaxis.line")
-                        .font(.system(size: 46, weight: .semibold))
-                        .foregroundStyle(.blue)
-                        .frame(width: 72, height: 72)
-                        .background(.blue.opacity(0.10), in: Circle())
-                    Text("AI数据分析助手")
-                        .font(.largeTitle.bold())
-                        .accessibilityIdentifier("login-title")
-                    Text("用自然语言提问，快速获得经营数据洞察")
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                }
+            VStack(spacing: 26) {
+                brandHeader
 
                 VStack(spacing: 14) {
                     TextField("账号", text: Binding(
@@ -198,17 +184,41 @@ public struct LoginScreen: View {
                     .controlSize(.large)
                     .accessibilityIdentifier("login-submit-button")
                 }
-                .padding(24)
-                .frame(width: 420)
-                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                .padding(22)
+                .frame(maxWidth: 420)
+                .background(AppColor.Background.tertiary.color, in: RoundedRectangle(cornerRadius: 10))
                 .overlay {
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.secondary.opacity(0.20))
+                    RoundedRectangle(cornerRadius: 10)
+                        .stroke(AppColor.Separator.default.color)
                 }
+                .shadow(color: .black.opacity(0.06), radius: 24, y: 12)
 
                 Text("Demo 账号：demo / demo@123")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 24)
+            .frame(maxWidth: 520)
+        }
+    }
+
+    private var brandHeader: some View {
+        VStack(spacing: 14) {
+            Image("AppLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 82, height: 82)
+                .clipShape(RoundedRectangle(cornerRadius: 18))
+                .shadow(color: .black.opacity(0.14), radius: 16, y: 8)
+            VStack(spacing: 8) {
+                Text("AI数据分析助手")
+                    .font(.system(size: 32, weight: .semibold))
+                    .foregroundStyle(AppColor.Label.primary.color)
+                    .accessibilityIdentifier("login-title")
+                Text("连接经营数据，用自然语言获得可视化分析结果")
+                    .font(.callout)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(AppColor.Label.secondary.color)
             }
         }
     }
@@ -223,6 +233,14 @@ public struct PreviewAccountService: AccountServicing {
 
     public func login(name: String, password: String) async throws -> AccountSession {
         AccountSession(accessToken: "preview-access", refreshToken: "preview-refresh", orgID: "0", username: name)
+    }
+
+    public func cachedUserInfo() async throws -> AccountUserContract? {
+        AccountUserContract(id: 1, username: "demo", nickname: "演示账号", phone: "18812341234")
+    }
+
+    public func getUserInfo() async throws -> AccountUserContract {
+        AccountUserContract(id: 1, username: "demo", nickname: "演示账号", phone: "18812341234")
     }
 
     public func logout() async throws {}

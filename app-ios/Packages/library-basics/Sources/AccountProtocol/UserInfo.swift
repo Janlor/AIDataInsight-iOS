@@ -34,7 +34,7 @@ public protocol UserInfo {
     /// 菜单权限列表
 //    var authList: [String]? { get set }
     /// 用户名称
-    var nikeName: String? { get set }
+    var nickname: String? { get set }
 //    var lockDate: String? { get set }
 //    var loginNum: Int? { get set }
     var id: Int? { get set }
@@ -58,5 +58,5 @@ public struct UserInfoMO: UserInfo, Codable {
     /// 登录名
     public var username: String?
     /// 用户名称
-    public var nikeName: String?
+    public var nickname: String?
 }

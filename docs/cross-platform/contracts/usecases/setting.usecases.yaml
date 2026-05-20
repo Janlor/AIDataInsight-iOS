@@ -11,6 +11,7 @@ sourceReferences:
 repositoryDependencies:
   - SettingsRepository
   - AccountSessionStore
+  - AccountUserStore
   - PrivacyRouteProvider
 
 usecases:
@@ -21,7 +22,9 @@ usecases:
       snapshot: SettingSnapshot
     rules:
       - Requires an authenticated session. If session.isLogin is false, caller must route to login before building Setting UI.
-      - accountInfo is built from remote user info when available, then local cached user/session fallback.
+      - accountInfo is built from local cached AccountUser first to avoid placeholder flicker, then refreshed from remote user info when available.
+      - AccountUser must be persisted in the same protected account storage boundary as AccountSession; Apple clients use Keychain.
+      - Remote getUserInfo success must update AccountUserStore before rebuilding Setting UI state.
       - Empty nickname, username, and phone display as "未设置" in UI state mapping.
       - appVersion is displayed as plain text and is not selectable.
 

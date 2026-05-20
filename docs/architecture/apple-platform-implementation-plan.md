@@ -262,7 +262,7 @@ AppTestingSupport
 
 存储边界：
 
-- Keychain 存 access token、refresh token、orgId 等敏感信息。
+- Keychain 存 access token、refresh token、orgId、AccountUser 等受保护账号信息。
 - SwiftData 存非敏感数据：
   - history list cache
   - history detail cache
@@ -275,6 +275,7 @@ AppTestingSupport
 - SwiftData model 不等同于 API DTO。
 - SwiftData model 不直接进入 View。
 - token 不进入 SwiftData。
+- AccountUser 不进入 SwiftData，设置页从 Keychain-backed AccountUserStore 读取本地缓存并静默刷新远程用户信息。
 
 ### AppAccount
 
@@ -292,6 +293,8 @@ AppTestingSupport
 - `AccountUser`
 - `SessionStore`
 - `KeychainSessionStore`
+- `AccountUserStore`
+- `KeychainAccountUserStore`
 - `AccountRepository`
 - `AccountService`
 - `RootSessionCoordinator`
@@ -894,4 +897,3 @@ SwiftData 用途：
 8. `Add app-apple history workspace`
 9. `Add app-apple platform smoke tests`
 10. `Finalize app-apple documentation`
-

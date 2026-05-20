@@ -93,8 +93,9 @@ AccountSession
 - 四端都必须提供等价 session 读取能力
 - `isLogin` 应由 session 内容推导，而不是单独长期持久化为真值
 - 登录接口返回后，必须先把接口字段归一化为 `AccountSession`，再写入 session store
+- 用户资料不由登录接口返回；拿到 token 后通过 `/oauth2/getUserInfo` 获取 `AccountUser`
 - 自动登录必须在应用启动时读取已持久化 session，并通过 route intent 决定进入 Login 或 AI Home
-- 退出登录、401 会话失效、402 刷新失败时必须清除持久化 session，再回到 Login
+- 退出登录、401 会话失效、402 刷新失败时必须清除持久化 session 和本地用户资料，再回到 Login
 
 字段归一化规则：
 
@@ -136,6 +137,9 @@ AccountUser
 
 - Android / HarmonyOS NEXT / Web / 其它候选端不继续使用 `nikeName`
 - iOS 后续如果重构字段命名，应向 `nickname` 靠拢
+- `AccountUser` 必须通过 `AccountUserStore` 持久化，作为设置页和账户展示的本地缓存
+- Apple 端参考现有 iOS `AccountRouter.updateUser`，用户资料与 token 一样保存到 Keychain；不能放入 SwiftData
+- 设置页应优先使用本地 `AccountUser` 渲染，再静默调用 `/oauth2/getUserInfo` 刷新缓存，避免默认占位值闪烁
 
 ### 2.3 MenuItem
 

@@ -150,17 +150,28 @@ public final class SettingStore {
         state.errorMessage = nil
         do {
             let session = try await accountService.resolveLaunchSession()
-            let username = session?.username?.nonEmpty ?? "demo"
-            let snapshot = SettingSnapshotContract(
-                accountInfo: SettingAccountInfoContract(nickname: username, username: username, phone: nil),
-                capability: SettingCapabilityContract(canUpdatePassword: false, canOpenPrivacy: true, canLogout: true),
-                appVersion: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
-            )
-            state.sections = SettingViewState.sections(from: snapshot)
+            let cachedUser = try? await accountService.cachedUserInfo()
+            if let cachedUser {
+                state.sections = SettingViewState.sections(from: snapshot(session: session, user: cachedUser))
+            }
+            let user = (try? await accountService.getUserInfo()) ?? cachedUser
+            state.sections = SettingViewState.sections(from: snapshot(session: session, user: user))
         } catch {
             state.errorMessage = "设置加载失败，请稍后重试"
         }
         state.isLoading = false
+    }
+
+    private func snapshot(session: AccountSession?, user: AccountUserContract?) -> SettingSnapshotContract {
+        SettingSnapshotContract(
+            accountInfo: SettingAccountInfoContract(
+                nickname: user?.nickname,
+                username: user?.username ?? session?.username,
+                phone: user?.phone
+            ),
+            capability: SettingCapabilityContract(canUpdatePassword: false, canOpenPrivacy: true, canLogout: true),
+            appVersion: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
+        )
     }
 
     public func confirmLogout() {
@@ -190,6 +201,7 @@ public final class SettingStore {
 }
 
 public struct SettingScreen: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Bindable private var store: SettingStore
     private let onOpenPrivacy: () -> Void
 
@@ -217,7 +229,7 @@ public struct SettingScreen: View {
                         sectionCard(section)
                     }
                 }
-                .padding(24)
+                .padding(contentPadding)
                 .padding(.bottom, logoutRow == nil ? 0 : 88)
                 .frame(maxWidth: 520)
                 .frame(maxWidth: .infinity)
@@ -279,6 +291,10 @@ public struct SettingScreen: View {
             .first
     }
 
+    private var contentPadding: CGFloat {
+        horizontalSizeClass == .compact ? 16 : 24
+    }
+
     private var accountHeader: some View {
         HStack(spacing: 14) {
             Text("JL")
@@ -291,9 +307,11 @@ public struct SettingScreen: View {
                 Text(accountDisplayName)
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(AppColor.Label.primary.color)
+                    .lineLimit(1)
                 Text("Demo Workspace")
                     .font(.subheadline)
                     .foregroundStyle(AppColor.Label.secondary.color)
+                    .lineLimit(1)
             }
             Spacer()
         }
@@ -384,6 +402,7 @@ public struct SettingScreen: View {
                     Text(detail)
                         .foregroundStyle(AppColor.Label.secondary.color)
                         .lineLimit(1)
+                        .minimumScaleFactor(0.82)
                 }
                 if row.showsDisclosure {
                     Image(systemName: "chevron.right")
@@ -419,6 +438,14 @@ public struct PreviewAccountService: AccountServicing {
 
     public func login(name: String, password: String) async throws -> AccountSession {
         AccountSession(accessToken: "preview-access", refreshToken: "preview-refresh", orgID: "0", username: name)
+    }
+
+    public func cachedUserInfo() async throws -> AccountUserContract? {
+        AccountUserContract(id: 1, username: "demo", nickname: "演示账号", phone: "18812341234")
+    }
+
+    public func getUserInfo() async throws -> AccountUserContract {
+        AccountUserContract(id: 1, username: "demo", nickname: "演示账号", phone: "18812341234")
     }
 
     public func logout() async throws {}

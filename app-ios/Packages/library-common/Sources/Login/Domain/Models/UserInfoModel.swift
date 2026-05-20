@@ -16,5 +16,5 @@ struct UserInfoModel: UserInfo, Codable {
     /// 登录名
     var username: String?
     /// 用户名称
-    var nikeName: String?
+    var nickname: String?
 }
