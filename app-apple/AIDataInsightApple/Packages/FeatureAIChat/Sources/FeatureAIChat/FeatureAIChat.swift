@@ -402,6 +402,7 @@ public final class AIChatStore {
 
 public struct AIChatScreen: View {
     @Bindable private var store: AIChatStore
+    private let bottomAnchorID = "chat-bottom-anchor"
 
     public init(store: AIChatStore) {
         self.store = store
@@ -414,6 +415,9 @@ public struct AIChatScreen: View {
         }
         .background(Color(nsColorCompatibleLight: "#F7F8FA", dark: "#0B1020"))
         .navigationTitle("AI数据分析助手")
+#if os(macOS)
+        .navigationSubtitle(store.state.activeHistoryID == nil ? "New Chat" : "History")
+#endif
         .task {
             await store.loadTemplate()
         }
@@ -470,25 +474,43 @@ public struct AIChatScreen: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
-            ScrollView {
-                LazyVStack(spacing: 18) {
-                    ForEach(store.state.messages) { message in
-                        messageView(message)
-                    }
-                    if store.state.isSending {
-                        HStack {
-                            ProgressView()
-                                .controlSize(.small)
-                            Text("分析中...")
-                                .foregroundStyle(.secondary)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(spacing: 18) {
+                        ForEach(store.state.messages) { message in
+                            messageView(message)
+                                .id(message.id)
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        if store.state.isSending {
+                            HStack {
+                                ProgressView()
+                                    .controlSize(.small)
+                                Text("分析中...")
+                                    .foregroundStyle(.secondary)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        Color.clear
+                            .frame(height: 1)
+                            .id(bottomAnchorID)
                     }
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 24)
+                    .frame(maxWidth: 900)
+                    .frame(maxWidth: .infinity)
                 }
-                .padding(.horizontal, 32)
-                .padding(.vertical, 24)
-                .frame(maxWidth: 900)
-                .frame(maxWidth: .infinity)
+                .onAppear {
+                    scrollToBottom(proxy)
+                }
+                .onChange(of: store.state.messages.count) { _, _ in
+                    scrollToBottom(proxy)
+                }
+                .onChange(of: store.state.messages.last?.text) { _, _ in
+                    scrollToBottom(proxy)
+                }
+                .onChange(of: store.state.isSending) { _, _ in
+                    scrollToBottom(proxy)
+                }
             }
         }
     }
@@ -616,6 +638,14 @@ public struct AIChatScreen: View {
             .foregroundStyle(color)
             .frame(width: 28, height: 28)
             .background(color.opacity(0.12), in: Circle())
+    }
+
+    private func scrollToBottom(_ proxy: ScrollViewProxy) {
+        Task { @MainActor in
+            withAnimation(.snappy(duration: 0.22)) {
+                proxy.scrollTo(bottomAnchorID, anchor: .bottom)
+            }
+        }
     }
 }
 

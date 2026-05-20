@@ -1,4 +1,5 @@
 import AppContracts
+import AppDesignSystem
 import AppNetworking
 import Foundation
 import Observation
@@ -265,6 +266,7 @@ public final class HistoryStore {
 
 public struct HistorySidebar: View {
     @Bindable private var store: HistoryStore
+    @State private var hoveredConversationID: Int?
     private let onNewChat: () -> Void
     private let onSelect: (Int) -> Void
     private let onDeletedSelected: () -> Void
@@ -287,8 +289,16 @@ public struct HistorySidebar: View {
     public var body: some View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 14) {
-                Text("AI数据分析助手")
-                    .font(.headline)
+                HStack(spacing: 10) {
+                    Image(systemName: "chart.xyaxis.line")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 30, height: 30)
+                        .background(AppColor.Accent.primary.color, in: RoundedRectangle(cornerRadius: 8))
+                    Text("AI数据分析助手")
+                        .font(.headline)
+                        .lineLimit(1)
+                }
                 Button {
                     store.clearSelection()
                     onNewChat()
@@ -328,6 +338,7 @@ public struct HistorySidebar: View {
                         ForEach(group.conversations) { conversation in
                             row(conversation)
                                 .tag(conversation.remoteID)
+                                .listRowInsets(EdgeInsets(top: 3, leading: 8, bottom: 3, trailing: 8))
                                 .onAppear {
                                     Task {
                                         await store.loadNextPageIfNeeded(currentItemID: conversation.id)
@@ -379,6 +390,8 @@ public struct HistorySidebar: View {
             .padding(12)
         }
         .navigationTitle("AI数据分析助手")
+        .navigationSplitViewColumnWidth(min: 260, ideal: 300, max: 360)
+        .background(AppColor.Background.secondary.color)
         .task {
             if store.conversations.isEmpty {
                 await store.loadFirstPage()
@@ -387,10 +400,13 @@ public struct HistorySidebar: View {
     }
 
     private func row(_ conversation: HistoryConversationViewState) -> some View {
-        HStack(spacing: 8) {
+        let isSelected = conversation.remoteID == store.state.selectedID
+        let isHovered = conversation.remoteID == hoveredConversationID
+        return HStack(spacing: 8) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(conversation.title)
                     .lineLimit(1)
+                    .font(.subheadline)
                 if conversation.displayTime.isEmpty == false {
                     Text(conversation.displayTime)
                         .font(.caption)
@@ -398,21 +414,39 @@ public struct HistorySidebar: View {
                 }
             }
             Spacer()
-            Button {
-                guard let remoteID = conversation.remoteID else {
-                    return
-                }
-                Task {
-                    let deletedSelected = await store.delete(historyID: remoteID)
-                    if deletedSelected {
-                        onDeletedSelected()
+            if isSelected || isHovered {
+                Button {
+                    guard let remoteID = conversation.remoteID else {
+                        return
                     }
+                    Task {
+                        let deletedSelected = await store.delete(historyID: remoteID)
+                        if deletedSelected {
+                            onDeletedSelected()
+                        }
+                    }
+                } label: {
+                    Image(systemName: "trash")
                 }
-            } label: {
-                Image(systemName: "trash")
+                .buttonStyle(.borderless)
+                .foregroundStyle(.secondary)
+                .help("删除")
             }
-            .buttonStyle(.borderless)
-            .foregroundStyle(.secondary)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 7)
+        .contentShape(Rectangle())
+        .background {
+            if isSelected {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(AppColor.Accent.primary.color.opacity(0.14))
+            } else if isHovered {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(AppColor.Background.tertiary.color)
+            }
+        }
+        .onHover { isHovering in
+            hoveredConversationID = isHovering ? conversation.remoteID : nil
         }
         .contextMenu {
             Button("删除", role: .destructive) {

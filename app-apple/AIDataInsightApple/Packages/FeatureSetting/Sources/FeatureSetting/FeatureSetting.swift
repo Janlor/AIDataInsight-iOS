@@ -1,5 +1,6 @@
 import AppAccount
 import AppContracts
+import AppDesignSystem
 import Observation
 import SwiftUI
 
@@ -198,27 +199,43 @@ public struct SettingScreen: View {
     }
 
     public var body: some View {
-        Form {
-            if let errorMessage = store.state.errorMessage {
-                Section {
-                    Text(errorMessage)
-                        .foregroundStyle(.red)
+        VStack(spacing: 0) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    accountHeader
+
+                    if let errorMessage = store.state.errorMessage {
+                        Text(errorMessage)
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                            .padding(12)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(AppColor.Status.mark.color.opacity(0.10), in: RoundedRectangle(cornerRadius: 8))
+                    }
+
+                    ForEach(contentSections) { section in
+                        sectionCard(section)
+                    }
                 }
+                .padding(24)
+                .frame(maxWidth: 520)
+                .frame(maxWidth: .infinity)
             }
 
-            ForEach(store.state.sections) { section in
-                Section {
-                    ForEach(section.rows) { row in
-                        rowView(row)
-                    }
-                } header: {
-                    if let title = section.title {
-                        Text(title)
-                    }
-                }
+            if let logoutRow {
+                Divider()
+                rowView(logoutRow)
+                    .padding(16)
+                    .frame(maxWidth: 520)
+                    .frame(maxWidth: .infinity)
+                    .background(.bar)
             }
         }
+        .background(AppColor.Background.secondary.color)
         .navigationTitle(store.state.title)
+#if os(macOS)
+        .toolbarTitleDisplayMode(.inline)
+#endif
         .task {
             await store.load()
         }
@@ -241,6 +258,78 @@ public struct SettingScreen: View {
             }
             Button(store.state.logoutDialog.cancelTitle, role: .cancel) {
                 store.cancelLogout()
+            }
+        }
+    }
+
+    private var contentSections: [SettingSectionState] {
+        store.state.sections.filter { $0.kind != .logout }
+    }
+
+    private var logoutRow: SettingRowState? {
+        store.state.sections
+            .first(where: { $0.kind == .logout })?
+            .rows
+            .first
+    }
+
+    private var accountHeader: some View {
+        HStack(spacing: 14) {
+            Text("JL")
+                .font(.title3.bold())
+                .foregroundStyle(.white)
+                .frame(width: 52, height: 52)
+                .background(AppColor.Accent.primary.color, in: Circle())
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(accountDisplayName)
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(AppColor.Label.primary.color)
+                Text("Demo Workspace")
+                    .font(.subheadline)
+                    .foregroundStyle(AppColor.Label.secondary.color)
+            }
+            Spacer()
+        }
+        .padding(18)
+        .background(AppColor.Background.tertiary.color, in: RoundedRectangle(cornerRadius: 12))
+        .overlay {
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(AppColor.Separator.default.color)
+        }
+    }
+
+    private var accountDisplayName: String {
+        store.state.sections
+            .flatMap(\.rows)
+            .first(where: { $0.kind == .nickname })?
+            .detail ?? "Janlor Lee"
+    }
+
+    private func sectionCard(_ section: SettingSectionState) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if let title = section.title {
+                Text(title)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(AppColor.Label.secondary.color)
+                    .textCase(.uppercase)
+            }
+
+            VStack(spacing: 0) {
+                ForEach(Array(section.rows.enumerated()), id: \.element.id) { index, row in
+                    rowView(row)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 12)
+                    if index < section.rows.count - 1 {
+                        Divider()
+                            .padding(.leading, 14)
+                    }
+                }
+            }
+            .background(AppColor.Background.tertiary.color, in: RoundedRectangle(cornerRadius: 12))
+            .overlay {
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(AppColor.Separator.default.color)
             }
         }
     }
@@ -274,13 +363,15 @@ public struct SettingScreen: View {
             }
             Text(row.kind == .logout && store.state.isLoggingOut ? "退出中..." : row.title)
                 .foregroundStyle(row.destructive ? .red : .primary)
+                .font(.body.weight(row.kind == .logout ? .semibold : .regular))
             if row.centered {
                 Spacer()
             } else {
                 Spacer()
                 if let detail = row.detail {
                     Text(detail)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppColor.Label.secondary.color)
+                        .lineLimit(1)
                 }
                 if row.showsDisclosure {
                     Image(systemName: "chevron.right")

@@ -15,7 +15,7 @@ struct AppScene: Scene {
             RootView(environment: environment)
         }
 #if os(macOS)
-        .defaultSize(width: 1120, height: 760)
+        .defaultSize(width: 1280, height: 820)
 #endif
         .commands {
             AppCommands()

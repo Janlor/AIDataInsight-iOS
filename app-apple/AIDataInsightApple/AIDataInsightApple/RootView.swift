@@ -53,7 +53,7 @@ struct RootView: View {
                 }
                 .sheet(isPresented: $showsSetting) {
                     settingView
-                        .frame(minWidth: 460, minHeight: 520)
+                        .frame(minWidth: 500, minHeight: 600)
                 }
             } else {
                 NavigationStack {
@@ -63,6 +63,7 @@ struct RootView: View {
         }
         .tokenizedBackground()
         .modelContainer(environment.modelContainer)
+        .desktopContentSize()
         .task {
             await environment.loginStore.resolveLaunchSession()
         }
@@ -105,4 +106,15 @@ struct RootView: View {
 
 private enum RootRoute: Hashable {
     case privacy
+}
+
+private extension View {
+    @ViewBuilder
+    func desktopContentSize() -> some View {
+#if os(macOS)
+        frame(minWidth: 1040, minHeight: 680)
+#else
+        self
+#endif
+    }
 }
