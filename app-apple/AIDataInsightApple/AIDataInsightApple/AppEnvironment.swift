@@ -44,9 +44,20 @@ final class AppRuntimeEnvironment {
             environment: APIEnvironment.resolve(appEnvironment),
             sessionManager: resolvedSessionManager
         )
-        let accountService = AccountService(client: client, sessionManager: resolvedSessionManager)
-        let aiChatRepository = RemoteAIChatRepository(client: client, streamer: client)
-        let historyRepository = RemoteHistoryRepository(client: client)
+        let accountService: AccountServicing
+        let aiChatRepository: AIChatRepository
+        let historyRepository: HistoryRepository
+
+        if appEnvironment == .mock {
+            accountService = FeatureLogin.PreviewAccountService()
+            aiChatRepository = PreviewAIChatRepository()
+            historyRepository = PreviewHistoryRepository()
+        } else {
+            accountService = AccountService(client: client, sessionManager: resolvedSessionManager)
+            aiChatRepository = RemoteAIChatRepository(client: client, streamer: client)
+            historyRepository = RemoteHistoryRepository(client: client)
+        }
+
         self.loginStore = loginStore ?? LoginStore(accountService: accountService)
         self.chatStore = chatStore ?? AIChatStore(repository: aiChatRepository)
         self.historyStore = historyStore ?? HistoryStore(repository: historyRepository)

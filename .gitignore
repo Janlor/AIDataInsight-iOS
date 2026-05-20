@@ -98,3 +98,6 @@ app-web/tsconfig.tsbuildinfo
 app-web/.env*.local
 app-web/test-results/
 app-web/playwright-report/
+
+# Interview
+interview

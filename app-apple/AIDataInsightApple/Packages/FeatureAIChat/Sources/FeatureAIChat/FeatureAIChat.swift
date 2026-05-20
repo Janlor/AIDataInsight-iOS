@@ -1,9 +1,13 @@
 import AppContracts
 import AppCore
+import AppDesignSystem
 import AppNetworking
 import Foundation
 import Observation
 import SwiftUI
+#if os(macOS)
+import AppKit
+#endif
 
 public enum AIChatIntentType: String, Equatable, Sendable {
     case time
@@ -406,9 +410,9 @@ public struct AIChatScreen: View {
     public var body: some View {
         VStack(spacing: 0) {
             content
-            Divider()
             composer
         }
+        .background(Color(nsColorCompatibleLight: "#F7F8FA", dark: "#0B1020"))
         .navigationTitle("AI数据分析助手")
         .task {
             await store.loadTemplate()
@@ -418,91 +422,214 @@ public struct AIChatScreen: View {
     @ViewBuilder
     private var content: some View {
         if store.state.messages.isEmpty {
-            VStack(spacing: 18) {
-                Text("今天想分析什么？")
-                    .font(.title.bold())
-                    .accessibilityIdentifier("ai-chat-empty-title")
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("今天想分析什么？")
+                            .font(.system(size: 30, weight: .semibold))
+                            .accessibilityIdentifier("ai-chat-empty-title")
+                        Text("选择一个推荐问题，或者直接输入经营数据分析需求。")
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
-                if store.state.isLoadingTemplate {
-                    ProgressView()
-                } else {
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 180), spacing: 12)], spacing: 12) {
-                        ForEach(store.state.templateQuestions, id: \.self) { question in
-                            Button {
-                                Task {
-                                    await store.sendTemplateQuestion(question)
+                    if store.state.isLoadingTemplate {
+                        ProgressView()
+                    } else {
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: 12)], spacing: 12) {
+                            ForEach(store.state.templateQuestions, id: \.self) { question in
+                                Button {
+                                    Task {
+                                        await store.sendTemplateQuestion(question)
+                                    }
+                                } label: {
+                                    HStack(alignment: .top, spacing: 10) {
+                                        Image(systemName: "sparkles")
+                                            .foregroundStyle(.blue)
+                                        Text(question)
+                                            .multilineTextAlignment(.leading)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                    }
+                                    .padding(14)
+                                    .frame(minHeight: 74, alignment: .topLeading)
+                                    .background(Color(nsColorCompatibleLight: "#FFFFFF", dark: "#151D30"), in: RoundedRectangle(cornerRadius: 8))
+                                    .overlay {
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(Color.secondary.opacity(0.18))
+                                    }
                                 }
-                            } label: {
-                                Text(question)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(12)
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.bordered)
                         }
                     }
-                    .frame(maxWidth: 720)
                 }
+                .padding(.horizontal, 32)
+                .padding(.top, 72)
+                .frame(maxWidth: 860)
+                .frame(maxWidth: .infinity)
             }
-            .padding(24)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
-            List(store.state.messages) { message in
-                messageView(message)
-                    .listRowSeparator(.hidden)
+            ScrollView {
+                LazyVStack(spacing: 18) {
+                    ForEach(store.state.messages) { message in
+                        messageView(message)
+                    }
+                    if store.state.isSending {
+                        HStack {
+                            ProgressView()
+                                .controlSize(.small)
+                            Text("分析中...")
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+                .padding(.horizontal, 32)
+                .padding(.vertical, 24)
+                .frame(maxWidth: 900)
+                .frame(maxWidth: .infinity)
             }
-            .listStyle(.plain)
         }
     }
 
     private var composer: some View {
-        HStack(spacing: 12) {
-            TextField("输入你的数据分析问题", text: Binding(
-                get: { store.state.draft },
-                set: { store.updateDraft($0) }
-            ), axis: .vertical)
-            .textFieldStyle(.roundedBorder)
-            Button("发送", systemImage: "paperplane.fill") {
-                Task {
-                    await store.sendCurrentMessage()
-                }
+        VStack(spacing: 8) {
+            if let errorMessage = store.state.errorMessage {
+                Text(errorMessage)
+                    .font(.footnote)
+                    .foregroundStyle(.red)
+                    .frame(maxWidth: 860, alignment: .leading)
             }
-            .disabled(store.state.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || store.state.isSending)
+
+            HStack(alignment: .bottom, spacing: 10) {
+                TextField("输入你的数据分析问题", text: Binding(
+                    get: { store.state.draft },
+                    set: { store.updateDraft($0) }
+                ), axis: .vertical)
+                .lineLimit(1...5)
+                .textFieldStyle(.plain)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+
+                Button {
+                    Task {
+                        await store.sendCurrentMessage()
+                    }
+                } label: {
+                    Image(systemName: "paperplane.fill")
+                        .frame(width: 30, height: 30)
+                }
+                .help("发送")
+                .disabled(store.state.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || store.state.isSending)
+                .buttonStyle(.borderedProminent)
+            }
+            .padding(6)
+            .frame(maxWidth: 860)
+            .background(Color(nsColorCompatibleLight: "#FFFFFF", dark: "#151D30"), in: RoundedRectangle(cornerRadius: 8))
+            .overlay {
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.secondary.opacity(0.20))
+            }
         }
-        .padding(16)
+        .padding(.horizontal, 24)
+        .padding(.top, 12)
+        .padding(.bottom, 18)
+        .background(.bar)
     }
 
     @ViewBuilder
     private func messageView(_ message: ChatMessageViewState) -> some View {
-        VStack(alignment: message.role == .user ? .trailing : .leading, spacing: 8) {
-            Text(message.text)
-                .padding(12)
-                .background(message.role == .user ? Color.accentColor.opacity(0.16) : Color.secondary.opacity(0.10))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+        HStack(alignment: .top, spacing: 12) {
+            if message.role == .assistant {
+                avatar(systemName: "sparkles", color: .blue)
+            } else {
+                Spacer(minLength: 80)
+            }
 
-            if let chartPayload = message.chartPayload {
-                chartSummary(chartPayload)
+            VStack(alignment: .leading, spacing: 10) {
+                Text(message.text)
+                    .foregroundStyle(.primary)
+                    .textSelection(.enabled)
+
+                if let chartPayload = message.chartPayload {
+                    chartSummary(chartPayload)
+                }
+            }
+            .padding(14)
+            .background(message.role == .user ? Color.blue.opacity(0.12) : Color(nsColorCompatibleLight: "#FFFFFF", dark: "#151D30"), in: RoundedRectangle(cornerRadius: 8))
+            .overlay {
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.secondary.opacity(message.role == .user ? 0.05 : 0.16))
+            }
+            .frame(maxWidth: 680, alignment: message.role == .user ? .trailing : .leading)
+
+            if message.role == .user {
+                avatar(systemName: "person.fill", color: .secondary)
+            } else {
+                Spacer(minLength: 80)
             }
         }
-        .frame(maxWidth: .infinity, alignment: message.role == .user ? .trailing : .leading)
+        .frame(maxWidth: .infinity)
     }
 
     private func chartSummary(_ payload: ChartPayloadViewState) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(payload.functionName?.rawValue ?? "Chart")
-                .font(.headline)
+            HStack {
+                Text(payload.functionName?.rawValue ?? "Chart")
+                    .font(.headline)
+                Spacer()
+                Text(payload.unit == .ton ? "吨" : "元")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
             ForEach(payload.series) { series in
-                HStack {
-                    Text(series.xAxis)
-                    Spacer()
-                    Text(series.values.map { $0.formatted() }.joined(separator: ", "))
-                        .foregroundStyle(.secondary)
+                let maxValue = payload.series.flatMap(\.values).max() ?? 1
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack {
+                        Text(series.xAxis)
+                        Spacer()
+                        Text(series.values.map { $0.formatted() }.joined(separator: ", "))
+                            .foregroundStyle(.secondary)
+                    }
+                    GeometryReader { proxy in
+                        RoundedRectangle(cornerRadius: 3)
+                            .fill(.blue.opacity(0.20))
+                            .overlay(alignment: .leading) {
+                                RoundedRectangle(cornerRadius: 3)
+                                    .fill(.blue)
+                                    .frame(width: proxy.size.width * max(0.04, (series.values.first ?? 0) / maxValue))
+                            }
+                    }
+                    .frame(height: 8)
                 }
                 .font(.footnote)
             }
         }
         .padding(12)
-        .background(Color.secondary.opacity(0.08))
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .background(Color.blue.opacity(0.06), in: RoundedRectangle(cornerRadius: 8))
+    }
+
+    private func avatar(systemName: String, color: Color) -> some View {
+        Image(systemName: systemName)
+            .font(.system(size: 13, weight: .semibold))
+            .foregroundStyle(color)
+            .frame(width: 28, height: 28)
+            .background(color.opacity(0.12), in: Circle())
+    }
+}
+
+private extension Color {
+    init(nsColorCompatibleLight lightHex: String, dark darkHex: String) {
+#if os(macOS)
+        self.init(nsColor: NSColor(name: nil) { appearance in
+            appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+                ? NSColor(Color(hex: darkHex))
+                : NSColor(Color(hex: lightHex))
+        })
+#else
+        self.init(hex: lightHex)
+#endif
     }
 }
 
@@ -626,19 +753,90 @@ public struct PreviewAIChatRepository: AIChatRepository {
     public init() {}
 
     public func loadTemplate() async throws -> TemplateQuestionSetContract {
-        TemplateQuestionSetContract(questions: ["查询本月销售额", "按客户分析应收账款", "查看库存吨数"])
+        TemplateQuestionSetContract(questions: [
+            "查询本月销售额趋势",
+            "按客户分析应收账款",
+            "查看各组织库存吨数",
+            "采购金额按月份对比",
+        ])
     }
 
     public func loadHistoryDetail(historyId: Int) async throws -> HistoryRecordContract {
-        HistoryRecordContract(id: historyId, name: "Preview", detailList: [])
+        HistoryRecordContract(
+            id: historyId,
+            name: "本月销售额趋势",
+            updateTime: ISO8601DateFormatter().string(from: .now),
+            detailList: [
+                HistoryDetailContract(id: historyId * 10 + 1, historyId: historyId, type: .question, contentType: .ai, content: "查询本月销售额趋势"),
+                HistoryDetailContract(id: historyId * 10 + 2, historyId: historyId, type: .answer, contentType: .ai, content: "本月销售额整体向好，华东和华南贡献最高。"),
+            ]
+        )
     }
 
     public func sendFunctionMessage(text: String, historyId: Int?) async throws -> FunctionModelContract {
-        FunctionModelContract(historyId: historyId ?? 1, hasTool: false, name: nil, msg: "这是预览环境的回复：\(text)", arguments: nil)
+        if text.contains("库存") {
+            return FunctionModelContract(
+                historyId: historyId ?? 101,
+                hasTool: true,
+                name: .queryStockGroupByOrg,
+                msg: "已按组织生成库存吨数对比。",
+                arguments: .basic(BasicQueryContract(orgId: nil, customerName: nil, orderType: nil, operator: nil, value: nil))
+            )
+        }
+
+        if text.contains("应收") {
+            return FunctionModelContract(
+                historyId: historyId ?? 102,
+                hasTool: true,
+                name: .queryArGroupByCustomer,
+                msg: "已按客户生成应收账款分析。",
+                arguments: .basic(BasicQueryContract(orgId: nil, customerName: nil, orderType: nil, operator: nil, value: nil))
+            )
+        }
+
+        if text.contains("采购") {
+            return FunctionModelContract(
+                historyId: historyId ?? 103,
+                hasTool: true,
+                name: .queryPurchaseGroupByMonth,
+                msg: "已生成采购金额月度对比。",
+                arguments: .timeRange(TimeRangeQueryContract(startDate: "2026-05-01", endDate: "2026-05-31", orgId: nil, customerName: nil, goodsType: nil, orderType: nil, operator: nil, value: nil))
+            )
+        }
+
+        return FunctionModelContract(
+            historyId: historyId ?? 100,
+            hasTool: true,
+            name: .querySalesGroupByMonth,
+            msg: "已生成本月销售额趋势。",
+            arguments: .timeRange(TimeRangeQueryContract(startDate: "2026-05-01", endDate: "2026-05-31", orgId: nil, customerName: nil, goodsType: nil, orderType: nil, operator: nil, value: nil))
+        )
     }
 
     public func loadChartData(name: FunctionNameContract, historyId: Int, arguments: FunctionArgumentsContract) async throws -> HistoryChartDetailContract {
-        HistoryChartDetailContract(historyDetailId: 1, funcType: name, chartCommonVoList: [])
+        let values: [ChartCommonItemContract]
+        switch name {
+        case .queryStockGroupByOrg:
+            values = [
+                ChartCommonItemContract(bizId: "east", name: "华东", value: 186),
+                ChartCommonItemContract(bizId: "south", name: "华南", value: 142),
+                ChartCommonItemContract(bizId: "north", name: "华北", value: 98),
+            ]
+        case .queryArGroupByCustomer:
+            values = [
+                ChartCommonItemContract(bizId: "a", name: "远山贸易", value: 1260000),
+                ChartCommonItemContract(bizId: "b", name: "青禾供应链", value: 880000),
+                ChartCommonItemContract(bizId: "c", name: "星河制造", value: 520000),
+            ]
+        default:
+            values = [
+                ChartCommonItemContract(bizId: "w1", name: "第1周", value: 320000),
+                ChartCommonItemContract(bizId: "w2", name: "第2周", value: 410000),
+                ChartCommonItemContract(bizId: "w3", name: "第3周", value: 560000),
+                ChartCommonItemContract(bizId: "w4", name: "第4周", value: 610000),
+            ]
+        }
+        return HistoryChartDetailContract(historyDetailId: historyId * 10 + 2, funcType: name, chartCommonVoList: values)
     }
 
     public func sendLikeFeedback(historyDetailId: Int, like: String) async throws {}

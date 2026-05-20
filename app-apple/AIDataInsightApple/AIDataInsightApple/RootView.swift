@@ -18,6 +18,7 @@ import SwiftUI
 struct RootView: View {
     @Bindable var environment: AppRuntimeEnvironment
     @State private var settingPath: [RootRoute] = []
+    @State private var showsSetting = false
 
     var body: some View {
         Group {
@@ -35,25 +36,24 @@ struct RootView: View {
                         },
                         onDeletedSelected: {
                             environment.chatStore.startNewChat()
+                        },
+                        onOpenSetting: {
+                            showsSetting = true
                         }
                     )
-                } content: {
-                    AIChatScreen(store: environment.chatStore)
                 } detail: {
-                    NavigationStack(path: $settingPath) {
-                        SettingScreen(
-                            store: environment.settingStore,
-                            onOpenPrivacy: {
-                                settingPath.append(.privacy)
-                            }
-                        )
-                        .navigationDestination(for: RootRoute.self) { route in
-                            switch route {
-                            case .privacy:
-                                PrivacyScreen()
+                    AIChatScreen(store: environment.chatStore)
+                        .toolbar {
+                            ToolbarItem {
+                                Button("Settings", systemImage: "gearshape") {
+                                    showsSetting = true
+                                }
                             }
                         }
-                    }
+                }
+                .sheet(isPresented: $showsSetting) {
+                    settingView
+                        .frame(minWidth: 460, minHeight: 520)
                 }
             } else {
                 NavigationStack {
@@ -77,6 +77,24 @@ struct RootView: View {
             environment.loginStore.markLoggedOut()
             environment.settingStore.consumeLogoutSignal()
             settingPath.removeAll()
+            showsSetting = false
+        }
+    }
+
+    private var settingView: some View {
+        NavigationStack(path: $settingPath) {
+            SettingScreen(
+                store: environment.settingStore,
+                onOpenPrivacy: {
+                    settingPath.append(.privacy)
+                }
+            )
+            .navigationDestination(for: RootRoute.self) { route in
+                switch route {
+                case .privacy:
+                    PrivacyScreen()
+                }
+            }
         }
     }
 }

@@ -70,6 +70,12 @@ public final class LoginStore {
             state.errorMessage = "请先阅读并同意隐私政策"
             return
         }
+        guard state.account.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false,
+              state.password.isEmpty == false
+        else {
+            state.errorMessage = "请输入账号和密码"
+            return
+        }
 
         state.isLoading = true
         state.errorMessage = nil
@@ -110,44 +116,96 @@ public struct LoginScreen: View {
     }
 
     public var body: some View {
-        VStack(spacing: 16) {
-            Text("AI数据分析助手")
-                .font(.largeTitle.bold())
-            TextField("账号", text: Binding(
-                get: { store.state.account },
-                set: { store.updateAccount($0) }
-            ))
-                .textFieldStyle(.roundedBorder)
-            SecureField("密码", text: Binding(
-                get: { store.state.password },
-                set: { store.updatePassword($0) }
-            ))
-                .textFieldStyle(.roundedBorder)
-            Toggle("我已阅读并同意隐私政策", isOn: Binding(
-                get: { store.state.acceptedPrivacy },
-                set: { store.setPrivacyAccepted($0) }
-            ))
-            if let privacyDestination {
-                NavigationLink("查看隐私政策") {
-                    privacyDestination
+        ZStack {
+            LinearGradient(
+                colors: [Color.blue.opacity(0.10), Color.teal.opacity(0.08), Color.clear],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea()
+
+            VStack(spacing: 28) {
+                VStack(spacing: 10) {
+                    Image(systemName: "chart.xyaxis.line")
+                        .font(.system(size: 46, weight: .semibold))
+                        .foregroundStyle(.blue)
+                        .frame(width: 72, height: 72)
+                        .background(.blue.opacity(0.10), in: Circle())
+                    Text("AI数据分析助手")
+                        .font(.largeTitle.bold())
+                    Text("用自然语言提问，快速获得经营数据洞察")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
                 }
-                .font(.footnote)
-            }
-            if let errorMessage = store.state.errorMessage {
-                Text(errorMessage)
-                    .foregroundStyle(.red)
-                    .font(.footnote)
-            }
-            Button(store.state.isLoading ? "登录中..." : "登录") {
-                Task {
-                    await store.login()
+
+                VStack(spacing: 14) {
+                    TextField("账号", text: Binding(
+                        get: { store.state.account },
+                        set: { store.updateAccount($0) }
+                    ))
+                    .textFieldStyle(.roundedBorder)
+
+                    SecureField("密码", text: Binding(
+                        get: { store.state.password },
+                        set: { store.updatePassword($0) }
+                    ))
+                    .textFieldStyle(.roundedBorder)
+
+                    Toggle(isOn: Binding(
+                        get: { store.state.acceptedPrivacy },
+                        set: { store.setPrivacyAccepted($0) }
+                    )) {
+                        HStack(spacing: 4) {
+                            Text("我已阅读并同意")
+                            if let privacyDestination {
+                                NavigationLink("隐私政策") {
+                                    privacyDestination
+                                }
+                            } else {
+                                Text("隐私政策")
+                            }
+                        }
+                    }
+
+                    if let errorMessage = store.state.errorMessage {
+                        Text(errorMessage)
+                            .foregroundStyle(.red)
+                            .font(.footnote)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+
+                    Button {
+                        Task {
+                            await store.login()
+                        }
+                    } label: {
+                        HStack {
+                            if store.state.isLoading {
+                                ProgressView()
+                                    .controlSize(.small)
+                            }
+                            Text(store.state.isLoading ? "登录中..." : "登录")
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .keyboardShortcut(.return, modifiers: [])
+                    .disabled(store.state.isLoading)
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
                 }
+                .padding(24)
+                .frame(width: 420)
+                .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 8))
+                .overlay {
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.secondary.opacity(0.20))
+                }
+
+                Text("Demo 账号：demo / demo@123")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
-            .disabled(store.state.isLoading)
-                .buttonStyle(.borderedProminent)
         }
-        .padding(24)
-        .frame(maxWidth: 420)
     }
 }
 

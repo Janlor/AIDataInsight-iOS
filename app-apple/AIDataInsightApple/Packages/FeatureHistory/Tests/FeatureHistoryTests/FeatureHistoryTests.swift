@@ -21,7 +21,7 @@ import Foundation
     await store.loadFirstPage()
 
     #expect(store.state.groups.isEmpty == false)
-    #expect(store.conversations.first?.title == "欢迎使用 AI 数据分析助手")
+    #expect(store.conversations.first?.title == "本月销售额趋势")
 }
 
 @MainActor

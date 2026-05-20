@@ -268,68 +268,117 @@ public struct HistorySidebar: View {
     private let onNewChat: () -> Void
     private let onSelect: (Int) -> Void
     private let onDeletedSelected: () -> Void
+    private let onOpenSetting: () -> Void
 
     public init(
         store: HistoryStore,
         onNewChat: @escaping () -> Void = {},
         onSelect: @escaping (Int) -> Void = { _ in },
-        onDeletedSelected: @escaping () -> Void = {}
+        onDeletedSelected: @escaping () -> Void = {},
+        onOpenSetting: @escaping () -> Void = {}
     ) {
         self.store = store
         self.onNewChat = onNewChat
         self.onSelect = onSelect
         self.onDeletedSelected = onDeletedSelected
+        self.onOpenSetting = onOpenSetting
     }
 
     public var body: some View {
-        List(selection: Binding(
-            get: { store.state.selectedID },
-            set: { value in
-                guard let value else {
+        VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("AI数据分析助手")
+                    .font(.headline)
+                Button {
                     store.clearSelection()
-                    return
+                    onNewChat()
+                } label: {
+                    Label("New Chat", systemImage: "square.and.pencil")
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                store.select(historyID: value)
-                onSelect(value)
+                .buttonStyle(.borderedProminent)
             }
-        )) {
-            if let errorMessage = store.state.errorMessage {
-                Text(errorMessage)
-                    .foregroundStyle(.red)
-            }
+            .padding(14)
 
-            ForEach(store.state.groups) { group in
-                Section(group.title) {
-                    ForEach(group.conversations) { conversation in
-                        row(conversation)
-                            .tag(conversation.remoteID)
-                            .onAppear {
-                                Task {
-                                    await store.loadNextPageIfNeeded(currentItemID: conversation.id)
+            Divider()
+
+            List(selection: Binding(
+                get: { store.state.selectedID },
+                set: { value in
+                    guard let value else {
+                        store.clearSelection()
+                        return
+                    }
+                    store.select(historyID: value)
+                    onSelect(value)
+                }
+            )) {
+                if store.state.isLoading, store.conversations.isEmpty {
+                    ProgressView()
+                }
+
+                if let errorMessage = store.state.errorMessage {
+                    Text(errorMessage)
+                        .font(.footnote)
+                        .foregroundStyle(.red)
+                }
+
+                ForEach(store.state.groups) { group in
+                    Section(group.title) {
+                        ForEach(group.conversations) { conversation in
+                            row(conversation)
+                                .tag(conversation.remoteID)
+                                .onAppear {
+                                    Task {
+                                        await store.loadNextPageIfNeeded(currentItemID: conversation.id)
+                                    }
                                 }
-                            }
+                        }
                     }
                 }
             }
-        }
-        .navigationTitle("AI数据分析助手")
-        .toolbar {
-            ToolbarItemGroup {
-                Button("New Chat", systemImage: "plus") {
-                    store.clearSelection()
-                    onNewChat()
+            .listStyle(.sidebar)
+
+            Divider()
+
+            HStack(spacing: 10) {
+                Button {
+                    onOpenSetting()
+                } label: {
+                    HStack(spacing: 10) {
+                        Text("JL")
+                            .font(.caption.bold())
+                            .foregroundStyle(.white)
+                            .frame(width: 30, height: 30)
+                            .background(.blue, in: Circle())
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Janlor Lee")
+                                .font(.subheadline)
+                            Text("Demo Workspace")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
                 }
-                Button("Clear", systemImage: "trash") {
+                .buttonStyle(.plain)
+                Spacer()
+                Button {
                     Task {
                         let shouldReset = await store.deleteAll()
                         if shouldReset {
                             onDeletedSelected()
                         }
                     }
+                } label: {
+                    Image(systemName: "trash")
                 }
+                .help("清空历史")
+                .buttonStyle(.borderless)
                 .disabled(store.conversations.isEmpty || store.state.isMutating)
             }
+            .padding(12)
         }
+        .navigationTitle("AI数据分析助手")
         .task {
             if store.conversations.isEmpty {
                 await store.loadFirstPage()
@@ -418,15 +467,19 @@ public struct PreviewHistoryRepository: HistoryRepository {
     public init() {}
 
     public func loadHistoryPage(currentPage: Int, pageSize: Int) async throws -> RecordPageContract {
-        let now = ISO8601DateFormatter().string(from: .now)
+        let formatter = ISO8601DateFormatter()
+        let now = Date()
         return RecordPageContract(
             currentPage: currentPage,
             pageSize: pageSize,
-            total: 1,
+            total: 4,
             pages: 1,
             cacheKey: nil,
             records: [
-                HistoryRecordContract(id: 1, name: "欢迎使用 AI 数据分析助手", updateTime: now, detailList: nil),
+                HistoryRecordContract(id: 100, name: "本月销售额趋势", updateTime: formatter.string(from: now), detailList: nil),
+                HistoryRecordContract(id: 101, name: "各组织库存吨数", updateTime: formatter.string(from: now.addingTimeInterval(-3600)), detailList: nil),
+                HistoryRecordContract(id: 102, name: "客户应收账款分析", updateTime: formatter.string(from: now.addingTimeInterval(-86400 * 3)), detailList: nil),
+                HistoryRecordContract(id: 103, name: "采购金额月度对比", updateTime: formatter.string(from: now.addingTimeInterval(-86400 * 35)), detailList: nil),
             ]
         )
     }
