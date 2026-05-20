@@ -1,0 +1,59 @@
+# AI 任务模板
+
+这份文档保存可以直接复用的 AI 提示词。默认使用中文提示词，避免 AI 因英文提示而切换成英文回复；命令、路径、schema 字段、manifest 字段等机器内容保留英文。
+
+文档语言规则：
+
+- 给人看的说明写中文。
+- 给 AI 的提示词默认写中文，并明确要求“回复使用中文”。
+- 给机器消费的 schema、manifest、migration 字段可以写英文。
+- 不要把这条规则放在聊天里临时提醒，应优先沉淀到文档。
+
+## Contract Migration Template
+
+用途：让新 AI / 新对话按契约版本检查某个端，并只读取最小必要上下文。
+
+使用方式：
+
+```text
+使用 docs/ai-task-templates.md 中的 Contract Migration Template 处理 <app>。
+```
+
+如果 AI 无法自动代入 `<app>`，把下面模板中的 `<app>` 替换为目标端，例如 `app-apple`、`app-web`、`app-android`。
+
+```text
+请先阅读 docs/ai-entrypoint.md，然后运行：
+scripts/check-contract-alignment.sh <app>
+
+只读取脚本输出的最小文件集合。为 <app> 应用待处理 migration，更新必要测试，
+更新 <app>/contract-alignment.json，并总结验证结果。
+除非 migration 明确要求，否则不要读取整个 docs 目录。
+最终回复请使用中文。
+```
+
+## Contract Change Template
+
+用途：当发现契约缺失或 API/领域事实变化时，先更新契约，再更新端侧。
+
+```text
+请使用 docs/ai-entrypoint.md 和 docs/cross-platform/contract-governance.md。
+
+我需要修改跨平台契约。请先识别必须修改的机器可读契约文件；如果行为发生变化，
+新增或更新 fixtures；在 docs/cross-platform/contracts/migrations 下创建 migration；
+更新 docs/cross-platform/contracts/contract-manifest.yaml；然后列出受影响端和必要端侧动作。
+在契约 migration 写完前，不要修改端侧代码。
+最终回复请使用中文。
+```
+
+## New Platform Feature Template
+
+用途：新增一个完整 feature 或新平台实现时，允许读取更完整的生成指南。
+
+```text
+请阅读 docs/ai-entrypoint.md 和 docs/ai-generation-guide.md。
+
+请按契约优先的方式为 <app> 实现指定功能。遵守 docs/ai-generation-guide.md 中的固定读取顺序，
+优先使用生成的 contract models，补充聚焦测试；如果消费了契约 migration，
+更新 <app>/contract-alignment.json，并总结验证结果。
+最终回复请使用中文。
+```

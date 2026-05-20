@@ -10,6 +10,7 @@ summary: >
 
 requiredEntryFiles:
   - docs/ai-entrypoint.md
+  - docs/ai-task-templates.md
   - docs/cross-platform/contracts/contract-manifest.yaml
   - docs/cross-platform/contracts/migrations/
   - "{app}/contract-alignment.json"

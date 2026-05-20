@@ -11,6 +11,7 @@
 日常维护和迁移优先使用轻量入口：
 
 - `docs/ai-entrypoint.md`
+- `docs/ai-task-templates.md`
 - `scripts/check-contract-alignment.sh <app>`
 
 只有在新增 feature、创建新端、或 alignment/migration 明确要求时，才需要完整读取本文件和全量契约。
