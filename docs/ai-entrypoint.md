@@ -30,7 +30,7 @@ scripts/check-contract-alignment.sh app-web
 5. migration 中明确要求读取的契约文件
 6. 目标端本次会修改的代码
 
-只有在新增功能、创建新端、重构生成器，或 migration 明确要求时，才完整读取 `docs/ai-generation-guide.md` 和更大范围的契约文档。
+只有在新增复杂功能、创建新端、重构生成器，或 migration 明确要求时，才按需读取 `docs/ai-generation-guide.md` 的相关小节和更大范围的契约文档；不要默认完整读取全文。
 
 ## 契约规则
 

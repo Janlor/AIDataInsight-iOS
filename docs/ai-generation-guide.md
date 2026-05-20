@@ -2,11 +2,11 @@
 
 ## 文档目的
 
-这份文档固定 AI 生成 iOS / Android / HarmonyOS NEXT / Web / 其它候选端代码时必须遵守的协议。
+这份文档是 AI 生成 iOS / Android / HarmonyOS NEXT / Web / 其它候选端代码时使用的深度规范手册。
 
 它的目标不是让 AI “看着某一端页面照抄”，而是让 AI 只从跨平台契约、目标端模块映射和 golden fixtures 出发，稳定地产生各端实现。
 
-当你让 AI 生成或修改任意端代码时，优先把这份文档作为提示词的一部分。
+本文不是日常默认入口。普通维护、契约迁移、修 bug 时不要全文读取本文。
 
 日常维护和迁移优先使用轻量入口：
 
@@ -14,7 +14,14 @@
 - `docs/ai-task-templates.md`
 - `scripts/check-contract-alignment.sh <app>`
 
-只有在新增 feature、创建新端、或 alignment/migration 明确要求时，才需要完整读取本文件和全量契约。
+只有在创建新平台项目、实现复杂新 feature、修改生成器、或 alignment/migration 明确要求时，才按需读取本文相关小节。不要默认完整读取本文和全量契约。
+
+推荐使用方式：
+
+1. 先读 `docs/ai-entrypoint.md`。
+2. 运行 `scripts/check-contract-alignment.sh <app>`。
+3. 只读脚本或 migration 输出的最小文件集合。
+4. 如果任务确实需要本文，再读取与当前任务相关的小节。
 
 ---
 
@@ -88,7 +95,7 @@ iOS 真实实现
 
 ## 二、固定读取顺序
 
-每次让 AI 生成某个新功能时，必须按下面顺序读取上下文。
+每次让 AI 生成某个复杂新功能时，按下面顺序读取上下文。
 
 如果只是迁移既有契约版本，先运行 `scripts/check-contract-alignment.sh <app>`，只读取脚本输出的 minimal read set。
 

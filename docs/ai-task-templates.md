@@ -47,13 +47,19 @@ scripts/check-contract-alignment.sh <app>
 
 ## New Platform Feature Template
 
-用途：新增一个完整 feature 或新平台实现时，允许读取更完整的生成指南。
+用途：新增完整 feature、创建新平台实现、或修改生成器时使用。即使使用该模板，也不要默认完整读取 `docs/ai-generation-guide.md`，先按入口和 alignment 判断需要读取哪些小节。
 
 ```text
-请阅读 docs/ai-entrypoint.md 和 docs/ai-generation-guide.md。
+请先阅读 docs/ai-entrypoint.md，然后运行：
+scripts/check-contract-alignment.sh <app>
 
-请按契约优先的方式为 <app> 实现指定功能。遵守 docs/ai-generation-guide.md 中的固定读取顺序，
-优先使用生成的 contract models，补充聚焦测试；如果消费了契约 migration，
-更新 <app>/contract-alignment.json，并总结验证结果。
+请先只读取脚本输出的最小文件集合。
+
+如果脚本输出、migration 或任务本身表明这是“新增平台项目 / 复杂新 feature / 修改生成器”，
+再按需读取 docs/ai-generation-guide.md 中与当前任务相关的小节，不要默认完整读取全文。
+
+请按契约优先的方式为 <app> 实现指定功能，优先使用生成的 contract models，
+补充聚焦测试；如果消费了契约 migration，更新 <app>/contract-alignment.json，
+并总结验证结果。
 最终回复请使用中文。
 ```
