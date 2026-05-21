@@ -61,7 +61,10 @@ final class AppRuntimeEnvironment {
             historyRepository = RemoteHistoryRepository(client: client)
         }
 
-        self.loginStore = loginStore ?? LoginStore(accountService: accountService)
+        let defaultLoginState = usePreviewRepositories
+            ? LoginViewState(acceptedPrivacy: true)
+            : LoginViewState()
+        self.loginStore = loginStore ?? LoginStore(state: defaultLoginState, accountService: accountService)
         self.chatStore = chatStore ?? AIChatStore(repository: aiChatRepository)
         self.historyStore = historyStore ?? HistoryStore(repository: historyRepository)
         self.settingStore = settingStore ?? SettingStore(accountService: accountService)

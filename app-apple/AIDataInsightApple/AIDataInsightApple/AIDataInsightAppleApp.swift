@@ -9,7 +9,9 @@ import SwiftUI
 
 @main
 struct AIDataInsightAppleApp: App {
-    @State private var appEnvironment = AppRuntimeEnvironment()
+    @State private var appEnvironment = AppRuntimeEnvironment(
+        usePreviewRepositories: CommandLine.arguments.contains("--ui-testing")
+    )
 
     var body: some Scene {
         AppScene(environment: appEnvironment)

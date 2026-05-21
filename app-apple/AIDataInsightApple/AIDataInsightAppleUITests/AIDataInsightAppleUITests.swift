@@ -29,7 +29,7 @@ final class AIDataInsightAppleUITests: XCTestCase {
 
         XCTAssertEqual(app.state, .runningForeground)
         XCTAssertTrue(app.descendants(matching: .any)["history-sidebar"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["今天想分析什么？"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.descendants(matching: .any)["ai-chat-welcome-bubble"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts["New Chat"].exists)
     }
 
@@ -48,7 +48,7 @@ final class AIDataInsightAppleUITests: XCTestCase {
         let newChat = app.buttons["toolbar-new-chat-button"].firstMatch
         XCTAssertTrue(newChat.waitForExistence(timeout: 5))
         newChat.click()
-        XCTAssertTrue(app.staticTexts["今天想分析什么？"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.descendants(matching: .any)["ai-chat-welcome-bubble"].waitForExistence(timeout: 5))
 
         app.buttons["Settings"].firstMatch.click()
         XCTAssertTrue(app.descendants(matching: .any)["setting-screen"].waitForExistence(timeout: 5))
@@ -78,7 +78,9 @@ final class AIDataInsightAppleUITests: XCTestCase {
     func testLaunchPerformance() throws {
         // This measures how long it takes to launch your application.
         measure(metrics: [XCTApplicationLaunchMetric()]) {
-            XCUIApplication().launch()
+            let app = XCUIApplication()
+            app.launchArguments.append("--ui-testing")
+            app.launch()
         }
     }
 
@@ -94,13 +96,13 @@ final class AIDataInsightAppleUITests: XCTestCase {
     private func launchAndLogin() -> XCUIApplication {
         let app = launchApp()
 
-        if app.descendants(matching: .any)["history-sidebar"].waitForExistence(timeout: 2) {
+        if app.descendants(matching: .any)["history-sidebar"].waitForExistence(timeout: 5) {
             return app
         }
 
-        XCTAssertTrue(app.staticTexts["login-title"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["login-submit-button"].waitForExistence(timeout: 5))
         let privacy = app.checkBoxes["login-privacy-checkbox"]
-        if privacy.exists, privacy.value as? String != "1" {
+        if privacy.exists, String(describing: privacy.value ?? "") == "0" {
             privacy.click()
         }
         app.buttons["login-submit-button"].click()

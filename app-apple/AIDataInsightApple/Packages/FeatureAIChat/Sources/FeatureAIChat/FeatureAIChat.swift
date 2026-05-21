@@ -2,6 +2,7 @@ import AppContracts
 import AppCore
 import AppDesignSystem
 import AppNetworking
+import Charts
 import Foundation
 import Observation
 import SwiftUI
@@ -60,7 +61,7 @@ public struct ChartPayloadViewState: Equatable, Sendable {
         self.emptyMessage = emptyMessage
     }
 
-    public init(detail: HistoryChartDetailContract, fallbackName: FunctionNameContract) {
+    public init(detail: HistoryChartDetailContract, fallbackName: FunctionNameContract? = nil) {
         if let first = detail.accountAgeGroupVoList?.first, first.chartType == "2", let msg = first.msg {
             self.init(functionName: detail.funcType ?? fallbackName, unit: .currency, series: [], emptyMessage: msg)
             return
@@ -75,7 +76,7 @@ public struct ChartPayloadViewState: Equatable, Sendable {
         let functionName = detail.funcType ?? fallbackName
         self.init(
             functionName: functionName,
-            unit: functionName.usesTon ? .ton : .currency,
+            unit: functionName?.usesTon == true ? .ton : .currency,
             series: accountAgeSeries + commonSeries
         )
     }
@@ -332,10 +333,18 @@ public final class AIChatStore {
         else {
             return
         }
+        let nextFeedback: FeedbackState = like == "1" ? .liked : .disliked
+        guard state.messages[index].feedback != nextFeedback else {
+            return
+        }
+        let previousFeedback = state.messages[index].feedback
+        state.messages[index].feedback = nextFeedback
         do {
             try await repository.sendLikeFeedback(historyDetailId: historyDetailID, like: like)
-            state.messages[index].feedback = like == "1" ? .liked : .disliked
         } catch {
+            if let rollbackIndex = state.messages.firstIndex(where: { $0.id == messageID }) {
+                state.messages[rollbackIndex].feedback = previousFeedback
+            }
             state.errorMessage = "反馈提交失败"
         }
     }
@@ -361,10 +370,14 @@ public final class AIChatStore {
 
         let chartDetail = try await repository.loadChartData(name: name, historyId: historyID, arguments: arguments)
         let payload = ChartPayloadViewState(detail: chartDetail, fallbackName: name)
+        guard payload.emptyMessage == nil, payload.series.isEmpty == false else {
+            appendAssistantText(payload.emptyMessage ?? "数据分析还在测试阶段，很快就能上线，敬请期待！")
+            return
+        }
         state.messages.append(ChatMessageViewState(
             role: .assistant,
             contentKind: .chart,
-            text: payload.emptyMessage ?? function.msg ?? "已生成分析图表",
+            text: "根据您的查询，以下是分析结果:",
             chartPayload: payload,
             feedback: .none,
             historyDetailID: chartDetail.historyDetailId,
@@ -428,49 +441,10 @@ public struct AIChatScreen: View {
     private var content: some View {
         if store.state.messages.isEmpty {
             ScrollView {
-                VStack(alignment: .leading, spacing: 22) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("今天想分析什么？")
-                            .font(.system(size: 30, weight: .semibold))
-                            .accessibilityIdentifier("ai-chat-empty-title")
-                        Text("选择一个推荐问题，或者直接输入经营数据分析需求。")
-                            .foregroundStyle(.secondary)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                    if store.state.isLoadingTemplate {
-                        ProgressView()
-                    } else {
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 220), spacing: 12)], spacing: 12) {
-                            ForEach(store.state.templateQuestions, id: \.self) { question in
-                                Button {
-                                    Task {
-                                        await store.sendTemplateQuestion(question)
-                                    }
-                                } label: {
-                                    HStack(alignment: .top, spacing: 10) {
-                                        Image(systemName: "sparkles")
-                                            .foregroundStyle(.blue)
-                                        Text(question)
-                                            .multilineTextAlignment(.leading)
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                    }
-                                    .padding(14)
-                                    .frame(minHeight: 74, alignment: .topLeading)
-                                    .background(Color(nsColorCompatibleLight: "#FFFFFF", dark: "#151D30"), in: RoundedRectangle(cornerRadius: 8))
-                                    .overlay {
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .stroke(Color.secondary.opacity(0.18))
-                                    }
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                    }
-                }
+                welcomeBubble
                 .padding(.horizontal, 32)
-                .padding(.top, 72)
-                .frame(maxWidth: 860)
+                .padding(.vertical, 24)
+                .frame(maxWidth: 780)
                 .frame(maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -526,7 +500,7 @@ public struct AIChatScreen: View {
             }
 
             HStack(alignment: .bottom, spacing: 10) {
-                TextField("输入你的数据分析问题", text: Binding(
+                TextField("请输入您的数据分析查询。", text: Binding(
                     get: { store.state.draft },
                     set: { store.updateDraft($0) }
                 ), axis: .vertical)
@@ -551,9 +525,9 @@ public struct AIChatScreen: View {
             }
             .padding(6)
             .frame(maxWidth: 860)
-            .background(Color(nsColorCompatibleLight: "#FFFFFF", dark: "#151D30"), in: RoundedRectangle(cornerRadius: 8))
+            .background(Color(nsColorCompatibleLight: "#FFFFFF", dark: "#151D30"), in: Capsule())
             .overlay {
-                RoundedRectangle(cornerRadius: 8)
+                Capsule()
                     .stroke(Color.secondary.opacity(0.20))
             }
         }
@@ -561,6 +535,84 @@ public struct AIChatScreen: View {
         .padding(.top, 12)
         .padding(.bottom, 18)
         .background(.bar)
+    }
+
+    private var welcomeBubble: some View {
+        HStack(alignment: .top, spacing: 12) {
+            avatar(systemName: "sparkles", color: .blue)
+            VStack(alignment: .leading, spacing: 16) {
+                Text("你好，我是你的AI数据分析助手。我能根据业绩、库存、代采、应收、帐龄等领域的问题生成相应的智能图表。")
+                    .font(.body)
+                    .foregroundStyle(.primary)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("你也可以尝试点击以下推荐问题：")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    if store.state.isLoadingTemplate {
+                        ProgressView()
+                            .controlSize(.small)
+                    } else {
+                        ForEach(store.state.templateQuestions, id: \.self) { question in
+                            Button {
+                                Task {
+                                    await store.sendTemplateQuestion(question)
+                                }
+                            } label: {
+                                HStack(spacing: 10) {
+                                    Text(question)
+                                        .multilineTextAlignment(.leading)
+                                    Spacer(minLength: 8)
+                                    Image(systemName: "arrow.up.right")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.vertical, 9)
+                            }
+                            .buttonStyle(.plain)
+                            Divider()
+                        }
+                    }
+                }
+
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("我能精准识别问题中的指标名称、时间范围、分组维度和过滤条件，例如：")
+                        .font(.subheadline.weight(.semibold))
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 116), spacing: 8)], alignment: .leading, spacing: 8) {
+                        exampleSegment("今年第一季度", caption: "时间范围")
+                        exampleSegment("销售额", caption: "指标名称")
+                        exampleSegment("大于5000万", caption: "过滤条件")
+                        exampleSegment("公司", caption: "分组维度")
+                    }
+                }
+            }
+            .padding(16)
+            .background(Color(nsColorCompatibleLight: "#FFFFFF", dark: "#151D30"), in: UnevenRoundedRectangle(topLeadingRadius: 21, bottomLeadingRadius: 4, bottomTrailingRadius: 21, topTrailingRadius: 21))
+            .overlay {
+                UnevenRoundedRectangle(topLeadingRadius: 21, bottomLeadingRadius: 4, bottomTrailingRadius: 21, topTrailingRadius: 21)
+                    .stroke(Color.secondary.opacity(0.16))
+            }
+            Spacer(minLength: 0)
+        }
+        .accessibilityIdentifier("ai-chat-welcome-bubble")
+    }
+
+    private func exampleSegment(_ title: String, caption: String) -> some View {
+        VStack(spacing: 2) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+            Text(caption)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 6)
+        .background(Color.blue.opacity(0.08), in: RoundedRectangle(cornerRadius: 8))
     }
 
     @ViewBuilder
@@ -579,6 +631,10 @@ public struct AIChatScreen: View {
 
                 if let chartPayload = message.chartPayload {
                     chartSummary(chartPayload)
+                }
+
+                if message.contentKind == .chart, message.historyDetailID != nil {
+                    feedbackToolbar(for: message)
                 }
             }
             .padding(14)
@@ -599,41 +655,115 @@ public struct AIChatScreen: View {
         .accessibilityIdentifier("chat-message-\(message.id)")
     }
 
+    private func feedbackToolbar(for message: ChatMessageViewState) -> some View {
+        HStack(spacing: 8) {
+            Spacer()
+            feedbackButton(systemName: "hand.thumbsup", selectedSystemName: "hand.thumbsup.fill", isSelected: message.feedback == .liked, help: "有帮助") {
+                Task {
+                    await store.sendFeedback(messageID: message.id, like: "1")
+                }
+            }
+            feedbackButton(systemName: "hand.thumbsdown", selectedSystemName: "hand.thumbsdown.fill", isSelected: message.feedback == .disliked, help: "没有帮助") {
+                Task {
+                    await store.sendFeedback(messageID: message.id, like: "0")
+                }
+            }
+        }
+        .accessibilityIdentifier("chart-feedback-\(message.id)")
+    }
+
+    private func feedbackButton(systemName: String, selectedSystemName: String, isSelected: Bool, help: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: isSelected ? selectedSystemName : systemName)
+                .frame(width: 28, height: 28)
+                .foregroundStyle(isSelected ? Color.blue : Color.secondary)
+        }
+        .buttonStyle(.plain)
+        .help(help)
+    }
+
     private func chartSummary(_ payload: ChartPayloadViewState) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(payload.functionName?.rawValue ?? "Chart")
+                Text(payload.functionName?.displayName ?? "分析图表")
                     .font(.headline)
                 Spacer()
-                Text(payload.unit == .ton ? "吨" : "元")
+                Text(payload.unitLabel)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            ForEach(payload.series) { series in
-                let maxValue = payload.series.flatMap(\.values).max() ?? 1
-                VStack(alignment: .leading, spacing: 5) {
-                    HStack {
-                        Text(series.xAxis)
-                        Spacer()
-                        Text(series.values.map { $0.formatted() }.joined(separator: ", "))
-                            .foregroundStyle(.secondary)
-                    }
-                    GeometryReader { proxy in
-                        RoundedRectangle(cornerRadius: 3)
-                            .fill(.blue.opacity(0.20))
-                            .overlay(alignment: .leading) {
-                                RoundedRectangle(cornerRadius: 3)
-                                    .fill(.blue)
-                                    .frame(width: proxy.size.width * max(0.04, (series.values.first ?? 0) / maxValue))
-                            }
-                    }
-                    .frame(height: 8)
+
+            if payload.series.isEmpty {
+                Text(payload.emptyMessage ?? "数据分析还在测试阶段，很快就能上线，敬请期待！")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            } else {
+                let rows = chartRows(for: payload)
+                Chart(rows) { row in
+                    BarMark(
+                        x: .value("分组", row.xAxis),
+                        y: .value("数值", row.scaledValue),
+                        stacking: .standard
+                    )
+                    .foregroundStyle(by: .value("图例", row.label))
+                    .cornerRadius(4)
                 }
-                .font(.footnote)
+                .chartXAxis {
+                    AxisMarks { value in
+                        AxisGridLine()
+                        AxisTick()
+                        AxisValueLabel {
+                            if let label = value.as(String.self) {
+                                Text(label)
+                                    .lineLimit(1)
+                            }
+                        }
+                    }
+                }
+                .chartYAxis {
+                    AxisMarks(position: .leading)
+                }
+                .chartForegroundStyleScale(
+                    domain: rows.map(\.label),
+                    range: rows.map { AppChartPalette.color(at: $0.colorIndex) }
+                )
+                .chartLegend(payload.hasStackedSeries ? .visible : .hidden)
+                .frame(height: 220)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    ForEach(rows) { row in
+                        HStack(spacing: 8) {
+                            Circle()
+                                .fill(AppChartPalette.color(at: row.colorIndex))
+                                .frame(width: 7, height: 7)
+                            Text(row.summaryLabel)
+                                .lineLimit(1)
+                            Spacer()
+                            Text(row.scaledValue.formatted(.number.precision(.fractionLength(0...2))))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                .font(.caption)
             }
         }
         .padding(12)
         .background(Color.blue.opacity(0.06), in: RoundedRectangle(cornerRadius: 8))
+    }
+
+    private func chartRows(for payload: ChartPayloadViewState) -> [ChartRowViewState] {
+        payload.series.enumerated().flatMap { seriesIndex, series in
+            let labels = series.labels.isEmpty ? [series.xAxis] : series.labels
+            return labels.enumerated().map { valueIndex, label in
+                let rawValue = series.values.indices.contains(valueIndex) ? series.values[valueIndex] : 0
+                return ChartRowViewState(
+                    xAxis: series.xAxis.isEmpty ? "未命名" : series.xAxis,
+                    label: label.isEmpty ? series.xAxis : label,
+                    rawValue: rawValue,
+                    colorIndex: valueIndex + seriesIndex
+                )
+            }
+        }
     }
 
     private func avatar(systemName: String, color: Color) -> some View {
@@ -688,19 +818,153 @@ private extension ChatMessageViewState {
     init(contract: HistoryDetailContract) {
         let role: Role = contract.type == .question ? .user : .assistant
         let contentKind: ChatMessageContentKind = contract.contentType == .chart ? .chart : .text
+        let chartDetail = contract.chartDetail
+        let payload = chartDetail.map { ChartPayloadViewState(detail: $0) }
+        let text = if contentKind == .chart, payload?.series.isEmpty == false {
+            "根据您的查询，以下是分析结果:"
+        } else if contentKind == .chart {
+            payload?.emptyMessage ?? "数据分析还在测试阶段，很快就能上线，敬请期待！"
+        } else {
+            contract.content ?? ""
+        }
         self.init(
             id: contract.id.map(String.init) ?? UUID().uuidString,
             role: role,
             contentKind: contentKind,
-            text: contract.content ?? "",
-            historyDetailID: contract.id
+            text: text,
+            chartPayload: payload?.series.isEmpty == false ? payload : nil,
+            feedback: FeedbackState(contractLike: contract.isLike),
+            historyDetailID: contract.id,
+            functionName: payload?.functionName
         )
+    }
+}
+
+private extension HistoryDetailContract {
+    var chartDetail: HistoryChartDetailContract? {
+        guard contentType == .chart, let content, let data = content.data(using: .utf8) else {
+            return nil
+        }
+        guard let detail = try? JSONDecoder().decode(HistoryChartDetailContract.self, from: data) else {
+            return nil
+        }
+        return HistoryChartDetailContract(
+            historyDetailId: detail.historyDetailId ?? id,
+            funcType: detail.funcType,
+            chartCommonVoList: detail.chartCommonVoList,
+            accountAgeGroupVoList: detail.accountAgeGroupVoList
+        )
+    }
+}
+
+private extension FeedbackState {
+    init(contractLike: String?) {
+        switch contractLike {
+        case "1":
+            self = .liked
+        case "0":
+            self = .disliked
+        case nil:
+            self = .none
+        default:
+            self = .unknown
+        }
     }
 }
 
 private extension FunctionNameContract {
     var usesTon: Bool {
         self == .queryStockGroupByOrg || self == .queryStockGroupByWarehouse
+    }
+
+    var displayName: String {
+        switch self {
+        case .queryArGroupByOrg:
+            "组织应收账款"
+        case .queryArGroupByCustomer:
+            "客户应收账款"
+        case .querySalesGroupByOrgAndGoodsType:
+            "组织品类销售额"
+        case .querySalesGroupByMonth:
+            "月度销售额"
+        case .querySalesGroupByCustomer:
+            "客户销售额"
+        case .queryPurchaseGroupByOrg:
+            "组织采购额"
+        case .queryPurchaseGroupByMonth:
+            "月度采购额"
+        case .queryPurchaseGroupByCustomer:
+            "客户采购额"
+        case .queryStockGroupByOrg:
+            "组织库存"
+        case .queryStockGroupByWarehouse:
+            "仓库库存"
+        case .queryInventoryGroupByOrg:
+            "组织存货"
+        case .queryInventoryGroupByWarehouse:
+            "仓库存货"
+        case .queryProcurementGroupByOrg:
+            "组织代采"
+        case .queryProcurementGroupByCustomer:
+            "客户代采"
+        case .queryAccountAgeGroupByOrg:
+            "组织账龄"
+        case .queryAccountAgeGroupByCustomer:
+            "客户账龄"
+        case .queryAccountGroupByAge:
+            "账龄分布"
+        case .queryPerformanceType:
+            "业绩指标"
+        }
+    }
+}
+
+private extension ChartPayloadViewState {
+    var unitLabel: String {
+        unit == .ton ? "单位：万吨" : "单位：万元"
+    }
+
+    var hasStackedSeries: Bool {
+        series.contains { $0.values.count > 1 || $0.labels.count > 1 }
+    }
+}
+
+private struct ChartRowViewState: Identifiable {
+    let id = UUID()
+    let xAxis: String
+    let label: String
+    let rawValue: Double
+    let colorIndex: Int
+
+    var scaledValue: Double {
+        rawValue / 10_000
+    }
+
+    var summaryLabel: String {
+        label == xAxis ? xAxis : "\(xAxis) · \(label)"
+    }
+}
+
+private extension AppChartPalette {
+    static func color(at index: Int) -> Color {
+        let token: AppColorToken
+        switch index % order.count {
+        case 1:
+            token = cyan
+        case 2:
+            token = mint
+        case 3:
+            token = green
+        case 4:
+            token = purple
+        case 5:
+            token = orange
+        case 6:
+            token = coral
+        default:
+            token = blue
+        }
+        return token.color
     }
 }
 
