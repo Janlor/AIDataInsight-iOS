@@ -427,6 +427,7 @@ public final class AIChatStore {
 }
 
 public struct AIChatScreen: View {
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Bindable private var store: AIChatStore
     private let bottomAnchorID = "chat-bottom-anchor"
 
@@ -476,9 +477,9 @@ public struct AIChatScreen: View {
                         .frame(height: 1)
                         .id(bottomAnchorID)
                 }
-                .padding(.horizontal, 32)
-                .padding(.vertical, 24)
-                .frame(maxWidth: 900)
+                .padding(.horizontal, transcriptHorizontalPadding)
+                .padding(.vertical, transcriptVerticalPadding)
+                .frame(maxWidth: transcriptMaxWidth)
                 .frame(maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -542,7 +543,9 @@ public struct AIChatScreen: View {
 
     private var welcomeBubble: some View {
         HStack(alignment: .top, spacing: 12) {
-            avatar(systemName: "sparkles", color: .blue)
+            if usesCompactMessageLayout == false {
+                avatar(systemName: "sparkles", color: .blue)
+            }
             VStack(alignment: .leading, spacing: 16) {
                 Text("你好，我是你的AI数据分析助手。我能根据业绩、库存、代采、应收、帐龄等领域的问题生成相应的智能图表。")
                     .font(.body)
@@ -596,7 +599,10 @@ public struct AIChatScreen: View {
                 UnevenRoundedRectangle(topLeadingRadius: 21, bottomLeadingRadius: 4, bottomTrailingRadius: 21, topTrailingRadius: 21)
                     .stroke(Color.secondary.opacity(0.16))
             }
-            Spacer(minLength: 0)
+            .frame(maxWidth: usesCompactMessageLayout ? .infinity : nil, alignment: .leading)
+            if usesCompactMessageLayout == false {
+                Spacer(minLength: 0)
+            }
         }
         .accessibilityIdentifier("ai-chat-welcome-bubble")
     }
@@ -620,6 +626,14 @@ public struct AIChatScreen: View {
 
     @ViewBuilder
     private func messageView(_ message: ChatMessageViewState) -> some View {
+        if usesCompactMessageLayout {
+            compactMessageView(message)
+        } else {
+            regularMessageView(message)
+        }
+    }
+
+    private func regularMessageView(_ message: ChatMessageViewState) -> some View {
         HStack(alignment: .top, spacing: 12) {
             if message.role == .assistant {
                 avatar(systemName: "sparkles", color: .blue)
@@ -627,21 +641,9 @@ public struct AIChatScreen: View {
                 Spacer(minLength: 80)
             }
 
-            VStack(alignment: .leading, spacing: 10) {
-                Text(message.text)
-                    .foregroundStyle(.primary)
-                    .textSelection(.enabled)
-
-                if let chartPayload = message.chartPayload {
-                    chartSummary(chartPayload)
-                }
-
-                if message.contentKind == .chart, message.historyDetailID != nil {
-                    feedbackToolbar(for: message)
-                }
-            }
+            messageBubble(message)
             .padding(14)
-            .background(message.role == .user ? Color.blue.opacity(0.12) : Color(nsColorCompatibleLight: "#FFFFFF", dark: "#151D30"), in: RoundedRectangle(cornerRadius: 8))
+            .background(messageBackground(for: message), in: RoundedRectangle(cornerRadius: 8))
             .overlay {
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(Color.secondary.opacity(message.role == .user ? 0.05 : 0.16))
@@ -656,6 +658,39 @@ public struct AIChatScreen: View {
         }
         .frame(maxWidth: .infinity)
         .accessibilityIdentifier("chat-message-\(message.id)")
+    }
+
+    private func compactMessageView(_ message: ChatMessageViewState) -> some View {
+        messageBubble(message)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(messageBackground(for: message), in: RoundedRectangle(cornerRadius: 14))
+            .overlay {
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(Color.secondary.opacity(message.role == .user ? 0.04 : 0.14))
+            }
+            .accessibilityIdentifier("chat-message-\(message.id)")
+    }
+
+    private func messageBubble(_ message: ChatMessageViewState) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(message.text)
+                .foregroundStyle(.primary)
+                .textSelection(.enabled)
+
+            if let chartPayload = message.chartPayload {
+                chartSummary(chartPayload)
+            }
+
+            if message.contentKind == .chart, message.historyDetailID != nil {
+                feedbackToolbar(for: message)
+            }
+        }
+    }
+
+    private func messageBackground(for message: ChatMessageViewState) -> Color {
+        message.role == .user ? Color.blue.opacity(0.12) : Color(nsColorCompatibleLight: "#FFFFFF", dark: "#151D30")
     }
 
     private func feedbackToolbar(for message: ChatMessageViewState) -> some View {
@@ -751,6 +786,7 @@ public struct AIChatScreen: View {
             }
         }
         .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.blue.opacity(0.06), in: RoundedRectangle(cornerRadius: 8))
     }
 
@@ -783,6 +819,22 @@ public struct AIChatScreen: View {
                 proxy.scrollTo(bottomAnchorID, anchor: .bottom)
             }
         }
+    }
+
+    private var usesCompactMessageLayout: Bool {
+        horizontalSizeClass == .compact
+    }
+
+    private var transcriptHorizontalPadding: CGFloat {
+        usesCompactMessageLayout ? 12 : 32
+    }
+
+    private var transcriptVerticalPadding: CGFloat {
+        usesCompactMessageLayout ? 16 : 24
+    }
+
+    private var transcriptMaxWidth: CGFloat? {
+        usesCompactMessageLayout ? .infinity : 900
     }
 }
 
