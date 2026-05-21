@@ -27,6 +27,7 @@ scripts/check-contract-alignment.sh <app>
 
 只读取脚本输出的最小文件集合。为 <app> 应用待处理 migration，更新必要测试，
 更新 <app>/contract-alignment.json，并同步更新 docs/cross-platform/change-log.md 中对应 active migration 的端侧状态。
+如果这是该 migration 的最后一个待对齐平台，还要把这条契约修改从 Active Contract Migrations 移动到 Recent Records。
 除非 migration 明确要求，否则不要读取整个 docs 目录。
 最终回复请使用中文。
 ```
@@ -61,6 +62,7 @@ scripts/check-contract-alignment.sh <app>
 请按契约优先的方式为 <app> 实现指定功能，优先使用生成的 contract models，
 补充聚焦测试；如果消费了契约 migration，更新 <app>/contract-alignment.json，
 并同步更新 docs/cross-platform/change-log.md 中对应 active migration 的端侧状态，
+如果这是该 migration 的最后一个待对齐平台，还要把这条契约修改从 Active Contract Migrations 移动到 Recent Records，
 并总结验证结果。
 最终回复请使用中文。
 ```

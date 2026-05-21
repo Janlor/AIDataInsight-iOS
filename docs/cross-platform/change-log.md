@@ -19,6 +19,10 @@ scripts/check-contract-alignment.sh <app>
 
 ## Active Contract Migrations
 
+
+
+## Recent Records
+
 ### 0.2.0 - AccountUser Protected Persistence
 
 - Migration: `docs/cross-platform/contracts/migrations/0.2.0-account-user-protected-persistence.yaml`
@@ -27,7 +31,7 @@ scripts/check-contract-alignment.sh <app>
   - `app-ios`: aligned
   - `app-apple`: aligned
   - `app-android`: aligned
-  - `app-harmony`: needs-review
+  - `app-harmony`: aligned
   - `app-web`: aligned
 
 核心规则摘要：
@@ -37,8 +41,6 @@ scripts/check-contract-alignment.sh <app>
 - `AccountUser` 必须进入受保护账号存储；Apple 端使用 Keychain，不进 SwiftData。
 - Setting 先渲染本地 cached AccountUser，再静默刷新远程数据。
 - logout、401、402 refresh 失败必须同时清理 session 和 userInfo。
-
-## Recent Records
 
 ### 2026-05-20 - Contract Version Alignment Workflow
 
