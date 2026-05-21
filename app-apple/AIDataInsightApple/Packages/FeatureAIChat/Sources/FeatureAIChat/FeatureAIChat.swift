@@ -428,6 +428,7 @@ public final class AIChatStore {
 
 public struct AIChatScreen: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @FocusState private var isComposerFocused: Bool
     @Bindable private var store: AIChatStore
     private let bottomAnchorID = "chat-bottom-anchor"
 
@@ -483,6 +484,10 @@ public struct AIChatScreen: View {
                 .frame(maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .dismissesKeyboardInteractively()
+            .simultaneousGesture(TapGesture().onEnded {
+                isComposerFocused = false
+            })
             .onAppear {
                 scrollToBottom(proxy)
             }
@@ -514,21 +519,30 @@ public struct AIChatScreen: View {
                 ), axis: .vertical)
                 .lineLimit(1...5)
                 .textFieldStyle(.plain)
+                .focused($isComposerFocused)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 10)
                 .accessibilityIdentifier("chat-composer-input")
 
                 Button {
+                    isComposerFocused = false
                     Task {
                         await store.sendCurrentMessage()
                     }
                 } label: {
                     Image(systemName: "paperplane.fill")
-                        .frame(width: 30, height: 30)
+                        .font(.system(size: sendButtonIconSize, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: sendButtonSide, height: sendButtonSide)
+                        .background(sendButtonBackground, in: Circle())
+                        .contentShape(Circle())
                 }
                 .help("发送")
-                .disabled(store.state.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || store.state.isSending)
-                .buttonStyle(.borderedProminent)
+                .disabled(canSendMessage == false)
+                .buttonStyle(.plain)
+                .transaction { transaction in
+                    transaction.animation = nil
+                }
                 .accessibilityIdentifier("chat-send-button")
             }
             .padding(6)
@@ -825,6 +839,30 @@ public struct AIChatScreen: View {
         horizontalSizeClass == .compact
     }
 
+    private var canSendMessage: Bool {
+        store.state.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false && store.state.isSending == false
+    }
+
+    private var sendButtonBackground: Color {
+        canSendMessage ? .blue : Color.secondary.opacity(0.24)
+    }
+
+    private var sendButtonSide: CGFloat {
+#if os(macOS)
+        34
+#else
+        46
+#endif
+    }
+
+    private var sendButtonIconSize: CGFloat {
+#if os(macOS)
+        14
+#else
+        18
+#endif
+    }
+
     private var transcriptHorizontalPadding: CGFloat {
         usesCompactMessageLayout ? 12 : 32
     }
@@ -855,19 +893,30 @@ private extension Color {
 private struct ComposerContainerStyle: ViewModifier {
     func body(content: Content) -> some View {
 #if os(macOS)
+        let shape = RoundedRectangle(cornerRadius: 10, style: .continuous)
         content
-            .background(Color(nsColorCompatibleLight: "#FFFFFF", dark: "#151D30"), in: RoundedRectangle(cornerRadius: 10))
+            .background(Color(nsColorCompatibleLight: "#FFFFFF", dark: "#151D30"), in: shape)
             .overlay {
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.secondary.opacity(0.20))
+                shape.stroke(Color.secondary.opacity(0.20))
             }
 #else
+        let shape = RoundedRectangle(cornerRadius: 28, style: .continuous)
         content
-            .background(Color(nsColorCompatibleLight: "#FFFFFF", dark: "#151D30"), in: Capsule())
+            .background(Color(nsColorCompatibleLight: "#FFFFFF", dark: "#151D30"), in: shape)
             .overlay {
-                Capsule()
-                    .stroke(Color.secondary.opacity(0.20))
+                shape.stroke(Color.secondary.opacity(0.20))
             }
+#endif
+    }
+}
+
+private extension View {
+    @ViewBuilder
+    func dismissesKeyboardInteractively() -> some View {
+#if os(iOS)
+        scrollDismissesKeyboard(.interactively)
+#else
+        self
 #endif
     }
 }
