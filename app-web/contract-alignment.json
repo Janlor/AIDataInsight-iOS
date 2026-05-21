@@ -1,13 +1,13 @@
 {
   "app": "app-web",
-  "contractVersion": "0.1.0",
-  "lastAppliedMigration": null,
-  "status": "needs-review",
-  "updatedAt": "2026-05-20",
-  "pendingMigrations": [
-    "0.2.0-account-user-protected-persistence"
-  ],
+  "contractVersion": "0.2.0",
+  "lastAppliedMigration": "0.2.0-account-user-protected-persistence",
+  "status": "aligned",
+  "updatedAt": "2026-05-21",
+  "pendingMigrations": [],
   "notes": [
-    "Review account store userInfo cache behavior before marking aligned."
+    "AccountUser remains inside the account store persistence boundary.",
+    "Setting renders cached AccountUser first and silently refreshes getUserInfo when opened.",
+    "logout, 401, and failed 402 refresh clear both AccountSession and AccountUser."
   ]
 }

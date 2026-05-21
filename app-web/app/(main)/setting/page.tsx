@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { LogOut } from 'lucide-react';
+import { useEffect } from 'react';
 import { PageHeader } from '@/components/page-header';
 import { useAccountStore } from '@/data/account/session-store';
 import { useI18n } from '@/i18n/use-i18n';
@@ -13,6 +14,13 @@ export default function SettingPage() {
   const session = useAccountStore((state) => state.session);
   const user = useAccountStore((state) => state.user);
   const logout = useAccountStore((state) => state.logout);
+  const loadUserInfo = useAccountStore((state) => state.loadUserInfo);
+
+  useEffect(() => {
+    if (session.isLogin) {
+      void loadUserInfo().catch(() => undefined);
+    }
+  }, [loadUserInfo, session.isLogin]);
 
   return (
     <>

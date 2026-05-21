@@ -36,7 +36,8 @@
 6. 受影响端按 migration 修改端侧代码。
 7. 更新该端的 `contract-alignment.json`。
 8. 运行 alignment check 和目标端测试。
-9. 如果记录进入 changelog，最新记录写在 `change-log.md` 顶部；旧记录按月份移入 `changelog-archive/`。
+9. 执行端侧 migration 的人或 AI 负责同步更新 `change-log.md` 中对应 active migration 的端侧状态。
+10. 如果记录进入 changelog，最新记录写在 `change-log.md` 顶部；旧记录按月份移入 `changelog-archive/`。
 
 ## 版本规则
 

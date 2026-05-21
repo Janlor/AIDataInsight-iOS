@@ -26,9 +26,9 @@ scripts/check-contract-alignment.sh <app>
 - Status:
   - `app-ios`: aligned
   - `app-apple`: aligned
-  - `app-android`: needs-review
+  - `app-android`: aligned
   - `app-harmony`: needs-review
-  - `app-web`: needs-review
+  - `app-web`: aligned
 
 核心规则摘要：
 

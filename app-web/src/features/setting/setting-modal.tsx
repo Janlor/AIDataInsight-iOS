@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronRight, Loader2, X } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { SettingRow } from '@/contracts/generated/models';
 import { useAccountStore } from '@/data/account/session-store';
 import { useI18n } from '@/i18n/use-i18n';
@@ -15,6 +15,7 @@ export function SettingModal({ open, onClose }: { open: boolean; onClose: () => 
   const session = useAccountStore((state) => state.session);
   const user = useAccountStore((state) => state.user);
   const logout = useAccountStore((state) => state.logout);
+  const loadUserInfo = useAccountStore((state) => state.loadUserInfo);
   const [isConfirmingLogout, setConfirmingLogout] = useState(false);
   const [isChoosingLanguage, setChoosingLanguage] = useState(false);
   const [isLoggingOut, setLoggingOut] = useState(false);
@@ -22,6 +23,12 @@ export function SettingModal({ open, onClose }: { open: boolean; onClose: () => 
     () => buildSettingStateFromContract({ session, user }),
     [session, user],
   );
+
+  useEffect(() => {
+    if (open && session.isLogin) {
+      void loadUserInfo().catch(() => undefined);
+    }
+  }, [loadUserInfo, open, session.isLogin]);
 
   if (!open) {
     return null;
