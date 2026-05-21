@@ -271,19 +271,25 @@ public struct HistorySidebar: View {
     private let onSelect: (Int) -> Void
     private let onDeletedSelected: () -> Void
     private let onOpenSetting: () -> Void
+    private let onOpenPrivacy: () -> Void
+    private let onLogout: () -> Void
 
     public init(
         store: HistoryStore,
         onNewChat: @escaping () -> Void = {},
         onSelect: @escaping (Int) -> Void = { _ in },
         onDeletedSelected: @escaping () -> Void = {},
-        onOpenSetting: @escaping () -> Void = {}
+        onOpenSetting: @escaping () -> Void = {},
+        onOpenPrivacy: @escaping () -> Void = {},
+        onLogout: @escaping () -> Void = {}
     ) {
         self.store = store
         self.onNewChat = onNewChat
         self.onSelect = onSelect
         self.onDeletedSelected = onDeletedSelected
         self.onOpenSetting = onOpenSetting
+        self.onOpenPrivacy = onOpenPrivacy
+        self.onLogout = onLogout
     }
 
     public var body: some View {
@@ -352,26 +358,7 @@ public struct HistorySidebar: View {
             Divider()
 
             HStack(spacing: 10) {
-                Button {
-                    onOpenSetting()
-                } label: {
-                    HStack(spacing: 10) {
-                        Text("JL")
-                            .font(.caption.bold())
-                            .foregroundStyle(.white)
-                            .frame(width: 30, height: 30)
-                            .background(.blue, in: Circle())
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("Janlor Lee")
-                                .font(.subheadline)
-                            Text("Demo Workspace")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("history-account-button")
+                accountControl
                 Spacer()
                 Button {
                     Task {
@@ -397,6 +384,54 @@ public struct HistorySidebar: View {
         .task {
             if store.conversations.isEmpty {
                 await store.loadFirstPage()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var accountControl: some View {
+#if os(macOS)
+        Menu {
+            Button("Settings...") {
+                onOpenSetting()
+            }
+            Button("Privacy Policy") {
+                onOpenPrivacy()
+            }
+            Divider()
+            Button("Log Out", role: .destructive) {
+                onLogout()
+            }
+        } label: {
+            accountLabel
+        }
+        .menuStyle(.borderlessButton)
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("history-account-button")
+#else
+        Button {
+            onOpenSetting()
+        } label: {
+            accountLabel
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("history-account-button")
+#endif
+    }
+
+    private var accountLabel: some View {
+        HStack(spacing: 10) {
+            Text("JL")
+                .font(.caption.bold())
+                .foregroundStyle(.white)
+                .frame(width: 30, height: 30)
+                .background(.blue, in: Circle())
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Janlor Lee")
+                    .font(.subheadline)
+                Text("Demo Workspace")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
     }

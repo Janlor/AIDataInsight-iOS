@@ -18,9 +18,14 @@ import SwiftUI
 struct RootView: View {
     @Bindable var environment: AppRuntimeEnvironment
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+#if os(macOS)
+    @Environment(\.openSettings) private var openSettings
+#endif
     @State private var settingPath: [RootRoute] = []
     @State private var showsSetting = false
     @State private var showsHistory = false
+    @State private var showsPrivacy = false
+    @State private var showsLogoutConfirmation = false
 
     var body: some View {
         Group {
@@ -49,6 +54,12 @@ struct RootView: View {
             environment.chatStore.startNewChat()
             showsHistory = false
         }
+        .onReceive(NotificationCenter.default.publisher(for: .openPrivacyPolicy)) { _ in
+            showsPrivacy = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .requestLogout)) { _ in
+            showsLogoutConfirmation = true
+        }
         .onChange(of: environment.settingStore.state.didLogout) { _, didLogout in
             guard didLogout else {
                 return
@@ -58,6 +69,34 @@ struct RootView: View {
             settingPath.removeAll()
             showsSetting = false
             showsHistory = false
+            showsPrivacy = false
+            showsLogoutConfirmation = false
+        }
+        .sheet(isPresented: $showsPrivacy) {
+            NavigationStack {
+                PrivacyScreen()
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("关闭") {
+                                showsPrivacy = false
+                            }
+                        }
+                    }
+            }
+            .frame(minWidth: 520, minHeight: 620)
+        }
+        .sheet(isPresented: $showsLogoutConfirmation) {
+            LogoutConfirmationSheet(
+                isLoggingOut: environment.settingStore.state.isLoggingOut,
+                onCancel: {
+                    showsLogoutConfirmation = false
+                },
+                onConfirm: {
+                    Task {
+                        await environment.settingStore.logout()
+                    }
+                }
+            )
         }
     }
 
@@ -83,7 +122,17 @@ struct RootView: View {
                             environment.chatStore.startNewChat()
                         },
                         onOpenSetting: {
+#if os(macOS)
+                            openSettings()
+#else
                             showsSetting = true
+#endif
+                        },
+                        onOpenPrivacy: {
+                            showsPrivacy = true
+                        },
+                        onLogout: {
+                            showsLogoutConfirmation = true
                         }
                     )
                 } detail: {
@@ -96,18 +145,22 @@ struct RootView: View {
                                 }
                                 .accessibilityIdentifier("toolbar-new-chat-button")
                             }
+#if !os(macOS)
                             ToolbarItem {
                                 Button("Settings", systemImage: "gearshape") {
                                     showsSetting = true
                                 }
                                 .accessibilityIdentifier("toolbar-settings-button")
                             }
+#endif
                         }
                 }
+#if !os(macOS)
                 .sheet(isPresented: $showsSetting) {
                     settingView
                         .frame(minWidth: 500, minHeight: 600)
                 }
+#endif
     }
 
     private var compactWorkspace: some View {
@@ -119,12 +172,14 @@ struct RootView: View {
                             showsHistory = true
                         }
                     }
+#if !os(macOS)
                     ToolbarItem {
                         Button("Settings", systemImage: "gearshape") {
                             showsSetting = true
                         }
                         .accessibilityIdentifier("toolbar-settings-button")
                     }
+#endif
                 }
         }
         .sheet(isPresented: $showsHistory) {
@@ -148,6 +203,14 @@ struct RootView: View {
                     onOpenSetting: {
                         showsHistory = false
                         showsSetting = true
+                    },
+                    onOpenPrivacy: {
+                        showsHistory = false
+                        showsPrivacy = true
+                    },
+                    onLogout: {
+                        showsHistory = false
+                        showsLogoutConfirmation = true
                     }
                 )
                 .toolbar {
@@ -195,6 +258,39 @@ struct RootView: View {
 
 private enum RootRoute: Hashable {
     case privacy
+}
+
+private struct LogoutConfirmationSheet: View {
+    let isLoggingOut: Bool
+    let onCancel: () -> Void
+    let onConfirm: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            Text("退出登录")
+                .font(.headline)
+            Text("退出后需要重新登录才能继续使用。")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+            HStack {
+                Spacer()
+                Button("取消") {
+                    onCancel()
+                }
+                .keyboardShortcut(.cancelAction)
+
+                Button(isLoggingOut ? "退出中..." : "退出登录", role: .destructive) {
+                    onConfirm()
+                }
+                .keyboardShortcut(.defaultAction)
+                .disabled(isLoggingOut)
+                .accessibilityIdentifier("logout-confirm-button")
+            }
+        }
+        .padding(24)
+        .frame(width: 360)
+    }
 }
 
 private extension View {

@@ -50,24 +50,19 @@ final class AIDataInsightAppleUITests: XCTestCase {
         newChat.click()
         XCTAssertTrue(app.descendants(matching: .any)["ai-chat-welcome-bubble"].waitForExistence(timeout: 5))
 
-        app.buttons["Settings"].firstMatch.click()
+        clickAccountMenuItem("Settings...", in: app)
         XCTAssertTrue(app.descendants(matching: .any)["setting-screen"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.descendants(matching: .any)["setting-row-privacy"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["setting-row-logout"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["setting-row-logout"].waitForExistence(timeout: 1))
     }
 
     @MainActor
     func testLogoutReturnsToLogin() throws {
         let app = launchAndLogin()
 
-        let settings = app.buttons["Settings"].firstMatch
-        XCTAssertTrue(settings.waitForExistence(timeout: 5))
-        settings.click()
-        let logout = app.buttons["setting-row-logout"]
-        XCTAssertTrue(logout.waitForExistence(timeout: 5))
-        logout.click()
+        clickAccountMenuItem("Log Out", in: app)
 
-        let confirmButton = app.buttons["action-button-1"].firstMatch
+        let confirmButton = app.buttons["logout-confirm-button"].firstMatch
         XCTAssertTrue(confirmButton.waitForExistence(timeout: 5))
         confirmButton.click()
 
@@ -109,5 +104,16 @@ final class AIDataInsightAppleUITests: XCTestCase {
 
         XCTAssertTrue(app.descendants(matching: .any)["history-sidebar"].waitForExistence(timeout: 5))
         return app
+    }
+
+    @MainActor
+    private func clickAccountMenuItem(_ title: String, in app: XCUIApplication) {
+        let accountMenu = app.menuBars.menuBarItems["Account"].firstMatch
+        XCTAssertTrue(accountMenu.waitForExistence(timeout: 5))
+        accountMenu.click()
+
+        let menuItem = app.menuItems[title].firstMatch
+        XCTAssertTrue(menuItem.waitForExistence(timeout: 5))
+        menuItem.click()
     }
 }

@@ -204,10 +204,12 @@ public struct SettingScreen: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @Bindable private var store: SettingStore
     private let onOpenPrivacy: () -> Void
+    private let showsLogoutAction: Bool
 
-    public init(store: SettingStore, onOpenPrivacy: @escaping () -> Void = {}) {
+    public init(store: SettingStore, onOpenPrivacy: @escaping () -> Void = {}, showsLogoutAction: Bool = true) {
         self.store = store
         self.onOpenPrivacy = onOpenPrivacy
+        self.showsLogoutAction = showsLogoutAction
     }
 
     public var body: some View {
@@ -285,7 +287,10 @@ public struct SettingScreen: View {
     }
 
     private var logoutRow: SettingRowState? {
-        store.state.sections
+        guard showsLogoutAction else {
+            return nil
+        }
+        return store.state.sections
             .first(where: { $0.kind == .logout })?
             .rows
             .first
