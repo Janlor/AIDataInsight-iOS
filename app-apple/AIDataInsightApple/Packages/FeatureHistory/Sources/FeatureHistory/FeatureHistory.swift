@@ -289,15 +289,11 @@ public struct HistorySidebar: View {
     public var body: some View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 14) {
-                HStack(spacing: 10) {
-                    Image(systemName: "chart.xyaxis.line")
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(.white)
-                        .frame(width: 30, height: 30)
-                        .background(AppColor.Accent.primary.color, in: RoundedRectangle(cornerRadius: 8))
+                HStack {
                     Text("AI数据分析助手")
                         .font(.headline)
                         .lineLimit(1)
+                    Spacer()
                 }
                 Button {
                     store.clearSelection()

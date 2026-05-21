@@ -35,6 +35,37 @@ import AppContracts
     #expect(store.state.messages.last?.text == "根据您的查询，以下是分析结果:")
 }
 
+@MainActor
+@Test func templateQuestionKeepsWelcomeAndDoesNotUseStreamFallback() async {
+    let repository = FailingFunctionRepository()
+    let store = AIChatStore(repository: repository)
+
+    await store.sendTemplateQuestion("查询本月销售额")
+
+    #expect(store.state.showsWelcome)
+    #expect(store.state.messages.count == 2)
+    #expect(store.state.messages.first?.role == .user)
+    #expect(store.state.messages.last?.text == "这个问题目前无法回答。请尝试以不同的方式重新表述您的问题。")
+    let streamCount = await repository.streamCount
+    #expect(streamCount == 0)
+}
+
+@MainActor
+@Test func loadingHistoryHidesWelcomeBubble() async {
+    let repository = HistoryChartRepository(record: HistoryRecordContract(
+        id: 123,
+        name: "January sales",
+        detailList: [
+            HistoryDetailContract(id: 1001, historyId: 123, type: .question, contentType: .ai, content: "查看一月销售额"),
+        ]
+    ))
+    let store = AIChatStore(repository: repository)
+
+    await store.loadHistory(historyID: 123)
+
+    #expect(store.state.showsWelcome == false)
+}
+
 @Test func chartPayloadMapsCommonSeries() {
     let detail = HistoryChartDetailContract(
         historyDetailId: 1,
@@ -101,4 +132,44 @@ private struct HistoryChartRepository: AIChatRepository {
             continuation.finish()
         }
     }
+}
+
+private actor FailingFunctionRepository: AIChatRepository {
+    private(set) var streamCount = 0
+
+    func loadTemplate() async throws -> TemplateQuestionSetContract {
+        TemplateQuestionSetContract(questions: ["查询本月销售额"])
+    }
+
+    func loadHistoryDetail(historyId: Int) async throws -> HistoryRecordContract {
+        HistoryRecordContract(id: historyId, name: nil, detailList: [])
+    }
+
+    func sendFunctionMessage(text: String, historyId: Int?) async throws -> FunctionModelContract {
+        throw TestError.expected
+    }
+
+    func loadChartData(name: FunctionNameContract, historyId: Int, arguments: FunctionArgumentsContract) async throws -> HistoryChartDetailContract {
+        throw TestError.expected
+    }
+
+    func sendLikeFeedback(historyDetailId: Int, like: String) async throws {}
+
+    nonisolated func streamMessage(text: String) -> AsyncThrowingStream<String, Error> {
+        AsyncThrowingStream { continuation in
+            Task {
+                await incrementStreamCount()
+                continuation.yield("stream fallback")
+                continuation.finish()
+            }
+        }
+    }
+
+    private func incrementStreamCount() {
+        streamCount += 1
+    }
+}
+
+private enum TestError: Error {
+    case expected
 }

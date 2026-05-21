@@ -1,3 +1,5 @@
+import Foundation
+
 public struct TemplateQuestionSetContract: Codable, Equatable, Sendable {
     public let questions: [String]
 
@@ -114,6 +116,62 @@ public enum FunctionArgumentsContract: Codable, Equatable, Sendable {
         }
     }
 
+    public static func decode(from decoder: Decoder, name: FunctionNameContract?) throws -> FunctionArgumentsContract {
+        let container = try decoder.singleValueContainer()
+        if let string = try? container.decode(String.self) {
+            guard let data = string.data(using: .utf8), let kind = name?.argumentKind else {
+                throw DecodingError.dataCorruptedError(
+                    in: container,
+                    debugDescription: "Invalid function arguments JSON string."
+                )
+            }
+            return try decode(kind: kind, from: data)
+        }
+
+        if let wrapped = try? FunctionArgumentsContract(from: decoder) {
+            return wrapped
+        }
+
+        guard let kind = name?.argumentKind else {
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Function arguments require a function name when decoded without kind."
+            )
+        }
+        return try decode(kind: kind, from: decoder)
+    }
+
+    private static func decode(kind: Kind, from data: Data) throws -> FunctionArgumentsContract {
+        let decoder = JSONDecoder()
+        switch kind {
+        case .basic:
+            return .basic(try decoder.decode(BasicQueryContract.self, from: data))
+        case .timeRange:
+            return .timeRange(try decoder.decode(TimeRangeQueryContract.self, from: data))
+        case .warehouse:
+            return .warehouse(try decoder.decode(WarehouseQueryContract.self, from: data))
+        case .accountAge:
+            return .accountAge(try decoder.decode(AccountAgeQueryContract.self, from: data))
+        case .performanceType:
+            return .performanceType(try decoder.decode(PerformanceTypeQueryContract.self, from: data))
+        }
+    }
+
+    private static func decode(kind: Kind, from decoder: Decoder) throws -> FunctionArgumentsContract {
+        switch kind {
+        case .basic:
+            return .basic(try BasicQueryContract(from: decoder))
+        case .timeRange:
+            return .timeRange(try TimeRangeQueryContract(from: decoder))
+        case .warehouse:
+            return .warehouse(try WarehouseQueryContract(from: decoder))
+        case .accountAge:
+            return .accountAge(try AccountAgeQueryContract(from: decoder))
+        case .performanceType:
+            return .performanceType(try PerformanceTypeQueryContract(from: decoder))
+        }
+    }
+
     private enum CodingKeys: String, CodingKey {
         case kind
         case value
@@ -173,6 +231,23 @@ public enum FunctionNameContract: String, Codable, CaseIterable, Sendable {
     case queryAccountAgeGroupByCustomer
     case queryAccountGroupByAge
     case queryPerformanceType
+
+    public var argumentKind: FunctionArgumentsContract.Kind {
+        switch self {
+        case .queryArGroupByOrg, .queryArGroupByCustomer, .queryAccountGroupByAge:
+            return .basic
+        case .querySalesGroupByOrgAndGoodsType, .querySalesGroupByMonth, .querySalesGroupByCustomer,
+             .queryPurchaseGroupByOrg, .queryPurchaseGroupByMonth, .queryPurchaseGroupByCustomer:
+            return .timeRange
+        case .queryStockGroupByOrg, .queryStockGroupByWarehouse, .queryInventoryGroupByOrg,
+             .queryInventoryGroupByWarehouse, .queryProcurementGroupByOrg, .queryProcurementGroupByCustomer:
+            return .warehouse
+        case .queryAccountAgeGroupByOrg, .queryAccountAgeGroupByCustomer:
+            return .accountAge
+        case .queryPerformanceType:
+            return .performanceType
+        }
+    }
 }
 
 public struct ChartCommonItemContract: Codable, Equatable, Sendable {
@@ -230,6 +305,45 @@ public struct FunctionModelContract: Codable, Equatable, Sendable {
         self.name = name
         self.msg = msg
         self.arguments = arguments
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case historyId
+        case hasTool
+        case name
+        case msg
+        case arguments
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        historyId = try container.decodeIfPresent(Int.self, forKey: .historyId)
+        hasTool = try container.decodeIfPresent(Bool.self, forKey: .hasTool)
+        name = try container.decodeIfPresent(FunctionNameContract.self, forKey: .name)
+        msg = try container.decodeIfPresent(String.self, forKey: .msg)
+        let hasArguments: Bool
+        if container.contains(.arguments) {
+            hasArguments = !(try container.decodeNil(forKey: .arguments))
+        } else {
+            hasArguments = false
+        }
+        if hasArguments {
+            arguments = try FunctionArgumentsContract.decode(
+                from: container.superDecoder(forKey: .arguments),
+                name: name
+            )
+        } else {
+            arguments = nil
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(historyId, forKey: .historyId)
+        try container.encodeIfPresent(hasTool, forKey: .hasTool)
+        try container.encodeIfPresent(name, forKey: .name)
+        try container.encodeIfPresent(msg, forKey: .msg)
+        try container.encodeIfPresent(arguments, forKey: .arguments)
     }
 }
 

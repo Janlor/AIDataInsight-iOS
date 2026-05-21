@@ -128,6 +128,7 @@ public struct AIChatViewState: Equatable, Sendable {
     public var activeHistoryID: Int?
     public var isLoadingTemplate: Bool
     public var isSending: Bool
+    public var showsWelcome: Bool
     public var errorMessage: String?
 
     public init(
@@ -137,6 +138,7 @@ public struct AIChatViewState: Equatable, Sendable {
         activeHistoryID: Int? = nil,
         isLoadingTemplate: Bool = false,
         isSending: Bool = false,
+        showsWelcome: Bool = true,
         errorMessage: String? = nil
     ) {
         self.messages = messages
@@ -145,6 +147,7 @@ public struct AIChatViewState: Equatable, Sendable {
         self.activeHistoryID = activeHistoryID
         self.isLoadingTemplate = isLoadingTemplate
         self.isSending = isSending
+        self.showsWelcome = showsWelcome
         self.errorMessage = errorMessage
     }
 }
@@ -277,6 +280,7 @@ public final class AIChatStore {
         state.messages.removeAll()
         state.draft = ""
         state.activeHistoryID = nil
+        state.showsWelcome = true
         state.errorMessage = nil
     }
 
@@ -291,10 +295,14 @@ public final class AIChatStore {
 
     public func sendTemplateQuestion(_ text: String) async {
         state.draft = text
-        await sendCurrentMessage()
+        await sendCurrentMessage(allowStreamFallback: false)
     }
 
     public func sendCurrentMessage() async {
+        await sendCurrentMessage(allowStreamFallback: true)
+    }
+
+    private func sendCurrentMessage(allowStreamFallback: Bool) async {
         let text = state.draft.trimmingCharacters(in: .whitespacesAndNewlines)
         guard text.isEmpty == false, state.isSending == false else {
             return
@@ -310,7 +318,11 @@ public final class AIChatStore {
             state.activeHistoryID = function.historyId ?? state.activeHistoryID
             try await handle(function: function)
         } catch {
-            await streamFallbackResponse(for: text)
+            if allowStreamFallback {
+                await streamFallbackResponse(for: text)
+            } else {
+                appendAssistantText("这个问题目前无法回答。请尝试以不同的方式重新表述您的问题。")
+            }
         }
 
         state.isSending = false
@@ -321,6 +333,7 @@ public final class AIChatStore {
         do {
             let record = try await repository.loadHistoryDetail(historyId: historyID)
             state.activeHistoryID = record.id
+            state.showsWelcome = false
             state.messages = (record.detailList ?? []).map(ChatMessageViewState.init(contract:))
         } catch {
             state.errorMessage = "历史会话加载失败"
@@ -439,53 +452,47 @@ public struct AIChatScreen: View {
 
     @ViewBuilder
     private var content: some View {
-        if store.state.messages.isEmpty {
+        ScrollViewReader { proxy in
             ScrollView {
-                welcomeBubble
+                LazyVStack(spacing: 18) {
+                    if store.state.showsWelcome {
+                        welcomeBubble
+                            .id("welcome-bubble")
+                    }
+                    ForEach(store.state.messages) { message in
+                        messageView(message)
+                            .id(message.id)
+                    }
+                    if store.state.isSending {
+                        HStack {
+                            ProgressView()
+                                .controlSize(.small)
+                            Text("分析中...")
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    Color.clear
+                        .frame(height: 1)
+                        .id(bottomAnchorID)
+                }
                 .padding(.horizontal, 32)
                 .padding(.vertical, 24)
-                .frame(maxWidth: 780)
+                .frame(maxWidth: 900)
                 .frame(maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else {
-            ScrollViewReader { proxy in
-                ScrollView {
-                    LazyVStack(spacing: 18) {
-                        ForEach(store.state.messages) { message in
-                            messageView(message)
-                                .id(message.id)
-                        }
-                        if store.state.isSending {
-                            HStack {
-                                ProgressView()
-                                    .controlSize(.small)
-                                Text("分析中...")
-                                    .foregroundStyle(.secondary)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        Color.clear
-                            .frame(height: 1)
-                            .id(bottomAnchorID)
-                    }
-                    .padding(.horizontal, 32)
-                    .padding(.vertical, 24)
-                    .frame(maxWidth: 900)
-                    .frame(maxWidth: .infinity)
-                }
-                .onAppear {
-                    scrollToBottom(proxy)
-                }
-                .onChange(of: store.state.messages.count) { _, _ in
-                    scrollToBottom(proxy)
-                }
-                .onChange(of: store.state.messages.last?.text) { _, _ in
-                    scrollToBottom(proxy)
-                }
-                .onChange(of: store.state.isSending) { _, _ in
-                    scrollToBottom(proxy)
-                }
+            .onAppear {
+                scrollToBottom(proxy)
+            }
+            .onChange(of: store.state.messages.count) { _, _ in
+                scrollToBottom(proxy)
+            }
+            .onChange(of: store.state.messages.last?.text) { _, _ in
+                scrollToBottom(proxy)
+            }
+            .onChange(of: store.state.isSending) { _, _ in
+                scrollToBottom(proxy)
             }
         }
     }
@@ -525,11 +532,7 @@ public struct AIChatScreen: View {
             }
             .padding(6)
             .frame(maxWidth: 860)
-            .background(Color(nsColorCompatibleLight: "#FFFFFF", dark: "#151D30"), in: Capsule())
-            .overlay {
-                Capsule()
-                    .stroke(Color.secondary.opacity(0.20))
-            }
+            .modifier(ComposerContainerStyle())
         }
         .padding(.horizontal, 24)
         .padding(.top, 12)
@@ -793,6 +796,26 @@ private extension Color {
         })
 #else
         self.init(hex: lightHex)
+#endif
+    }
+}
+
+private struct ComposerContainerStyle: ViewModifier {
+    func body(content: Content) -> some View {
+#if os(macOS)
+        content
+            .background(Color(nsColorCompatibleLight: "#FFFFFF", dark: "#151D30"), in: RoundedRectangle(cornerRadius: 10))
+            .overlay {
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(Color.secondary.opacity(0.20))
+            }
+#else
+        content
+            .background(Color(nsColorCompatibleLight: "#FFFFFF", dark: "#151D30"), in: Capsule())
+            .overlay {
+                Capsule()
+                    .stroke(Color.secondary.opacity(0.20))
+            }
 #endif
     }
 }

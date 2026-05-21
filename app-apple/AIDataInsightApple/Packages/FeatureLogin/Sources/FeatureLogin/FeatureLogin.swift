@@ -10,6 +10,7 @@ public struct LoginViewState: Equatable, Sendable {
     public var password: String
     public var acceptedPrivacy: Bool
     public var isLoading: Bool
+    public var hasResolvedLaunchSession: Bool
     public var errorMessage: String?
     public var isAuthenticated: Bool
 
@@ -18,6 +19,7 @@ public struct LoginViewState: Equatable, Sendable {
         password: String = "demo@123",
         acceptedPrivacy: Bool = false,
         isLoading: Bool = false,
+        hasResolvedLaunchSession: Bool = false,
         errorMessage: String? = nil,
         isAuthenticated: Bool = false
     ) {
@@ -25,6 +27,7 @@ public struct LoginViewState: Equatable, Sendable {
         self.password = password
         self.acceptedPrivacy = acceptedPrivacy
         self.isLoading = isLoading
+        self.hasResolvedLaunchSession = hasResolvedLaunchSession
         self.errorMessage = errorMessage
         self.isAuthenticated = isAuthenticated
     }
@@ -60,6 +63,10 @@ public final class LoginStore {
     }
 
     public func resolveLaunchSession() async {
+        guard state.hasResolvedLaunchSession == false else {
+            return
+        }
+        defer { state.hasResolvedLaunchSession = true }
         do {
             state.isAuthenticated = try await accountService.resolveLaunchSession()?.isLogin == true
         } catch {
@@ -83,6 +90,7 @@ public final class LoginStore {
         state.errorMessage = nil
         do {
             _ = try await accountService.login(name: state.account, password: state.password)
+            state.hasResolvedLaunchSession = true
             state.isAuthenticated = true
         } catch let error as AppError {
             state.errorMessage = error.messageForDisplay
@@ -96,6 +104,7 @@ public final class LoginStore {
         state.isLoading = true
         do {
             try await accountService.logout()
+            state.hasResolvedLaunchSession = true
             state.isAuthenticated = false
         } catch {
             state.errorMessage = "退出登录失败，请稍后重试"
@@ -104,6 +113,7 @@ public final class LoginStore {
     }
 
     public func markLoggedOut() {
+        state.hasResolvedLaunchSession = true
         state.isAuthenticated = false
     }
 }

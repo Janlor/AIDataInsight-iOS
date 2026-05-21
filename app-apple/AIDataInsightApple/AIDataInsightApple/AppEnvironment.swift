@@ -62,7 +62,7 @@ final class AppRuntimeEnvironment {
         }
 
         let defaultLoginState = usePreviewRepositories
-            ? LoginViewState(acceptedPrivacy: true)
+            ? LoginViewState(acceptedPrivacy: true, hasResolvedLaunchSession: true)
             : LoginViewState()
         self.loginStore = loginStore ?? LoginStore(state: defaultLoginState, accountService: accountService)
         self.chatStore = chatStore ?? AIChatStore(repository: aiChatRepository)

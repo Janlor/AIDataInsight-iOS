@@ -24,7 +24,9 @@ struct RootView: View {
 
     var body: some View {
         Group {
-            if environment.loginStore.state.isAuthenticated {
+            if environment.loginStore.state.hasResolvedLaunchSession == false {
+                launchResolvingView
+            } else if environment.loginStore.state.isAuthenticated {
                 if horizontalSizeClass == .compact {
                     compactWorkspace
                 } else {
@@ -57,6 +59,12 @@ struct RootView: View {
             showsSetting = false
             showsHistory = false
         }
+    }
+
+    private var launchResolvingView: some View {
+        AppColor.Background.secondary.color
+            .ignoresSafeArea()
+            .accessibilityIdentifier("launch-session-resolving")
     }
 
     private var splitWorkspace: some View {
