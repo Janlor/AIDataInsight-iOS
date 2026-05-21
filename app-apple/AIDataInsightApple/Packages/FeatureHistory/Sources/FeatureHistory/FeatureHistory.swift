@@ -267,6 +267,7 @@ public final class HistoryStore {
 public struct HistorySidebar: View {
     @Bindable private var store: HistoryStore
     @State private var hoveredConversationID: Int?
+    private let showsTitle: Bool
     private let onNewChat: () -> Void
     private let onSelect: (Int) -> Void
     private let onDeletedSelected: () -> Void
@@ -276,6 +277,7 @@ public struct HistorySidebar: View {
 
     public init(
         store: HistoryStore,
+        showsTitle: Bool = true,
         onNewChat: @escaping () -> Void = {},
         onSelect: @escaping (Int) -> Void = { _ in },
         onDeletedSelected: @escaping () -> Void = {},
@@ -284,6 +286,7 @@ public struct HistorySidebar: View {
         onLogout: @escaping () -> Void = {}
     ) {
         self.store = store
+        self.showsTitle = showsTitle
         self.onNewChat = onNewChat
         self.onSelect = onSelect
         self.onDeletedSelected = onDeletedSelected
@@ -295,23 +298,14 @@ public struct HistorySidebar: View {
     public var body: some View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 14) {
-                HStack {
-                    Text("AI数据分析助手")
-                        .font(.headline)
-                        .lineLimit(1)
-                    Spacer()
+                if showsTitle {
+                    HStack {
+                        Text("AI数据分析助手")
+                            .font(.headline)
+                            .lineLimit(1)
+                        Spacer()
+                    }
                 }
-                Button {
-                    store.clearSelection()
-                    onNewChat()
-                } label: {
-                    Label("New Chat", systemImage: "square.and.pencil")
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .buttonStyle(.borderedProminent)
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("New Chat")
-                .accessibilityIdentifier("history-new-chat-button")
             }
             .padding(14)
 
@@ -344,6 +338,11 @@ public struct HistorySidebar: View {
                             row(conversation)
                                 .tag(conversation.remoteID)
                                 .listRowInsets(EdgeInsets(top: 3, leading: 8, bottom: 3, trailing: 8))
+#if os(macOS)
+                                .contextMenu {
+                                    deleteMenuItem(for: conversation)
+                                }
+#endif
                                 .onAppear {
                                     Task {
                                         await store.loadNextPageIfNeeded(currentItemID: conversation.id)
@@ -357,27 +356,24 @@ public struct HistorySidebar: View {
 
             Divider()
 
-            HStack(spacing: 10) {
-                accountControl
-                Spacer()
-                Button {
-                    Task {
-                        let shouldReset = await store.deleteAll()
-                        if shouldReset {
-                            onDeletedSelected()
-                        }
-                    }
-                } label: {
-                    Image(systemName: "trash")
+            Button {
+                onOpenSetting()
+            } label: {
+                HStack(spacing: 10) {
+                    accountLabel
+                    Spacer()
+                    Image(systemName: "ellipsis")
+                        .rotationEffect(.degrees(90))
+                        .foregroundStyle(.secondary)
                 }
-                .help("清空历史")
-                .buttonStyle(.borderless)
-                .disabled(store.conversations.isEmpty || store.state.isMutating)
-                .accessibilityIdentifier("history-clear-button")
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
+            .accessibilityIdentifier("history-account-settings-button")
             .padding(12)
         }
-        .navigationTitle("AI数据分析助手")
+        .navigationTitle(navigationTitle)
         .navigationSplitViewColumnWidth(min: 260, ideal: 300, max: 360)
         .background(AppColor.Background.secondary.color)
         .accessibilityIdentifier("history-sidebar")
@@ -386,37 +382,6 @@ public struct HistorySidebar: View {
                 await store.loadFirstPage()
             }
         }
-    }
-
-    @ViewBuilder
-    private var accountControl: some View {
-#if os(macOS)
-        Menu {
-            Button("Settings...") {
-                onOpenSetting()
-            }
-            Button("Privacy Policy") {
-                onOpenPrivacy()
-            }
-            Divider()
-            Button("Log Out", role: .destructive) {
-                onLogout()
-            }
-        } label: {
-            accountLabel
-        }
-        .menuStyle(.borderlessButton)
-        .buttonStyle(.plain)
-        .accessibilityIdentifier("history-account-button")
-#else
-        Button {
-            onOpenSetting()
-        } label: {
-            accountLabel
-        }
-        .buttonStyle(.plain)
-        .accessibilityIdentifier("history-account-button")
-#endif
     }
 
     private var accountLabel: some View {
@@ -436,6 +401,14 @@ public struct HistorySidebar: View {
         }
     }
 
+    private var navigationTitle: String {
+#if os(macOS)
+        showsTitle ? "AI数据分析助手" : ""
+#else
+        ""
+#endif
+    }
+
     private func row(_ conversation: HistoryConversationViewState) -> some View {
         let isSelected = conversation.remoteID == store.state.selectedID
         let isHovered = conversation.remoteID == hoveredConversationID
@@ -451,24 +424,6 @@ public struct HistorySidebar: View {
                 }
             }
             Spacer()
-            if isSelected || isHovered {
-                Button {
-                    guard let remoteID = conversation.remoteID else {
-                        return
-                    }
-                    Task {
-                        let deletedSelected = await store.delete(historyID: remoteID)
-                        if deletedSelected {
-                            onDeletedSelected()
-                        }
-                    }
-                } label: {
-                    Image(systemName: "trash")
-                }
-                .buttonStyle(.borderless)
-                .foregroundStyle(.secondary)
-                .help("删除")
-            }
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 7)
@@ -494,16 +449,26 @@ public struct HistorySidebar: View {
         }
         .accessibilityIdentifier(conversation.remoteID.map { "history-row-\($0)" } ?? "history-row-\(conversation.id)")
         .contextMenu {
-            Button("删除", role: .destructive) {
-                guard let remoteID = conversation.remoteID else {
-                    return
-                }
-                Task {
-                    let deletedSelected = await store.delete(historyID: remoteID)
-                    if deletedSelected {
-                        onDeletedSelected()
-                    }
-                }
+            deleteMenuItem(for: conversation)
+        }
+    }
+
+    private func deleteMenuItem(for conversation: HistoryConversationViewState) -> some View {
+        Button(role: .destructive) {
+            delete(conversation)
+        } label: {
+            Label("删除", systemImage: "trash")
+        }
+    }
+
+    private func delete(_ conversation: HistoryConversationViewState) {
+        guard let remoteID = conversation.remoteID else {
+            return
+        }
+        Task {
+            let deletedSelected = await store.delete(historyID: remoteID)
+            if deletedSelected {
+                onDeletedSelected()
             }
         }
     }

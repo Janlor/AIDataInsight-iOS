@@ -126,6 +126,7 @@ public struct AIChatViewState: Equatable, Sendable {
     public var draft: String
     public var templateQuestions: [String]
     public var activeHistoryID: Int?
+    public var activeHistoryTitle: String?
     public var isLoadingTemplate: Bool
     public var isSending: Bool
     public var showsWelcome: Bool
@@ -136,6 +137,7 @@ public struct AIChatViewState: Equatable, Sendable {
         draft: String = "",
         templateQuestions: [String] = [],
         activeHistoryID: Int? = nil,
+        activeHistoryTitle: String? = nil,
         isLoadingTemplate: Bool = false,
         isSending: Bool = false,
         showsWelcome: Bool = true,
@@ -145,10 +147,20 @@ public struct AIChatViewState: Equatable, Sendable {
         self.draft = draft
         self.templateQuestions = templateQuestions
         self.activeHistoryID = activeHistoryID
+        self.activeHistoryTitle = activeHistoryTitle
         self.isLoadingTemplate = isLoadingTemplate
         self.isSending = isSending
         self.showsWelcome = showsWelcome
         self.errorMessage = errorMessage
+    }
+
+    public var displayTitle: String {
+        guard let title = activeHistoryTitle?.trimmingCharacters(in: .whitespacesAndNewlines),
+              title.isEmpty == false
+        else {
+            return "AI数据分析助手"
+        }
+        return title
     }
 }
 
@@ -280,6 +292,7 @@ public final class AIChatStore {
         state.messages.removeAll()
         state.draft = ""
         state.activeHistoryID = nil
+        state.activeHistoryTitle = nil
         state.showsWelcome = true
         state.errorMessage = nil
     }
@@ -310,6 +323,9 @@ public final class AIChatStore {
 
         appendUserMessage(text)
         state.draft = ""
+        if state.activeHistoryTitle == nil {
+            state.activeHistoryTitle = text
+        }
         state.isSending = true
         state.errorMessage = nil
 
@@ -333,6 +349,7 @@ public final class AIChatStore {
         do {
             let record = try await repository.loadHistoryDetail(historyId: historyID)
             state.activeHistoryID = record.id
+            state.activeHistoryTitle = record.name
             state.showsWelcome = false
             state.messages = (record.detailList ?? []).map(ChatMessageViewState.init(contract:))
         } catch {
@@ -442,7 +459,10 @@ public struct AIChatScreen: View {
             composer
         }
         .background(Color(nsColorCompatibleLight: "#F7F8FA", dark: "#0B1020"))
-        .navigationTitle("AI数据分析助手")
+        .navigationTitle(store.state.displayTitle)
+#if !os(macOS)
+        .navigationBarTitleDisplayMode(.inline)
+#endif
         .accessibilityIdentifier("ai-chat-screen")
 #if os(macOS)
         .navigationSubtitle(store.state.activeHistoryID == nil ? "New Chat" : "History")

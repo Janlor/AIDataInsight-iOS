@@ -24,6 +24,8 @@ struct RootView: View {
     @State private var settingPath: [RootRoute] = []
     @State private var showsSetting = false
     @State private var showsHistory = false
+    @State private var historyDrawerProgress: CGFloat = 0
+    @State private var historyDragStartProgress: CGFloat?
     @State private var showsPrivacy = false
     @State private var showsLogoutConfirmation = false
 
@@ -52,7 +54,7 @@ struct RootView: View {
         .onReceive(NotificationCenter.default.publisher(for: .startNewChat)) { _ in
             environment.historyStore.clearSelection()
             environment.chatStore.startNewChat()
-            showsHistory = false
+            closeCompactHistory()
         }
         .onReceive(NotificationCenter.default.publisher(for: .openPrivacyPolicy)) { _ in
             showsPrivacy = true
@@ -68,7 +70,7 @@ struct RootView: View {
             environment.settingStore.consumeLogoutSignal()
             settingPath.removeAll()
             showsSetting = false
-            showsHistory = false
+            closeCompactHistory()
             showsPrivacy = false
             showsLogoutConfirmation = false
         }
@@ -77,9 +79,10 @@ struct RootView: View {
                 PrivacyScreen()
                     .toolbar {
                         ToolbarItem(placement: .cancellationAction) {
-                            Button("关闭") {
+                            closeButton {
                                 showsPrivacy = false
                             }
+                            .accessibilityIdentifier("privacy-close-button")
                         }
                     }
             }
@@ -140,19 +143,11 @@ struct RootView: View {
                         .toolbar {
                             ToolbarItem {
                                 Button("New Chat", systemImage: "square.and.pencil") {
-                                    environment.historyStore.clearSelection()
-                                    environment.chatStore.startNewChat()
+                                    startNewChat()
                                 }
+                                .disabled(canStartNewChat == false)
                                 .accessibilityIdentifier("toolbar-new-chat-button")
                             }
-#if !os(macOS)
-                            ToolbarItem {
-                                Button("Settings", systemImage: "gearshape") {
-                                    showsSetting = true
-                                }
-                                .accessibilityIdentifier("toolbar-settings-button")
-                            }
-#endif
                         }
                 }
 #if !os(macOS)
@@ -164,67 +159,158 @@ struct RootView: View {
     }
 
     private var compactWorkspace: some View {
-        NavigationStack {
-            AIChatScreen(store: environment.chatStore)
-                .toolbar {
-                    ToolbarItem {
-                        Button("History", systemImage: "sidebar.left") {
-                            showsHistory = true
-                        }
-                    }
+        GeometryReader { proxy in
+            let drawerWidth = min(proxy.size.width * 0.86, 360)
+            let dragX = compactHistoryDragX(drawerWidth: drawerWidth)
+
+            ZStack(alignment: .leading) {
+                NavigationStack {
+                    AIChatScreen(store: environment.chatStore)
+                        .toolbar {
 #if !os(macOS)
-                    ToolbarItem {
-                        Button("Settings", systemImage: "gearshape") {
-                            showsSetting = true
-                        }
-                        .accessibilityIdentifier("toolbar-settings-button")
-                    }
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                Button("History", systemImage: "sidebar.left") {
+                                    openCompactHistory()
+                                }
+                            }
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button("New Chat", systemImage: "square.and.pencil") {
+                                    startNewChat()
+                                }
+                                .disabled(canStartNewChat == false)
+                                .accessibilityIdentifier("toolbar-new-chat-button")
+                            }
 #endif
+                        }
                 }
-        }
-        .sheet(isPresented: $showsHistory) {
-            NavigationStack {
-                HistorySidebar(
-                    store: environment.historyStore,
-                    onNewChat: {
-                        environment.historyStore.clearSelection()
-                        environment.chatStore.startNewChat()
-                        showsHistory = false
-                    },
-                    onSelect: { historyID in
-                        Task {
-                            await environment.chatStore.loadHistory(historyID: historyID)
-                            showsHistory = false
-                        }
-                    },
-                    onDeletedSelected: {
-                        environment.chatStore.startNewChat()
-                    },
-                    onOpenSetting: {
-                        showsHistory = false
-                        showsSetting = true
-                    },
-                    onOpenPrivacy: {
-                        showsHistory = false
-                        showsPrivacy = true
-                    },
-                    onLogout: {
-                        showsHistory = false
-                        showsLogoutConfirmation = true
-                    }
-                )
-                .toolbar {
-                    ToolbarItem {
-                        Button("关闭") {
-                            showsHistory = false
-                        }
+                .offset(x: dragX)
+                .scaleEffect(historyDrawerProgress > 0 ? 0.98 : 1, anchor: .trailing)
+                .contentShape(Rectangle())
+                .simultaneousGesture(compactHistoryGesture(drawerWidth: drawerWidth))
+                .overlay {
+                    if dragX > 0 {
+                        Color.black
+                            .opacity(0.22 * min(dragX / drawerWidth, 1))
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                closeCompactHistory()
+                            }
+                            .highPriorityGesture(compactHistoryGesture(drawerWidth: drawerWidth))
                     }
                 }
+
+                compactHistoryDrawer
+                    .frame(width: drawerWidth)
+                    .offset(x: dragX - drawerWidth)
+                    .shadow(color: .black.opacity(0.18), radius: 18, x: 8, y: 0)
+                    .highPriorityGesture(compactHistoryGesture(drawerWidth: drawerWidth))
             }
+            .clipped()
+            .ignoresSafeArea(.container, edges: [.top, .bottom])
         }
+        .ignoresSafeArea(.container, edges: [.top, .bottom])
         .sheet(isPresented: $showsSetting) {
             settingView
         }
+    }
+
+    private var compactHistoryDrawer: some View {
+        NavigationStack {
+            HistorySidebar(
+                store: environment.historyStore,
+                onNewChat: {
+                    environment.historyStore.clearSelection()
+                    environment.chatStore.startNewChat()
+                    closeCompactHistory()
+                },
+                onSelect: { historyID in
+                    Task {
+                        await environment.chatStore.loadHistory(historyID: historyID)
+                        closeCompactHistory()
+                    }
+                },
+                onDeletedSelected: {
+                    environment.chatStore.startNewChat()
+                },
+                onOpenSetting: {
+                    showsSetting = true
+                },
+                onOpenPrivacy: {
+                    closeCompactHistory()
+                    showsPrivacy = true
+                },
+                onLogout: {
+                    closeCompactHistory()
+                    showsLogoutConfirmation = true
+                }
+            )
+        }
+        .background(.bar)
+        .ignoresSafeArea(.container, edges: [.top, .bottom])
+        .accessibilityIdentifier("history-drawer")
+    }
+
+    private func compactHistoryDragX(drawerWidth: CGFloat) -> CGFloat {
+        drawerWidth * min(max(historyDrawerProgress, 0), 1)
+    }
+
+    private func compactHistoryGesture(drawerWidth: CGFloat) -> some Gesture {
+        DragGesture(minimumDistance: 12, coordinateSpace: .local)
+            .onChanged { value in
+                if historyDragStartProgress == nil {
+                    guard abs(value.translation.width) > abs(value.translation.height),
+                          historyDrawerProgress > 0 || value.translation.width > 0
+                    else {
+                        return
+                    }
+                    historyDragStartProgress = historyDrawerProgress
+                }
+                guard let startProgress = historyDragStartProgress else {
+                    return
+                }
+                historyDrawerProgress = min(max(startProgress + value.translation.width / drawerWidth, 0), 1)
+                showsHistory = historyDrawerProgress > 0
+            }
+            .onEnded { value in
+                guard let startProgress = historyDragStartProgress else {
+                    return
+                }
+                let predictedProgress = min(max(startProgress + value.predictedEndTranslation.width / drawerWidth, 0), 1)
+                let shouldOpen = predictedProgress > 0.45 || historyDrawerProgress > 0.55
+                historyDragStartProgress = nil
+                if shouldOpen {
+                    openCompactHistory()
+                } else {
+                    closeCompactHistory()
+                }
+            }
+    }
+
+    private func openCompactHistory() {
+        withAnimation(.easeOut(duration: 0.22)) {
+            showsHistory = true
+            historyDrawerProgress = 1
+            historyDragStartProgress = nil
+        }
+    }
+
+    private func closeCompactHistory() {
+        withAnimation(.easeOut(duration: 0.22)) {
+            showsHistory = false
+            historyDrawerProgress = 0
+            historyDragStartProgress = nil
+        }
+    }
+
+    private var canStartNewChat: Bool {
+        environment.chatStore.state.activeHistoryID != nil
+        || environment.chatStore.state.messages.isEmpty == false
+        || environment.chatStore.state.draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == false
+    }
+
+    private func startNewChat() {
+        environment.historyStore.clearSelection()
+        environment.chatStore.startNewChat()
     }
 
     private var settingView: some View {
@@ -243,12 +329,22 @@ struct RootView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("关闭") {
+                    closeButton {
                         showsSetting = false
                     }
+                    .accessibilityIdentifier("setting-close-button")
                 }
             }
         }
+    }
+
+    private func closeButton(action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Label("Close", systemImage: "xmark")
+        }
+        .labelStyle(.iconOnly)
+        .buttonStyle(.plain)
+        .accessibilityLabel("关闭")
     }
 }
 
