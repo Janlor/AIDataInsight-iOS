@@ -61,12 +61,14 @@ struct Index {
             this.current = AppDestination.Privacy
           },
           onLogoutSucceeded: () => {
+            this.historyOpenRequestVersion = 0
             this.current = AppDestination.Login
           }
         })
       } else {
         LoginPage({
           onLoginSucceeded: () => {
+            this.historyOpenRequestVersion = 0
             this.current = AppDestination.AIHome
           },
           onOpenPrivacy: () => {

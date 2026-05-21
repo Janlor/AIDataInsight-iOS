@@ -200,7 +200,17 @@ export struct SettingPage {
 
   private async loadSnapshot(): Promise<void> {
     let session = await accountAuthService.currentSession()
-    this.snapshot = buildSettingSnapshot(session)
+    let cachedUser = await accountAuthService.currentUser()
+    this.snapshot = buildSettingSnapshot(session, cachedUser)
+
+    try {
+      let refreshedUser = await accountAuthService.getUserInfo()
+      let refreshedSession = await accountAuthService.currentSession()
+      this.snapshot = null
+      this.snapshot = buildSettingSnapshot(refreshedSession, refreshedUser)
+    } catch (error) {
+      // Setting keeps the cached snapshot and lets session invalidation flow handle reauth.
+    }
   }
 
   private async logout(): Promise<void> {

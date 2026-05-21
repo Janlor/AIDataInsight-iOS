@@ -1,13 +1,13 @@
 {
   "app": "app-harmony",
-  "contractVersion": "0.1.0",
-  "lastAppliedMigration": null,
-  "status": "needs-review",
-  "updatedAt": "2026-05-20",
-  "pendingMigrations": [
-    "0.2.0-account-user-protected-persistence"
-  ],
+  "contractVersion": "0.2.0",
+  "lastAppliedMigration": "0.2.0-account-user-protected-persistence",
+  "status": "aligned",
+  "updatedAt": "2026-05-21",
+  "pendingMigrations": [],
   "notes": [
-    "Review AccountUserStore and protected storage behavior before marking aligned."
+    "AccountUserStore persists user info in the same Preferences account boundary as AccountSession.",
+    "getUserInfo success updates AccountUserStore and Setting renders cached user before silent refresh.",
+    "logout and getUserInfo session invalidation clear both AccountSession and AccountUser."
   ]
 }

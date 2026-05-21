@@ -1,6 +1,7 @@
 import { describe, it, expect } from '@ohos/hypium'
 import { MemoryAccountSessionStore, shouldAutoLogin } from '../../main/ets/core/account/AccountSessionStore'
 import { AccountAuthService } from '../../main/ets/core/account/AccountAuthService'
+import { MemoryAccountUserStore } from '../../main/ets/core/account/AccountUserStore'
 import { ApiErrorKind, apiErrorFromCode } from '../../main/ets/core/network/ApiError'
 import { ApiEnvironmentProvider } from '../../main/ets/core/network/ApiEnvironmentProvider'
 import { CommonRequester, HttpMethod } from '../../main/ets/core/network/CommonRequester'
@@ -59,10 +60,12 @@ export default function coreFoundationTest() {
     it('login saves normalized session', 0, async () => {
       let responses = new Map<string, string>()
       responses.set('/oauth2/login', '{"code":200,"msg":"ok","data":{"access_token":"access-token","refresh_token":"refresh-token"}}')
+      responses.set('/oauth2/getUserInfo', '{"code":200,"msg":"ok","data":{"id":1,"username":"janlor","nickname":"Janlor","phone":"13800000000"}}')
       let transport = new MockHttpTransport(responses)
       let requester = new CommonRequester(transport)
       let store = new MemoryAccountSessionStore()
-      let service = new AccountAuthService(requester, store)
+      let userStore = new MemoryAccountUserStore()
+      let service = new AccountAuthService(requester, store, userStore)
 
       let session = await service.login({
         username: 'janlor',
@@ -73,9 +76,36 @@ export default function coreFoundationTest() {
       expect(session.refreshToken).assertEqual('refresh-token')
       expect(session.username).assertEqual('janlor')
       expect(await service.canAutoLogin()).assertTrue()
+      expect((await userStore.load())?.nickname).assertEqual('Janlor')
 
       await service.logout()
       expect(await service.canAutoLogin()).assertFalse()
+      expect(await userStore.load()).assertEqual(null)
+    })
+
+    it('persists AccountUser from getUserInfo and clears it with protected state', 0, async () => {
+      let responses = new Map<string, string>()
+      responses.set('/oauth2/getUserInfo', '{"code":200,"msg":"ok","data":{"id":1,"username":"demo","nickname":"Demo","phone":"13800000000"}}')
+      let transport = new MockHttpTransport(responses)
+      let requester = new CommonRequester(transport)
+      let sessionStore = new MemoryAccountSessionStore({
+        accessToken: 'access-token',
+        refreshToken: 'refresh-token',
+        orgId: 1,
+        username: 'cached',
+        isLogin: true
+      })
+      let userStore = new MemoryAccountUserStore()
+      let service = new AccountAuthService(requester, sessionStore, userStore)
+
+      let user = await service.getUserInfo()
+
+      expect(user.nickname).assertEqual('Demo')
+      expect((await userStore.load())?.username).assertEqual('demo')
+
+      await service.clearProtectedAccountState()
+      expect(await service.canAutoLogin()).assertFalse()
+      expect(await userStore.load()).assertEqual(null)
     })
   })
 }

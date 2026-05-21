@@ -1,11 +1,11 @@
-import { AccountSession, SettingSnapshot } from '../../../core/model/ContractModelExports'
+import { AccountSession, AccountUser, SettingSnapshot } from '../../../core/model/ContractModelExports'
 
-export function buildSettingSnapshot(session: AccountSession): SettingSnapshot {
+export function buildSettingSnapshot(session: AccountSession, user: AccountUser | null = null): SettingSnapshot {
   return {
     accountInfo: {
-      nickname: session.username ?? null,
-      username: session.username ?? null,
-      phone: null
+      nickname: user?.nickname ?? null,
+      username: user?.username ?? session.username ?? null,
+      phone: user?.phone ?? null
     },
     capability: {
       canUpdatePassword: false,
